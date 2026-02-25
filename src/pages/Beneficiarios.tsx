@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Search, Plus, Filter, Download, Eye } from "lucide-react";
+import { Search, Plus, Filter, Download, Eye, Phone, MapPin, Mail } from "lucide-react";
 import { beneficiarios } from "@/lib/mock-data";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { saldosPorConcepto, CONCEPTOS } from "@/lib/mock-data";
+import { saldosPorConcepto } from "@/lib/mock-data";
 
 const formatCurrency = (v: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(v);
@@ -69,10 +69,10 @@ export default function Beneficiarios() {
             <tr className="border-b border-border">
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Documento</th>
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Nombre</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Municipio</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Ciudad</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Teléfono</th>
               <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Saldo Total</th>
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Estado</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Registro</th>
               <th className="text-center p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
@@ -83,14 +83,14 @@ export default function Beneficiarios() {
                   <span className="font-mono text-xs">{b.tipoDoc} {b.documento}</span>
                 </td>
                 <td className="p-3 font-medium">{b.nombres} {b.apellidos}</td>
-                <td className="p-3 text-muted-foreground">{b.municipio}, {b.departamento}</td>
+                <td className="p-3 text-muted-foreground">{b.ciudad}</td>
+                <td className="p-3 text-muted-foreground text-xs">{b.celular}</td>
                 <td className="p-3 text-right font-mono font-semibold">{formatCurrency(b.saldoTotal)}</td>
                 <td className="p-3">
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border capitalize ${estadoStyles[b.estado]}`}>
                     {b.estado}
                   </span>
                 </td>
-                <td className="p-3 text-muted-foreground text-xs">{b.fechaRegistro}</td>
                 <td className="p-3 text-center">
                   <Dialog>
                     <DialogTrigger asChild>
@@ -104,6 +104,7 @@ export default function Beneficiarios() {
                       </DialogHeader>
                       {selected && (
                         <div className="space-y-4">
+                          {/* Identity */}
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">
                               {selected.nombres[0]}{selected.apellidos[0]}
@@ -113,6 +114,24 @@ export default function Beneficiarios() {
                               <p className="text-xs text-muted-foreground">{selected.tipoDoc} {selected.documento}</p>
                             </div>
                           </div>
+
+                          {/* Demographic data */}
+                          <div className="grid grid-cols-2 gap-3 text-xs">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <MapPin className="w-3.5 h-3.5 shrink-0" />
+                              <span>{selected.direccion}, {selected.ciudad}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Phone className="w-3.5 h-3.5 shrink-0" />
+                              <span>{selected.telefono} / {selected.celular}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-muted-foreground col-span-2">
+                              <Mail className="w-3.5 h-3.5 shrink-0" />
+                              <span>{selected.email}</span>
+                            </div>
+                          </div>
+
+                          {/* Balances by concept (4 concepts) */}
                           <div className="space-y-2">
                             {saldosPorConcepto.map((s) => (
                               <div key={s.concepto} className="flex items-center justify-between py-2 border-b border-border last:border-0">

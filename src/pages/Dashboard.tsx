@@ -1,14 +1,14 @@
 import { DollarSign, Users, FileText, TrendingUp, AlertTriangle, CheckCircle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import KpiCard from "@/components/KpiCard";
-import { kpis, saldosPorConcepto, casosRecobro, CONCEPTOS } from "@/lib/mock-data";
+import { kpis, saldosPorConcepto, casosRecobro, LEYES } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
 
 const formatCurrency = (v: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(v);
 
 const chartData = saldosPorConcepto.map((s) => ({
-  name: s.nombreConcepto.length > 14 ? s.nombreConcepto.slice(0, 14) + "…" : s.nombreConcepto,
+  name: s.nombreConcepto,
   saldo: s.saldo,
   reintegrado: s.totalReintegrado,
 }));
@@ -41,51 +41,12 @@ export default function Dashboard() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        <KpiCard
-          title="Cartera Total"
-          value={formatCurrency(kpis.carteraTotal)}
-          icon={DollarSign}
-          variant="default"
-          delay={0}
-        />
-        <KpiCard
-          title="Beneficiarios"
-          value={kpis.beneficiariosActivos.toString()}
-          subtitle="Activos"
-          icon={Users}
-          variant="default"
-          delay={50}
-        />
-        <KpiCard
-          title="Casos Abiertos"
-          value={kpis.casosAbiertos.toString()}
-          icon={FileText}
-          variant="accent"
-          delay={100}
-        />
-        <KpiCard
-          title="Recaudo Mes"
-          value={formatCurrency(kpis.recaudoMes)}
-          icon={TrendingUp}
-          trend={{ value: "12.4%", positive: true }}
-          variant="accent"
-          delay={150}
-        />
-        <KpiCard
-          title="Tasa Recuperación"
-          value={`${kpis.tasaRecuperacion}%`}
-          icon={CheckCircle}
-          variant="default"
-          delay={200}
-        />
-        <KpiCard
-          title="Casos Críticos"
-          value={kpis.casosCriticos.toString()}
-          subtitle="Prioridad alta"
-          icon={AlertTriangle}
-          variant="destructive"
-          delay={250}
-        />
+        <KpiCard title="Cartera Total" value={formatCurrency(kpis.carteraTotal)} icon={DollarSign} variant="default" delay={0} />
+        <KpiCard title="Beneficiarios" value={kpis.beneficiariosActivos.toString()} subtitle="Activos" icon={Users} variant="default" delay={50} />
+        <KpiCard title="Casos Abiertos" value={kpis.casosAbiertos.toString()} icon={FileText} variant="accent" delay={100} />
+        <KpiCard title="Recaudo Mes" value={formatCurrency(kpis.recaudoMes)} icon={TrendingUp} trend={{ value: "12.4%", positive: true }} variant="accent" delay={150} />
+        <KpiCard title="Tasa Recuperación" value={`${kpis.tasaRecuperacion}%`} icon={CheckCircle} variant="default" delay={200} />
+        <KpiCard title="Casos Críticos" value={kpis.casosCriticos.toString()} subtitle="Prioridad alta" icon={AlertTriangle} variant="destructive" delay={250} />
       </div>
 
       {/* Charts Row */}
@@ -99,10 +60,7 @@ export default function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(214, 20%, 90%)" />
                 <XAxis dataKey="name" tick={{ fontSize: 10, fill: "hsl(215, 14%, 46%)" }} />
                 <YAxis tick={{ fontSize: 10, fill: "hsl(215, 14%, 46%)" }} tickFormatter={(v) => `${(v / 1000000).toFixed(1)}M`} />
-                <Tooltip
-                  formatter={(value: number) => formatCurrency(value)}
-                  contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid hsl(214, 20%, 90%)" }}
-                />
+                <Tooltip formatter={(value: number) => formatCurrency(value)} contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid hsl(214, 20%, 90%)" }} />
                 <Bar dataKey="saldo" name="Saldo" fill="hsl(215, 60%, 22%)" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="reintegrado" name="Reintegrado" fill="hsl(160, 60%, 40%)" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -149,48 +107,39 @@ export default function Dashboard() {
             <thead>
               <tr className="border-b border-border">
                 <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Caso</th>
+                <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Ley</th>
+                <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Periodo</th>
                 <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Beneficiario</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Conceptos</th>
-                <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Valor</th>
+                <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Total</th>
                 <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Estado</th>
                 <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Prioridad</th>
                 <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Responsable</th>
               </tr>
             </thead>
             <tbody>
-              {casosRecobro.map((caso) => (
-                <tr key={caso.id} className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
-                  <td className="p-3 font-mono text-xs font-medium">{caso.id}</td>
-                  <td className="p-3 font-medium">{caso.beneficiarioNombre}</td>
-                  <td className="p-3">
-                    <div className="flex gap-1 flex-wrap">
-                      {caso.conceptos.map((c) => {
-                        const concepto = CONCEPTOS.find((x) => x.id === c);
-                        return (
-                          <Badge key={c} variant="secondary" className="text-[10px] px-1.5 py-0">
-                            {concepto?.nombre || c}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  </td>
-                  <td className="p-3 text-right font-mono font-medium">{formatCurrency(caso.valorTotal)}</td>
-                  <td className="p-3">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${estadoColors[caso.estado]}`}>
-                      {caso.estado}
-                    </span>
-                  </td>
-                  <td className="p-3">
-                    <Badge
-                      variant={caso.prioridad === "Alta" ? "destructive" : "secondary"}
-                      className="text-[10px]"
-                    >
-                      {caso.prioridad}
-                    </Badge>
-                  </td>
-                  <td className="p-3 text-muted-foreground">{caso.responsable}</td>
-                </tr>
-              ))}
+              {casosRecobro.map((caso) => {
+                const ley = LEYES.find((l) => l.id === caso.ley);
+                return (
+                  <tr key={caso.id} className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
+                    <td className="p-3 font-mono text-xs font-medium">{caso.id}</td>
+                    <td className="p-3 text-xs">{ley?.nombre || caso.ley}</td>
+                    <td className="p-3 font-mono text-xs">{caso.periodo}</td>
+                    <td className="p-3 font-medium">{caso.beneficiarioNombre}</td>
+                    <td className="p-3 text-right font-mono font-medium">{formatCurrency(caso.valorTotal)}</td>
+                    <td className="p-3">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${estadoColors[caso.estado]}`}>
+                        {caso.estado}
+                      </span>
+                    </td>
+                    <td className="p-3">
+                      <Badge variant={caso.prioridad === "Alta" ? "destructive" : "secondary"} className="text-[10px]">
+                        {caso.prioridad}
+                      </Badge>
+                    </td>
+                    <td className="p-3 text-muted-foreground">{caso.responsable}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
