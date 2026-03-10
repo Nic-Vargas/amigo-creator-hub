@@ -11,28 +11,31 @@ import Recobros from "./pages/Recobros";
 import Reportes from "./pages/Reportes";
 import Configuracion from "./pages/Configuracion";
 import NotFound from "./pages/NotFound";
+import { AppDataProvider } from "@/context/AppDataContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AppLayout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/beneficiarios" element={<Beneficiarios />} />
-            <Route path="/movimientos" element={<Movimientos />} />
-            <Route path="/recobros" element={<Recobros />} />
-            <Route path="/reportes" element={<Reportes />} />
-            <Route path="/configuracion" element={<Configuracion />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AppLayout>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AppDataProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AppLayout>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/beneficiarios" element={<Beneficiarios />} />
+              <Route path="/movimientos" element={<Movimientos />} />
+              <Route path="/recobros" element={<Recobros />} />
+              <Route path="/reportes" element={<Reportes />} />
+              <Route path="/configuracion" element={<Configuracion />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AppLayout>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AppDataProvider>
   </QueryClientProvider>
 );
 
