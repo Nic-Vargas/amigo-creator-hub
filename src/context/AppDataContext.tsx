@@ -9,17 +9,18 @@ import {
 import {
   casosRecobro as initialCasosRecobro,
   movimientos as initialMovimientos,
+  beneficiarios,
 } from "@/lib/mock-data";
 
 type CasoRecobro = (typeof initialCasosRecobro)[number];
 type Movimiento = (typeof initialMovimientos)[number];
 
 type TipoMovimientoUI =
-  | "Saldo Inicial"
-  | "Reintegro"
-  | "Incremento"
+  | "Reintegro - Pago"
+  | "Normalización"
   | "No procede"
-  | "Ajustes";
+  | "Ajuste contable"
+  | "No procede - Giro no efectuado";
 
 type ConceptoId =
   | "salud"
@@ -44,6 +45,20 @@ type AppDataContextType = {
   movimientos: Movimiento[];
   usuarioActual: string;
   guardarMovimientoDesdeRecobro: (payload: GuardarMovimientoPayload) => void;
+  crearNuevoCaso: (payload: CrearCasoPayload) => void;
+};
+
+type CrearCasoPayload = {
+  beneficiarioId: string;
+  ley: CasoRecobro["ley"];
+  periodo: string;
+  valorSalud: number;
+  valorPension: number;
+  valorCuotaMonetaria: number;
+  valorTransferencia: number;
+  estado: CasoRecobro["estado"];
+  prioridad: CasoRecobro["prioridad"];
+  responsable: string;
 };
 
 const AppDataContext = createContext<AppDataContextType | undefined>(undefined);
@@ -56,16 +71,16 @@ const mapTipoToMovimiento = (
   tipo: TipoMovimientoUI
 ): Movimiento["tipo"] => {
   switch (tipo) {
-    case "Saldo Inicial":
-      return "SALDO_INICIAL";
-    case "Reintegro":
+    case "Reintegro - Pago":
       return "REINTEGRO";
-    case "Incremento":
+    case "Normalización":
       return "INCREMENTO";
     case "No procede":
       return "NO_PROCEDE";
-    case "Ajustes":
+    case "Ajuste contable":
       return "AJUSTE";
+    case "No procede - Giro no efectuado":
+      return "NO_PROCEDE";
     default:
       return "AJUSTE";
   }
@@ -77,16 +92,21 @@ const applyMovimiento = (
   inputValue: number
 ) => {
   switch (tipo) {
-    case "Saldo Inicial":
-      return inputValue;
-    case "Incremento":
-      return currentValue + inputValue;
-    case "Reintegro":
+    case "Reintegro - Pago":
       return Math.max(0, currentValue - inputValue);
+
+    case "Normalización":
+      return currentValue + inputValue;
+
     case "No procede":
       return 0;
-    case "Ajustes":
+
+    case "Ajuste contable":
       return currentValue + inputValue;
+
+    case "No procede - Giro no efectuado":
+      return 0;
+
     default:
       return currentValue;
   }
@@ -151,7 +171,12 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       const valorNumerico = Number(data.valor || 0);
 
       if (!tipo) return;
-      if (tipo !== "No procede" && valorNumerico <= 0) return;
+      if (
+        tipo !== "No procede" &&
+        tipo !== "No procede - Giro no efectuado" &&
+        valorNumerico <= 0
+    )
+        return;
 
       let valorAnterior = 0;
       let valorNuevo = 0;
@@ -199,22 +224,23 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         beneficiarioNombre: caso.beneficiarioNombre,
         concepto: conceptoId as Movimiento["concepto"],
         tipo: mapTipoToMovimiento(tipo),
+        tipoDetalle: tipo,
         ley: caso.ley,
         valor:
-          tipo === "No procede"
+          tipo === "No procede" || tipo === "No procede - Giro no efectuado"
             ? valorAnterior
             : valorNumerico,
-        valorSalud: conceptoId === "salud" ? (tipo === "No procede" ? valorAnterior : valorNumerico) : 0,
-        valorPension: conceptoId === "pension" ? (tipo === "No procede" ? valorAnterior : valorNumerico) : 0,
+        valorSalud: conceptoId === "salud" ? (tipo === "No procede" || tipo === "No procede - Giro no efectuado" ? valorAnterior : valorNumerico) : 0,
+        valorPension: conceptoId === "pension" ? (tipo === "No procede" || tipo === "No procede - Giro no efectuado" ? valorAnterior : valorNumerico) : 0,
         valorCuotaMonetaria:
           conceptoId === "cuota_monetaria"
-            ? tipo === "No procede"
+            ? tipo === "No procede" || tipo === "No procede - Giro no efectuado"
               ? valorAnterior
               : valorNumerico
             : 0,
         valorTransferencia:
           conceptoId === "transferencia_economica"
-            ? tipo === "No procede"
+            ? tipo === "No procede" || tipo === "No procede - Giro no efectuado"
               ? valorAnterior
               : valorNumerico
             : 0,
@@ -252,12 +278,63 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     }
   };
 
+const crearNuevoCaso = ({
+    beneficiarioId,
+    ley,
+    periodo,
+    valorSalud,
+    valorPension,
+    valorCuotaMonetaria,
+    valorTransferencia,
+    estado,
+    prioridad,
+    responsable,
+}: CrearCasoPayload) => {
+    const beneficiario = beneficiarios.find((b) => b.id === beneficiarioId);
+    if (!beneficiario) return;
+
+    const maxId = casos.reduce((max, caso) => {
+      const numeric = Number(caso.id.replace("CR-", ""));
+      return Number.isNaN(numeric) ? max : Math.max(max, numeric);
+    }, 0);
+
+    const nuevoId = `CR-${String(maxId + 1).padStart(3, "0")}`;
+
+    const valorTotal =
+      valorSalud +
+      valorPension +
+      valorCuotaMonetaria +
+      valorTransferencia;
+
+    const nuevoCaso: CasoRecobro = {
+      id: nuevoId,
+      beneficiarioId,
+      beneficiarioNombre: `${beneficiario.nombres} ${beneficiario.apellidos}`,
+      ley,
+      periodo,
+      valorSalud,
+      valorPension,
+      valorCuotaMonetaria,
+      valorTransferencia,
+      valorTotal,
+      estado,
+      fechaApertura: getToday(),
+      responsable,
+      prioridad,
+      ultimaGestion: getToday(),
+    };
+
+    setCasos((prev) => [nuevoCaso, ...prev]);
+  };
+
+
   const value = useMemo(
     () => ({
       casos,
       movimientos,
       usuarioActual,
       guardarMovimientoDesdeRecobro,
+      crearNuevoCaso,
     }),
     [casos, movimientos, usuarioActual]
   );

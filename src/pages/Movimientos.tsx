@@ -126,6 +126,7 @@ export default function Movimientos() {
           <tbody>
             {filtered.map((m, i) => {
               const tipo = tipoStyles[m.tipo];
+              const tipoLabel = m.tipoDetalle || tipo.label;
               const ley = LEYES.find((l) => l.id === m.ley);
 
               return (
@@ -145,7 +146,7 @@ export default function Movimientos() {
                     <span
                       className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${tipo.color}`}
                     >
-                      {tipo.label}
+                      {tipoLabel}
                     </span>
                   </td>
                   <td className="p-3 text-right font-mono text-xs">

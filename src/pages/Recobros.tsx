@@ -56,15 +56,47 @@ type MovimientoFormState = Record<
   }
 >;
 
+type NuevoCasoFormState = {
+  beneficiarioId: string;
+  ley: string;
+  periodo: string;
+  valorSalud: string;
+  valorPension: string;
+  valorCuotaMonetaria: string;
+  valorTransferencia: string;
+  estado: string;
+  prioridad: string;
+  responsable: string;
+};
+
 export default function Recobros() {
-  const { casos, usuarioActual, guardarMovimientoDesdeRecobro } = useAppData();
+  const {
+    casos,
+    usuarioActual,
+    guardarMovimientoDesdeRecobro,
+    crearNuevoCaso,
+  } = useAppData();
 
   const [search, setSearch] = useState("");
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [newCaseDialogOpen, setNewCaseDialogOpen] = useState(false);
   const [movimientosForm, setMovimientosForm] = useState<MovimientoFormState>(
     {}
   );
+
+  const [nuevoCasoForm, setNuevoCasoForm] = useState<NuevoCasoFormState>({
+    beneficiarioId: "",
+    ley: "ley_100",
+    periodo: "",
+    valorSalud: "",
+    valorPension: "",
+    valorCuotaMonetaria: "",
+    valorTransferencia: "",
+    estado: "Abierto",
+    prioridad: "Media",
+    responsable: usuarioActual,
+  });
 
   const filtered = casos.filter(
     (c) =>
@@ -160,6 +192,72 @@ export default function Recobros() {
     setMovimientosForm({});
   };
 
+  const updateNuevoCasoField = (
+    field: keyof NuevoCasoFormState,
+    value: string
+  ) => {
+    setNuevoCasoForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const updateNuevoCasoNumberField = (
+    field:
+      | "valorSalud"
+      | "valorPension"
+      | "valorCuotaMonetaria"
+      | "valorTransferencia",
+    value: string
+  ) => {
+    const onlyNumbers = value.replace(/[^\d]/g, "");
+
+    setNuevoCasoForm((prev) => ({
+      ...prev,
+      [field]: onlyNumbers,
+    }));
+  };
+
+  const handleCrearNuevoCaso = () => {
+    if (!nuevoCasoForm.beneficiarioId || !nuevoCasoForm.periodo.trim()) return;
+
+    crearNuevoCaso({
+      beneficiarioId: nuevoCasoForm.beneficiarioId,
+      ley: nuevoCasoForm.ley as
+        | "ley_100"
+        | "ley_797"
+        | "ley_2225",
+      periodo: nuevoCasoForm.periodo,
+      valorSalud: Number(nuevoCasoForm.valorSalud || 0),
+      valorPension: Number(nuevoCasoForm.valorPension || 0),
+      valorCuotaMonetaria: Number(nuevoCasoForm.valorCuotaMonetaria || 0),
+      valorTransferencia: Number(nuevoCasoForm.valorTransferencia || 0),
+      estado: nuevoCasoForm.estado as
+        | "Abierto"
+        | "En gestión"
+        | "Acuerdo"
+        | "En pago"
+        | "Cerrado",
+      prioridad: nuevoCasoForm.prioridad as "Alta" | "Media" | "Baja",
+      responsable: nuevoCasoForm.responsable || usuarioActual,
+    });
+
+    setNuevoCasoForm({
+      beneficiarioId: "",
+      ley: "ley_100",
+      periodo: "",
+      valorSalud: "",
+      valorPension: "",
+      valorCuotaMonetaria: "",
+      valorTransferencia: "",
+      estado: "Abierto",
+      prioridad: "Media",
+      responsable: usuarioActual,
+    });
+
+    setNewCaseDialogOpen(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -175,7 +273,8 @@ export default function Recobros() {
           <Button variant="outline" size="sm">
             <Download className="w-4 h-4 mr-1.5" /> Exportar
           </Button>
-          <Button size="sm">
+
+          <Button size="sm" onClick={() => setNewCaseDialogOpen(true)}>
             <Plus className="w-4 h-4 mr-1.5" /> Nuevo Caso
           </Button>
         </div>
@@ -418,6 +517,201 @@ export default function Recobros() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={newCaseDialogOpen} onOpenChange={setNewCaseDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Nuevo Caso</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">
+                  Beneficiario
+                </label>
+                <Select
+                  value={nuevoCasoForm.beneficiarioId}
+                  onValueChange={(value) =>
+                    updateNuevoCasoField("beneficiarioId", value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione beneficiario" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {beneficiarios.map((b) => (
+                      <SelectItem key={b.id} value={b.id}>
+                        {b.nombres} {b.apellidos}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">
+                  Ley
+                </label>
+                <Select
+                  value={nuevoCasoForm.ley}
+                  onValueChange={(value) => updateNuevoCasoField("ley", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione ley" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LEYES.map((ley) => (
+                      <SelectItem key={ley.id} value={ley.id}>
+                        {ley.nombre}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">
+                  Periodo
+                </label>
+                <Input
+                  placeholder="Ej: 2024-08"
+                  value={nuevoCasoForm.periodo}
+                  onChange={(e) =>
+                    updateNuevoCasoField("periodo", e.target.value)
+                  }
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">
+                  Responsable
+                </label>
+                <Input
+                  value={nuevoCasoForm.responsable}
+                  onChange={(e) =>
+                    updateNuevoCasoField("responsable", e.target.value)
+                  }
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">
+                  Estado
+                </label>
+                <Select
+                  value={nuevoCasoForm.estado}
+                  onValueChange={(value) =>
+                    updateNuevoCasoField("estado", value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Abierto">Abierto</SelectItem>
+                    <SelectItem value="En gestión">En gestión</SelectItem>
+                    <SelectItem value="Acuerdo">Acuerdo</SelectItem>
+                    <SelectItem value="En pago">En pago</SelectItem>
+                    <SelectItem value="Cerrado">Cerrado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">
+                  Prioridad
+                </label>
+                <Select
+                  value={nuevoCasoForm.prioridad}
+                  onValueChange={(value) =>
+                    updateNuevoCasoField("prioridad", value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione prioridad" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Alta">Alta</SelectItem>
+                    <SelectItem value="Media">Media</SelectItem>
+                    <SelectItem value="Baja">Baja</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-2 border-t border-border">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+                <span className="text-sm text-muted-foreground">Salud</span>
+                <Input
+                  placeholder="Ingrese valor"
+                  value={nuevoCasoForm.valorSalud}
+                  onChange={(e) =>
+                    updateNuevoCasoNumberField("valorSalud", e.target.value)
+                  }
+                  className="font-mono md:col-span-2"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+                <span className="text-sm text-muted-foreground">Pensión</span>
+                <Input
+                  placeholder="Ingrese valor"
+                  value={nuevoCasoForm.valorPension}
+                  onChange={(e) =>
+                    updateNuevoCasoNumberField("valorPension", e.target.value)
+                  }
+                  className="font-mono md:col-span-2"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+                <span className="text-sm text-muted-foreground">
+                  Cuota Monetaria
+                </span>
+                <Input
+                  placeholder="Ingrese valor"
+                  value={nuevoCasoForm.valorCuotaMonetaria}
+                  onChange={(e) =>
+                    updateNuevoCasoNumberField(
+                      "valorCuotaMonetaria",
+                      e.target.value
+                    )
+                  }
+                  className="font-mono md:col-span-2"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+                <span className="text-sm text-muted-foreground">
+                  Transferencia Económica
+                </span>
+                <Input
+                  placeholder="Ingrese valor"
+                  value={nuevoCasoForm.valorTransferencia}
+                  onChange={(e) =>
+                    updateNuevoCasoNumberField(
+                      "valorTransferencia",
+                      e.target.value
+                    )
+                  }
+                  className="font-mono md:col-span-2"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-border">
+              <Button
+                variant="outline"
+                onClick={() => setNewCaseDialogOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button onClick={handleCrearNuevoCaso}>Guardar Caso</Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

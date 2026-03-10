@@ -41,6 +41,7 @@ export interface Movimiento {
   beneficiarioNombre: string;
   concepto: ConceptoId;
   tipo: 'SALDO_INICIAL' | 'INCREMENTO' | 'REINTEGRO' | 'NO_PROCEDE' | 'AJUSTE';
+  tipoDetalle?: string;
   ley: LeyId;
   valor: number;
   valorSalud: number;
