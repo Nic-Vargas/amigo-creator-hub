@@ -25,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import * as XLSX from "xlsx";
+
 
 const formatCurrency = (v: number) =>
   new Intl.NumberFormat("es-CO", {
@@ -414,6 +416,64 @@ export default function Recobros() {
     setFilters(initialFilters);
   };
 
+  const handleExportarRecobros = () => {
+  const dataToExport = filtered.map((caso) => {
+    const ley = LEYES.find((l) => l.id === caso.ley);
+
+    const totalCaso =
+      caso.valorSalud +
+      caso.valorPension +
+      caso.valorCuotaMonetaria +
+      caso.valorTransferencia;
+
+    return {
+      Caso: caso.id,
+      Ley: ley?.nombre || caso.ley,
+      Periodo: caso.periodo,
+      Beneficiario: caso.beneficiarioNombre,
+      Salud: caso.valorSalud,
+      Pension: caso.valorPension,
+      CuotaMonetaria: caso.valorCuotaMonetaria,
+      TransferenciaEconomica: caso.valorTransferencia,
+      Total: totalCaso,
+      Estado: caso.estado,
+      Prioridad: caso.prioridad,
+      Responsable: caso.responsable,
+      FechaApertura: caso.fechaApertura,
+      UltimaGestion: caso.ultimaGestion,
+    };
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+
+  worksheet["!cols"] = [
+    { wch: 12 },
+    { wch: 20 },
+    { wch: 12 },
+    { wch: 30 },
+    { wch: 14 },
+    { wch: 14 },
+    { wch: 18 },
+    { wch: 24 },
+    { wch: 14 },
+    { wch: 14 },
+    { wch: 12 },
+    { wch: 18 },
+    { wch: 14 },
+    { wch: 14 },
+  ];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Recobros");
+
+  const fechaExportacion = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(
+    workbook,
+    `recobros_${filtered.length}_registros_${fechaExportacion}.xlsx`
+  );
+};
+
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -426,7 +486,7 @@ export default function Recobros() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleExportarRecobros}>
             <Download className="w-4 h-4 mr-1.5" /> Exportar
           </Button>
 

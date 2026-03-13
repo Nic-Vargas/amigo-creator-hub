@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Search, Plus, Filter, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 import { LEYES } from "@/lib/mock-data";
 import { useAppData } from "@/context/AppDataContext";
 import { Input } from "@/components/ui/input";
@@ -153,6 +154,57 @@ export default function Movimientos() {
     setFilters(initialFilters);
   };
 
+  const handleExportarMovimientos = () => {
+    const dataToExport = filtered.map((m) => {
+      const tipo = tipoStyles[m.tipo];
+      const tipoLabel = m.tipoDetalle || tipo.label;
+      const ley = LEYES.find((l) => l.id === m.ley);
+
+      return {
+        ID: m.id,
+        Fecha: m.fecha,
+        Ley: ley?.nombre || m.ley,
+        Periodo: m.periodo,
+        Beneficiario: m.beneficiarioNombre,
+        Tipo: tipoLabel,
+        Salud: m.valorSalud,
+        Pension: m.valorPension,
+        CuotaMonetaria: m.valorCuotaMonetaria,
+        TransferenciaEconomica: m.valorTransferencia,
+        Total: m.valor,
+        Usuario: m.usuario,
+        Descripcion: m.descripcion,
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+
+    worksheet["!cols"] = [
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 20 },
+      { wch: 12 },
+      { wch: 28 },
+      { wch: 28 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 18 },
+      { wch: 24 },
+      { wch: 14 },
+      { wch: 18 },
+      { wch: 40 },
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Movimientos");
+
+    const fechaExportacion = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(
+      workbook,
+      `movimientos_${filtered.length}_registros_${fechaExportacion}.xlsx`
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -163,11 +215,8 @@ export default function Movimientos() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleExportarMovimientos}>
             <Download className="w-4 h-4 mr-1.5" /> Exportar Movimiento
-          </Button>
-          <Button size="sm">
-            <Plus className="w-4 h-4 mr-1.5" /> Registrar Movimiento
           </Button>
         </div>
       </div>
