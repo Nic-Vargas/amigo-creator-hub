@@ -9,7 +9,7 @@ import {
   MapPin,
   Mail,
 } from "lucide-react";
-import { beneficiarios } from "@/lib/mock-data";
+import { useToast } from "@/hooks/use-toast";
 import { useAppData } from "@/context/AppDataContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -62,8 +62,25 @@ export default function Beneficiarios() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState<FilterFormState>(initialFilters);
+  const [newBeneficiaryDialogOpen, setNewBeneficiaryDialogOpen] = useState(false);
 
-  const { casos } = useAppData();
+  const [nuevoBeneficiarioForm, setNuevoBeneficiarioForm] = useState({
+    tipoDoc: "CC",
+    documento: "",
+    nombres: "",
+    apellidos: "",
+    email: "",
+    celular: "",
+    direccion: "",
+    telefono: "",
+    ciudad: "",
+    municipio: "",
+    departamento: "",
+    estado: "activo",
+  });
+
+  const { beneficiarios, casos, crearNuevoBeneficiario } = useAppData();
+  const { toast } = useToast();
 
   const getBeneficiarioSaldos = (beneficiarioId: string) => {
     const casosBeneficiario = casos.filter(
@@ -224,6 +241,83 @@ export default function Beneficiarios() {
     setFilters(initialFilters);
   };
 
+  const updateNuevoBeneficiarioField = (
+  field: keyof typeof nuevoBeneficiarioForm,
+  value: string
+) => {
+  setNuevoBeneficiarioForm((prev) => ({
+    ...prev,
+    [field]: value,
+  }));
+};
+
+const handleCrearNuevoBeneficiario = () => {
+  if (
+    !nuevoBeneficiarioForm.documento.trim() ||
+    !nuevoBeneficiarioForm.nombres.trim() ||
+    !nuevoBeneficiarioForm.apellidos.trim()
+  ) {
+    toast({
+      title: "Campos incompletos",
+      description: "Debes ingresar al menos documento, nombres y apellidos.",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  try {
+    crearNuevoBeneficiario({
+      tipoDoc: nuevoBeneficiarioForm.tipoDoc as "CC" | "CE" | "TI" | "NIT",
+      documento: nuevoBeneficiarioForm.documento,
+      nombres: nuevoBeneficiarioForm.nombres,
+      apellidos: nuevoBeneficiarioForm.apellidos,
+      email: nuevoBeneficiarioForm.email,
+      celular: nuevoBeneficiarioForm.celular,
+      direccion: nuevoBeneficiarioForm.direccion,
+      telefono: nuevoBeneficiarioForm.telefono,
+      ciudad: nuevoBeneficiarioForm.ciudad,
+      municipio: nuevoBeneficiarioForm.municipio,
+      departamento: nuevoBeneficiarioForm.departamento,
+      estado: nuevoBeneficiarioForm.estado as
+        | "activo"
+        | "bloqueado"
+        | "inactivo",
+    });
+
+    toast({
+      title: "Beneficiario creado",
+      description: "El beneficiario fue registrado correctamente.",
+    });
+
+    setNuevoBeneficiarioForm({
+      tipoDoc: "CC",
+      documento: "",
+      nombres: "",
+      apellidos: "",
+      email: "",
+      celular: "",
+      direccion: "",
+      telefono: "",
+      ciudad: "",
+      municipio: "",
+      departamento: "",
+      estado: "activo",
+    });
+
+    setNewBeneficiaryDialogOpen(false);
+  } catch (error) {
+    toast({
+      title: "No fue posible crear el beneficiario",
+      description:
+        error instanceof Error
+          ? error.message
+          : "Ocurrió un error inesperado.",
+      variant: "destructive",
+    });
+  }
+};
+
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -237,7 +331,7 @@ export default function Beneficiarios() {
           <Button variant="outline" size="sm" onClick={handleExportarBeneficiarios}>
             <Download className="w-4 h-4 mr-1.5" /> Exportar
           </Button>
-          <Button size="sm">
+          <Button size="sm" onClick={() => setNewBeneficiaryDialogOpen(true)}>
             <Plus className="w-4 h-4 mr-1.5" /> Nuevo Beneficiario
           </Button>
         </div>
@@ -505,6 +599,204 @@ export default function Beneficiarios() {
             </Button>
           </div>
         </DialogContent>
+              <Dialog
+        open={newBeneficiaryDialogOpen}
+        onOpenChange={setNewBeneficiaryDialogOpen}
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Nuevo Beneficiario</DialogTitle>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Tipo de documento
+              </label>
+              <Select
+                value={nuevoBeneficiarioForm.tipoDoc}
+                onValueChange={(value) =>
+                  updateNuevoBeneficiarioField("tipoDoc", value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="CC">CC</SelectItem>
+                  <SelectItem value="CE">CE</SelectItem>
+                  <SelectItem value="TI">TI</SelectItem>
+                  <SelectItem value="NIT">NIT</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Documento
+              </label>
+              <Input
+                value={nuevoBeneficiarioForm.documento}
+                onChange={(e) =>
+                  updateNuevoBeneficiarioField("documento", e.target.value)
+                }
+                placeholder="Número de documento"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Nombres
+              </label>
+              <Input
+                value={nuevoBeneficiarioForm.nombres}
+                onChange={(e) =>
+                  updateNuevoBeneficiarioField("nombres", e.target.value)
+                }
+                placeholder="Nombres"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Apellidos
+              </label>
+              <Input
+                value={nuevoBeneficiarioForm.apellidos}
+                onChange={(e) =>
+                  updateNuevoBeneficiarioField("apellidos", e.target.value)
+                }
+                placeholder="Apellidos"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Correo
+              </label>
+              <Input
+                value={nuevoBeneficiarioForm.email}
+                onChange={(e) =>
+                  updateNuevoBeneficiarioField("email", e.target.value)
+                }
+                placeholder="correo@ejemplo.com"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Celular
+              </label>
+              <Input
+                value={nuevoBeneficiarioForm.celular}
+                onChange={(e) =>
+                  updateNuevoBeneficiarioField("celular", e.target.value)
+                }
+                placeholder="3001234567"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Teléfono
+              </label>
+              <Input
+                value={nuevoBeneficiarioForm.telefono}
+                onChange={(e) =>
+                  updateNuevoBeneficiarioField("telefono", e.target.value)
+                }
+                placeholder="6011234567"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Dirección
+              </label>
+              <Input
+                value={nuevoBeneficiarioForm.direccion}
+                onChange={(e) =>
+                  updateNuevoBeneficiarioField("direccion", e.target.value)
+                }
+                placeholder="Dirección"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Ciudad
+              </label>
+              <Input
+                value={nuevoBeneficiarioForm.ciudad}
+                onChange={(e) =>
+                  updateNuevoBeneficiarioField("ciudad", e.target.value)
+                }
+                placeholder="Ciudad"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Municipio
+              </label>
+              <Input
+                value={nuevoBeneficiarioForm.municipio}
+                onChange={(e) =>
+                  updateNuevoBeneficiarioField("municipio", e.target.value)
+                }
+                placeholder="Municipio"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Departamento
+              </label>
+              <Input
+                value={nuevoBeneficiarioForm.departamento}
+                onChange={(e) =>
+                  updateNuevoBeneficiarioField("departamento", e.target.value)
+                }
+                placeholder="Departamento"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Estado
+              </label>
+              <Select
+                value={nuevoBeneficiarioForm.estado}
+                onValueChange={(value) =>
+                  updateNuevoBeneficiarioField("estado", value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="activo">Activo</SelectItem>
+                  <SelectItem value="bloqueado">Bloqueado</SelectItem>
+                  <SelectItem value="inactivo">Inactivo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4 border-t border-border">
+            <Button
+              variant="outline"
+              onClick={() => setNewBeneficiaryDialogOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={handleCrearNuevoBeneficiario}>
+              Guardar Beneficiario
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       </Dialog>
     </div>
   );

@@ -6,7 +6,7 @@ import {
   Download,
   AlertTriangle,
 } from "lucide-react";
-import { LEYES, beneficiarios } from "@/lib/mock-data";
+import { LEYES } from "@/lib/mock-data";
 import { useAppData } from "@/context/AppDataContext";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -94,6 +94,7 @@ const initialFilters: FilterFormState = {
 
 export default function Recobros() {
   const {
+    beneficiarios,
     casos,
     usuarioActual,
     guardarMovimientoDesdeRecobro,

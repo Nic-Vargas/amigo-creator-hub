@@ -9,8 +9,10 @@ import {
 import {
   casosRecobro as initialCasosRecobro,
   movimientos as initialMovimientos,
-  beneficiarios,
+  beneficiarios as initialBeneficiarios,
 } from "@/lib/mock-data";
+
+
 
 type CasoRecobro = (typeof initialCasosRecobro)[number];
 type Movimiento = (typeof initialMovimientos)[number];
@@ -41,12 +43,15 @@ type GuardarMovimientoPayload = {
 };
 
 type AppDataContextType = {
+  beneficiarios: Beneficiario[];
   casos: CasoRecobro[];
   movimientos: Movimiento[];
   usuarioActual: string;
   guardarMovimientoDesdeRecobro: (payload: GuardarMovimientoPayload) => void;
   crearNuevoCaso: (payload: CrearCasoPayload) => void;
+  crearNuevoBeneficiario: (payload: CrearBeneficiarioPayload) => void;
 };
+
 
 type CrearCasoPayload = {
   beneficiarioId: string;
@@ -61,11 +66,30 @@ type CrearCasoPayload = {
   responsable: string;
 };
 
+type Beneficiario = (typeof initialBeneficiarios)[number];
+
+type CrearBeneficiarioPayload = {
+  tipoDoc: Beneficiario["tipoDoc"];
+  documento: string;
+  nombres: string;
+  apellidos: string;
+  email: string;
+  celular: string;
+  direccion: string;
+  telefono: string;
+  ciudad: string;
+  municipio: string;
+  departamento: string;
+  estado: Beneficiario["estado"];
+};
+
+
 const AppDataContext = createContext<AppDataContextType | undefined>(undefined);
 
 const CASOS_STORAGE_KEY = "sisrec_casos";
 const MOVIMIENTOS_STORAGE_KEY = "sisrec_movimientos";
 const USUARIO_STORAGE_KEY = "sisrec_usuario_actual";
+const BENEFICIARIOS_STORAGE_KEY = "sisrec_beneficiarios";
 
 const mapTipoToMovimiento = (
   tipo: TipoMovimientoUI
@@ -137,6 +161,11 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     return saved ? JSON.parse(saved) : initialMovimientos;
   });
 
+  const [beneficiarios, setBeneficiarios] = useState<Beneficiario[]>(() => {
+  const saved = localStorage.getItem(BENEFICIARIOS_STORAGE_KEY);
+  return saved ? JSON.parse(saved) : initialBeneficiarios;
+  });
+
   const [usuarioActual] = useState<string>(() => {
     const saved = localStorage.getItem(USUARIO_STORAGE_KEY);
     return saved || "admin.cartera";
@@ -153,6 +182,11 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem(USUARIO_STORAGE_KEY, usuarioActual);
   }, [usuarioActual]);
+
+  useEffect(() => {
+  localStorage.setItem(BENEFICIARIOS_STORAGE_KEY, JSON.stringify(beneficiarios));
+  }, [beneficiarios]);
+
 
   const guardarMovimientoDesdeRecobro = ({
     caseId,
@@ -400,17 +434,70 @@ const crearNuevoCaso = ({
   }
 };
 
+const crearNuevoBeneficiario = ({
+  tipoDoc,
+  documento,
+  nombres,
+  apellidos,
+  email,
+  celular,
+  direccion,
+  telefono,
+  ciudad,
+  municipio,
+  departamento,
+  estado,
+}: CrearBeneficiarioPayload) => {
+  const documentoNormalizado = documento.trim();
+
+  const yaExiste = beneficiarios.some(
+    (b) => b.documento.trim() === documentoNormalizado
+  );
+
+  if (yaExiste) {
+    throw new Error("Ya existe un beneficiario con ese documento.");
+  }
+
+  const maxId = beneficiarios.reduce((max, item) => {
+    const numeric = Number(item.id);
+    return Number.isNaN(numeric) ? max : Math.max(max, numeric);
+  }, 0);
+
+  const nuevoBeneficiario: Beneficiario = {
+    id: String(maxId + 1),
+    tipoDoc,
+    documento: documentoNormalizado,
+    nombres: nombres.trim(),
+    apellidos: apellidos.trim(),
+    email: email.trim(),
+    celular: celular.trim(),
+    direccion: direccion.trim(),
+    telefono: telefono.trim(),
+    ciudad: ciudad.trim(),
+    municipio: municipio.trim(),
+    departamento: departamento.trim(),
+    estado,
+    saldoTotal: 0,
+    fechaRegistro: getToday(),
+  };
+
+  setBeneficiarios((prev) => [nuevoBeneficiario, ...prev]);
+};
+
 
   const value = useMemo(
-    () => ({
-      casos,
-      movimientos,
-      usuarioActual,
-      guardarMovimientoDesdeRecobro,
-      crearNuevoCaso,
-    }),
-    [casos, movimientos, usuarioActual]
-  );
+  () => ({
+    beneficiarios,
+    casos,
+    movimientos,
+    usuarioActual,
+    guardarMovimientoDesdeRecobro,
+    crearNuevoCaso,
+    crearNuevoBeneficiario,
+  }),
+  [beneficiarios, casos, movimientos, usuarioActual]
+);
+
 
   return (
     <AppDataContext.Provider value={value}>
