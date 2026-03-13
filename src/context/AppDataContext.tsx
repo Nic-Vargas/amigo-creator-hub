@@ -114,13 +114,16 @@ const applyMovimiento = (
 
 const getToday = () => new Date().toISOString().slice(0, 10);
 
-const generateMovimientoId = (currentMovimientos: Movimiento[]) => {
+const generateMovimientoId = (
+  currentMovimientos: Movimiento[],
+  offset = 1
+) => {
   const maxId = currentMovimientos.reduce((max, mov) => {
     const numeric = Number(mov.id.replace("M", ""));
     return Number.isNaN(numeric) ? max : Math.max(max, numeric);
   }, 0);
 
-  return `M${String(maxId + 1).padStart(3, "0")}`;
+  return `M${String(maxId + offset).padStart(3, "0")}`;
 };
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
@@ -279,53 +282,123 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   };
 
 const crearNuevoCaso = ({
+  beneficiarioId,
+  ley,
+  periodo,
+  valorSalud,
+  valorPension,
+  valorCuotaMonetaria,
+  valorTransferencia,
+  estado,
+  prioridad,
+  responsable,
+}: CrearCasoPayload) => {
+  const beneficiario = beneficiarios.find((b) => b.id === beneficiarioId);
+  if (!beneficiario) return;
+
+  const maxId = casos.reduce((max, caso) => {
+    const numeric = Number(caso.id.replace("CR-", ""));
+    return Number.isNaN(numeric) ? max : Math.max(max, numeric);
+  }, 0);
+
+  const nuevoCasoId = `CR-${String(maxId + 1).padStart(3, "0")}`;
+
+  const valorTotal =
+    valorSalud +
+    valorPension +
+    valorCuotaMonetaria +
+    valorTransferencia;
+
+  const beneficiarioNombre = `${beneficiario.nombres} ${beneficiario.apellidos}`;
+
+  const nuevoCaso: CasoRecobro = {
+    id: nuevoCasoId,
     beneficiarioId,
+    beneficiarioNombre,
     ley,
     periodo,
     valorSalud,
     valorPension,
     valorCuotaMonetaria,
     valorTransferencia,
+    valorTotal,
     estado,
-    prioridad,
+    fechaApertura: getToday(),
     responsable,
-}: CrearCasoPayload) => {
-    const beneficiario = beneficiarios.find((b) => b.id === beneficiarioId);
-    if (!beneficiario) return;
-
-    const maxId = casos.reduce((max, caso) => {
-      const numeric = Number(caso.id.replace("CR-", ""));
-      return Number.isNaN(numeric) ? max : Math.max(max, numeric);
-    }, 0);
-
-    const nuevoId = `CR-${String(maxId + 1).padStart(3, "0")}`;
-
-    const valorTotal =
-      valorSalud +
-      valorPension +
-      valorCuotaMonetaria +
-      valorTransferencia;
-
-    const nuevoCaso: CasoRecobro = {
-      id: nuevoId,
-      beneficiarioId,
-      beneficiarioNombre: `${beneficiario.nombres} ${beneficiario.apellidos}`,
-      ley,
-      periodo,
-      valorSalud,
-      valorPension,
-      valorCuotaMonetaria,
-      valorTransferencia,
-      valorTotal,
-      estado,
-      fechaApertura: getToday(),
-      responsable,
-      prioridad,
-      ultimaGestion: getToday(),
-    };
-
-    setCasos((prev) => [nuevoCaso, ...prev]);
+    prioridad,
+    ultimaGestion: getToday(),
   };
+
+  const movimientosInicialesData = [
+    {
+      concepto: "salud" as const,
+      valor: valorSalud,
+      valorSalud: valorSalud,
+      valorPension: 0,
+      valorCuotaMonetaria: 0,
+      valorTransferencia: 0,
+      descripcion: "Saldo inicial salud",
+    },
+    {
+      concepto: "pension" as const,
+      valor: valorPension,
+      valorSalud: 0,
+      valorPension: valorPension,
+      valorCuotaMonetaria: 0,
+      valorTransferencia: 0,
+      descripcion: "Saldo inicial pensión",
+    },
+    {
+      concepto: "cuota_monetaria" as const,
+      valor: valorCuotaMonetaria,
+      valorSalud: 0,
+      valorPension: 0,
+      valorCuotaMonetaria: valorCuotaMonetaria,
+      valorTransferencia: 0,
+      descripcion: "Saldo inicial cuota monetaria",
+    },
+    {
+      concepto: "transferencia_economica" as const,
+      valor: valorTransferencia,
+      valorSalud: 0,
+      valorPension: 0,
+      valorCuotaMonetaria: 0,
+      valorTransferencia: valorTransferencia,
+      descripcion: "Saldo inicial transferencia económica",
+    },
+  ].filter((item) => item.valor > 0);
+
+  const nuevosMovimientos: Movimiento[] = movimientosInicialesData.map(
+    (item, index) => {
+      const movimientoId = generateMovimientoId(movimientos, index + 1);
+
+      return {
+        id: movimientoId,
+        beneficiarioId,
+        beneficiarioNombre,
+        concepto: item.concepto,
+        tipo: "SALDO_INICIAL",
+        tipoDetalle: "Saldo Inicial",
+        ley,
+        valor: item.valor,
+        valorSalud: item.valorSalud,
+        valorPension: item.valorPension,
+        valorCuotaMonetaria: item.valorCuotaMonetaria,
+        valorTransferencia: item.valorTransferencia,
+        periodo,
+        fecha: getToday(),
+        descripcion: item.descripcion,
+        usuario: responsable || usuarioActual,
+      };
+    }
+  );
+
+  setCasos((prev) => [nuevoCaso, ...prev]);
+
+  if (nuevosMovimientos.length > 0) {
+    setMovimientos((prev) => [...nuevosMovimientos, ...prev]);
+  }
+};
 
 
   const value = useMemo(

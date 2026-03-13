@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { LEYES, beneficiarios } from "@/lib/mock-data";
 import { useAppData } from "@/context/AppDataContext";
+import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -46,7 +47,7 @@ const conceptosMovimiento = [
   "No procede",
   "Ajuste contable",
   "No procede - Giro no efectuado",
-];
+] as const;
 
 type MovimientoFormState = Record<
   string,
@@ -69,6 +70,26 @@ type NuevoCasoFormState = {
   responsable: string;
 };
 
+type FilterFormState = {
+  caso: string;
+  ley: string;
+  periodo: string;
+  beneficiario: string;
+  estado: string;
+  prioridad: string;
+  responsable: string;
+};
+
+const initialFilters: FilterFormState = {
+  caso: "",
+  ley: "all",
+  periodo: "",
+  beneficiario: "",
+  estado: "all",
+  prioridad: "all",
+  responsable: "",
+};
+
 export default function Recobros() {
   const {
     casos,
@@ -77,13 +98,18 @@ export default function Recobros() {
     crearNuevoCaso,
   } = useAppData();
 
+  const { toast } = useToast();
+
   const [search, setSearch] = useState("");
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newCaseDialogOpen, setNewCaseDialogOpen] = useState(false);
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [movimientosForm, setMovimientosForm] = useState<MovimientoFormState>(
     {}
   );
+
+  const [filters, setFilters] = useState<FilterFormState>(initialFilters);
 
   const [nuevoCasoForm, setNuevoCasoForm] = useState<NuevoCasoFormState>({
     beneficiarioId: "",
@@ -98,11 +124,71 @@ export default function Recobros() {
     responsable: usuarioActual,
   });
 
-  const filtered = casos.filter(
-    (c) =>
-      c.beneficiarioNombre.toLowerCase().includes(search.toLowerCase()) ||
-      c.id.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = useMemo(() => {
+    const searchText = search.trim().toLowerCase();
+
+    return casos.filter((c) => {
+      const matchesSearch =
+        searchText === "" ||
+        c.id.toLowerCase().includes(searchText) ||
+        c.beneficiarioNombre.toLowerCase().includes(searchText);
+
+      const matchesCaso =
+        filters.caso.trim() === "" ||
+        c.id.toLowerCase().includes(filters.caso.trim().toLowerCase());
+
+      const matchesLey =
+        filters.ley === "all" ||
+        c.ley === filters.ley;
+
+      const matchesPeriodo =
+        filters.periodo.trim() === "" ||
+        c.periodo.toLowerCase().includes(filters.periodo.trim().toLowerCase());
+
+      const matchesBeneficiario =
+        filters.beneficiario.trim() === "" ||
+        c.beneficiarioNombre
+          .toLowerCase()
+          .includes(filters.beneficiario.trim().toLowerCase());
+
+      const matchesEstado =
+        filters.estado === "all" ||
+        c.estado === filters.estado;
+
+      const matchesPrioridad =
+        filters.prioridad === "all" ||
+        c.prioridad === filters.prioridad;
+
+      const matchesResponsable =
+        filters.responsable.trim() === "" ||
+        c.responsable
+          .toLowerCase()
+          .includes(filters.responsable.trim().toLowerCase());
+
+      return (
+        matchesSearch &&
+        matchesCaso &&
+        matchesLey &&
+        matchesPeriodo &&
+        matchesBeneficiario &&
+        matchesEstado &&
+        matchesPrioridad &&
+        matchesResponsable
+      );
+    });
+  }, [casos, search, filters]);
+
+  const hasActiveFilters = useMemo(() => {
+    return (
+      filters.caso !== "" ||
+      filters.ley !== "all" ||
+      filters.periodo !== "" ||
+      filters.beneficiario !== "" ||
+      filters.estado !== "all" ||
+      filters.prioridad !== "all" ||
+      filters.responsable !== ""
+    );
+  }, [filters]);
 
   const selectedCase = useMemo(
     () => casos.find((c) => c.id === selectedCaseId),
@@ -179,12 +265,74 @@ export default function Recobros() {
   };
 
   const handleGuardarMovimientos = () => {
-    if (!selectedCaseId) return;
+    if (!selectedCaseId || !selectedCase) return;
+
+    const conceptosActuales = getCaseConcepts(selectedCase);
+
+    for (const concepto of conceptosActuales) {
+      const movimiento = movimientosForm[concepto.id];
+      if (!movimiento || !movimiento.tipo) continue;
+
+      const valorIngresado = Number(movimiento.valor || 0);
+      const saldoActual = concepto.valor;
+
+      const esPago = movimiento.tipo === "Reintegro - Pago";
+      const esNoProcede =
+        movimiento.tipo === "No procede" ||
+        movimiento.tipo === "No procede - Giro no efectuado";
+
+      if (esPago) {
+        if (saldoActual <= 0) {
+          toast({
+            title: "Movimiento no permitido",
+            description: `No puedes aplicar "${movimiento.tipo}" sobre ${concepto.nombre} porque el saldo actual es 0.`,
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (valorIngresado <= 0) {
+          toast({
+            title: "Valor inválido",
+            description: `Debes ingresar un valor mayor a 0 para ${concepto.nombre}.`,
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (valorIngresado > saldoActual) {
+          toast({
+            title: "Valor excedido",
+            description: `No puedes aplicar un pago de ${formatCurrency(
+              valorIngresado
+            )} en ${concepto.nombre} porque supera el saldo actual de ${formatCurrency(
+              saldoActual
+            )}.`,
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+
+      if (esNoProcede && saldoActual <= 0) {
+        toast({
+          title: "Movimiento no permitido",
+          description: `No puedes aplicar "${movimiento.tipo}" sobre ${concepto.nombre} porque el saldo actual ya es 0.`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
 
     guardarMovimientoDesdeRecobro({
       caseId: selectedCaseId,
       user: usuarioActual,
       valores: movimientosForm,
+    });
+
+    toast({
+      title: "Movimiento guardado",
+      description: "Los cambios se aplicaron correctamente.",
     });
 
     setDialogOpen(false);
@@ -223,10 +371,7 @@ export default function Recobros() {
 
     crearNuevoCaso({
       beneficiarioId: nuevoCasoForm.beneficiarioId,
-      ley: nuevoCasoForm.ley as
-        | "ley_100"
-        | "ley_797"
-        | "ley_2225",
+      ley: nuevoCasoForm.ley as "ley_100" | "ley_797" | "ley_2225",
       periodo: nuevoCasoForm.periodo,
       valorSalud: Number(nuevoCasoForm.valorSalud || 0),
       valorPension: Number(nuevoCasoForm.valorPension || 0),
@@ -256,6 +401,17 @@ export default function Recobros() {
     });
 
     setNewCaseDialogOpen(false);
+  };
+
+  const updateFilterField = (field: keyof FilterFormState, value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters(initialFilters);
   };
 
   return (
@@ -307,7 +463,13 @@ export default function Recobros() {
             className="pl-9"
           />
         </div>
-        <Button variant="outline" size="icon">
+
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setFilterDialogOpen(true)}
+          className={hasActiveFilters ? "border-primary text-primary" : ""}
+        >
           <Filter className="w-4 h-4" />
         </Button>
       </div>
@@ -443,6 +605,137 @@ export default function Recobros() {
         </table>
       </div>
 
+      <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Filtros de Recobros</DialogTitle>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Caso
+              </label>
+              <Input
+                placeholder="Ej: CR-001"
+                value={filters.caso}
+                onChange={(e) => updateFilterField("caso", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Ley
+              </label>
+              <Select
+                value={filters.ley}
+                onValueChange={(value) => updateFilterField("ley", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione ley" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {LEYES.map((ley) => (
+                    <SelectItem key={ley.id} value={ley.id}>
+                      {ley.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Periodo
+              </label>
+              <Input
+                placeholder="Ej: 2024-01"
+                value={filters.periodo}
+                onChange={(e) => updateFilterField("periodo", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Beneficiario
+              </label>
+              <Input
+                placeholder="Nombre del beneficiario"
+                value={filters.beneficiario}
+                onChange={(e) =>
+                  updateFilterField("beneficiario", e.target.value)
+                }
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Estado
+              </label>
+              <Select
+                value={filters.estado}
+                onValueChange={(value) => updateFilterField("estado", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="Abierto">Abierto</SelectItem>
+                  <SelectItem value="En gestión">En gestión</SelectItem>
+                  <SelectItem value="Acuerdo">Acuerdo</SelectItem>
+                  <SelectItem value="En pago">En pago</SelectItem>
+                  <SelectItem value="Cerrado">Cerrado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Prioridad
+              </label>
+              <Select
+                value={filters.prioridad}
+                onValueChange={(value) => updateFilterField("prioridad", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione prioridad" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  <SelectItem value="Alta">Alta</SelectItem>
+                  <SelectItem value="Media">Media</SelectItem>
+                  <SelectItem value="Baja">Baja</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Responsable
+              </label>
+              <Input
+                placeholder="Nombre del responsable"
+                value={filters.responsable}
+                onChange={(e) =>
+                  updateFilterField("responsable", e.target.value)
+                }
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-border">
+            <Button variant="outline" onClick={handleClearFilters}>
+              Limpiar filtros
+            </Button>
+            <Button onClick={() => setFilterDialogOpen(false)}>
+              Aplicar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -473,11 +766,16 @@ export default function Recobros() {
                 {getCaseConcepts(selectedCase).map((concepto) => (
                   <div
                     key={concepto.id}
-                    className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr_1fr] gap-3 items-center py-2 border-b border-border last:border-0"
+                    className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr] gap-3 items-center py-2 border-b border-border last:border-0"
                   >
-                    <span className="text-sm text-muted-foreground">
-                      {concepto.nombre}
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-muted-foreground">
+                        {concepto.nombre}
+                      </span>
+                      <span className="text-xs font-mono text-foreground">
+                        Saldo actual: {formatCurrency(concepto.valor)}
+                      </span>
+                    </div>
 
                     <Input
                       placeholder="Ingrese valor"

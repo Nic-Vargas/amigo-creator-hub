@@ -13,7 +13,20 @@ import { beneficiarios } from "@/lib/mock-data";
 import { useAppData } from "@/context/AppDataContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const formatCurrency = (v: number) =>
   new Intl.NumberFormat("es-CO", {
@@ -28,17 +41,41 @@ const estadoStyles: Record<string, string> = {
   inactivo: "bg-muted text-muted-foreground border-border",
 };
 
+type FilterFormState = {
+  documento: string;
+  nombre: string;
+  ciudad: string;
+  estado: string;
+};
+
+const initialFilters: FilterFormState = {
+  documento: "",
+  nombre: "",
+  ciudad: "",
+  estado: "all",
+};
+
 export default function Beneficiarios() {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterFormState>(initialFilters);
 
   const { casos } = useAppData();
 
   const getBeneficiarioSaldos = (beneficiarioId: string) => {
-    const casosBeneficiario = casos.filter((c) => c.beneficiarioId === beneficiarioId);
+    const casosBeneficiario = casos.filter(
+      (c) => c.beneficiarioId === beneficiarioId
+    );
 
-    const valorSalud = casosBeneficiario.reduce((acc, c) => acc + c.valorSalud, 0);
-    const valorPension = casosBeneficiario.reduce((acc, c) => acc + c.valorPension, 0);
+    const valorSalud = casosBeneficiario.reduce(
+      (acc, c) => acc + c.valorSalud,
+      0
+    );
+    const valorPension = casosBeneficiario.reduce(
+      (acc, c) => acc + c.valorPension,
+      0
+    );
     const valorCuotaMonetaria = casosBeneficiario.reduce(
       (acc, c) => acc + c.valorCuotaMonetaria,
       0
@@ -63,25 +100,69 @@ export default function Beneficiarios() {
     };
   };
 
-  const filtered = useMemo(
-    () =>
-      beneficiarios.filter(
-        (b) =>
-          b.nombres.toLowerCase().includes(search.toLowerCase()) ||
-          b.apellidos.toLowerCase().includes(search.toLowerCase()) ||
-          b.documento.includes(search)
-      ),
-    [search]
-  );
+  const filtered = useMemo(() => {
+    const searchText = search.trim().toLowerCase();
+
+    return beneficiarios.filter((b) => {
+      const nombreCompleto = `${b.nombres} ${b.apellidos}`.toLowerCase();
+
+      const matchesSearch =
+        searchText === "" ||
+        b.nombres.toLowerCase().includes(searchText) ||
+        b.apellidos.toLowerCase().includes(searchText) ||
+        b.documento.includes(searchText);
+
+      const matchesDocumento =
+        filters.documento.trim() === "" ||
+        b.documento.includes(filters.documento.trim());
+
+      const matchesNombre =
+        filters.nombre.trim() === "" ||
+        nombreCompleto.includes(filters.nombre.trim().toLowerCase());
+
+      const matchesCiudad =
+        filters.ciudad.trim() === "" ||
+        b.ciudad.toLowerCase().includes(filters.ciudad.trim().toLowerCase());
+
+      const matchesEstado =
+        filters.estado === "all" || b.estado === filters.estado;
+
+      return (
+        matchesSearch &&
+        matchesDocumento &&
+        matchesNombre &&
+        matchesCiudad &&
+        matchesEstado
+      );
+    });
+  }, [search, filters]);
+
+  const hasActiveFilters = useMemo(() => {
+    return (
+      filters.documento !== "" ||
+      filters.nombre !== "" ||
+      filters.ciudad !== "" ||
+      filters.estado !== "all"
+    );
+  }, [filters]);
 
   const selected = useMemo(
     () => beneficiarios.find((b) => b.id === selectedId),
     [selectedId]
   );
 
-  const selectedSaldos = selected
-    ? getBeneficiarioSaldos(selected.id)
-    : null;
+  const selectedSaldos = selected ? getBeneficiarioSaldos(selected.id) : null;
+
+  const updateFilterField = (field: keyof FilterFormState, value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters(initialFilters);
+  };
 
   return (
     <div className="space-y-6">
@@ -112,7 +193,12 @@ export default function Beneficiarios() {
             className="pl-9"
           />
         </div>
-        <Button variant="outline" size="icon">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setFilterDialogOpen(true)}
+          className={hasActiveFilters ? "border-primary text-primary" : ""}
+        >
           <Filter className="w-4 h-4" />
         </Button>
       </div>
@@ -253,7 +339,9 @@ export default function Beneficiarios() {
                                   Cuota Monetaria
                                 </span>
                                 <span className="text-sm font-mono font-semibold">
-                                  {formatCurrency(selectedSaldos.valorCuotaMonetaria)}
+                                  {formatCurrency(
+                                    selectedSaldos.valorCuotaMonetaria
+                                  )}
                                 </span>
                               </div>
 
@@ -262,7 +350,9 @@ export default function Beneficiarios() {
                                   Transferencia Económica
                                 </span>
                                 <span className="text-sm font-mono font-semibold">
-                                  {formatCurrency(selectedSaldos.valorTransferencia)}
+                                  {formatCurrency(
+                                    selectedSaldos.valorTransferencia
+                                  )}
                                 </span>
                               </div>
                             </div>
@@ -284,6 +374,78 @@ export default function Beneficiarios() {
           </tbody>
         </table>
       </div>
+
+      <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Filtros de Beneficiarios</DialogTitle>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Documento
+              </label>
+              <Input
+                placeholder="Número de documento"
+                value={filters.documento}
+                onChange={(e) => updateFilterField("documento", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Nombre
+              </label>
+              <Input
+                placeholder="Nombre o apellido"
+                value={filters.nombre}
+                onChange={(e) => updateFilterField("nombre", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Ciudad
+              </label>
+              <Input
+                placeholder="Ciudad"
+                value={filters.ciudad}
+                onChange={(e) => updateFilterField("ciudad", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Estado
+              </label>
+              <Select
+                value={filters.estado}
+                onValueChange={(value) => updateFilterField("estado", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="activo">Activo</SelectItem>
+                  <SelectItem value="bloqueado">Bloqueado</SelectItem>
+                  <SelectItem value="inactivo">Inactivo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-border">
+            <Button variant="outline" onClick={handleClearFilters}>
+              Limpiar filtros
+            </Button>
+            <Button onClick={() => setFilterDialogOpen(false)}>
+              Aplicar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

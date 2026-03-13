@@ -1,10 +1,22 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Search, Plus, Filter, Download } from "lucide-react";
 import { LEYES } from "@/lib/mock-data";
 import { useAppData } from "@/context/AppDataContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const formatCurrency = (v: number) =>
   new Intl.NumberFormat("es-CO", {
@@ -36,16 +48,110 @@ const tipoStyles: Record<string, { label: string; color: string }> = {
   },
 };
 
+type FilterFormState = {
+  id: string;
+  fecha: string;
+  ley: string;
+  periodo: string;
+  beneficiario: string;
+  tipo: string;
+  usuario: string;
+};
+
+const initialFilters: FilterFormState = {
+  id: "",
+  fecha: "",
+  ley: "all",
+  periodo: "",
+  beneficiario: "",
+  tipo: "all",
+  usuario: "",
+};
+
 export default function Movimientos() {
   const { movimientos } = useAppData();
-  const [search, setSearch] = useState("");
 
-  const filtered = movimientos.filter(
-    (m) =>
-      m.beneficiarioNombre.toLowerCase().includes(search.toLowerCase()) ||
-      m.id.toLowerCase().includes(search.toLowerCase()) ||
-      m.descripcion.toLowerCase().includes(search.toLowerCase())
-  );
+  const [search, setSearch] = useState("");
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterFormState>(initialFilters);
+
+  const filtered = useMemo(() => {
+    const searchText = search.trim().toLowerCase();
+
+    return movimientos.filter((m) => {
+      const tipo = tipoStyles[m.tipo];
+      const tipoLabel = m.tipoDetalle || tipo.label;
+
+      const matchesSearch =
+        searchText === "" ||
+        m.beneficiarioNombre.toLowerCase().includes(searchText) ||
+        m.id.toLowerCase().includes(searchText) ||
+        m.descripcion.toLowerCase().includes(searchText);
+
+      const matchesId =
+        filters.id.trim() === "" ||
+        m.id.toLowerCase().includes(filters.id.trim().toLowerCase());
+
+      const matchesFecha =
+        filters.fecha.trim() === "" ||
+        m.fecha.toLowerCase().includes(filters.fecha.trim().toLowerCase());
+
+      const matchesLey = filters.ley === "all" || m.ley === filters.ley;
+
+      const matchesPeriodo =
+        filters.periodo.trim() === "" ||
+        m.periodo.toLowerCase().includes(filters.periodo.trim().toLowerCase());
+
+      const matchesBeneficiario =
+        filters.beneficiario.trim() === "" ||
+        m.beneficiarioNombre
+          .toLowerCase()
+          .includes(filters.beneficiario.trim().toLowerCase());
+
+      const matchesTipo =
+        filters.tipo === "all" ||
+        m.tipo === filters.tipo ||
+        tipoLabel.toLowerCase().includes(filters.tipo.toLowerCase());
+
+      const matchesUsuario =
+        filters.usuario.trim() === "" ||
+        m.usuario.toLowerCase().includes(filters.usuario.trim().toLowerCase());
+
+      return (
+        matchesSearch &&
+        matchesId &&
+        matchesFecha &&
+        matchesLey &&
+        matchesPeriodo &&
+        matchesBeneficiario &&
+        matchesTipo &&
+        matchesUsuario
+      );
+    });
+  }, [movimientos, search, filters]);
+
+  const hasActiveFilters = useMemo(() => {
+    return (
+      filters.id !== "" ||
+      filters.fecha !== "" ||
+      filters.ley !== "all" ||
+      filters.periodo !== "" ||
+      filters.beneficiario !== "" ||
+      filters.tipo !== "all" ||
+      filters.usuario !== ""
+    );
+  }, [filters]);
+
+  const updateFilterField = (field: keyof FilterFormState, value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters(initialFilters);
+  };
 
   return (
     <div className="space-y-6">
@@ -76,7 +182,12 @@ export default function Movimientos() {
             className="pl-9"
           />
         </div>
-        <Button variant="outline" size="icon">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setFilterDialogOpen(true)}
+          className={hasActiveFilters ? "border-primary text-primary" : ""}
+        >
           <Filter className="w-4 h-4" />
         </Button>
       </div>
@@ -177,6 +288,139 @@ export default function Movimientos() {
           </tbody>
         </table>
       </div>
+
+      <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Filtros de Movimientos</DialogTitle>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                ID
+              </label>
+              <Input
+                placeholder="Ej: M001"
+                value={filters.id}
+                onChange={(e) => updateFilterField("id", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Fecha
+              </label>
+              <Input
+                placeholder="Ej: 2024-01-15"
+                value={filters.fecha}
+                onChange={(e) => updateFilterField("fecha", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Ley
+              </label>
+              <Select
+                value={filters.ley}
+                onValueChange={(value) => updateFilterField("ley", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione ley" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {LEYES.map((ley) => (
+                    <SelectItem key={ley.id} value={ley.id}>
+                      {ley.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Periodo
+              </label>
+              <Input
+                placeholder="Ej: 2024-01"
+                value={filters.periodo}
+                onChange={(e) => updateFilterField("periodo", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Beneficiario
+              </label>
+              <Input
+                placeholder="Nombre del beneficiario"
+                value={filters.beneficiario}
+                onChange={(e) =>
+                  updateFilterField("beneficiario", e.target.value)
+                }
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Tipo
+              </label>
+              <Select
+                value={filters.tipo}
+                onValueChange={(value) => updateFilterField("tipo", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="SALDO_INICIAL">Saldo Inicial</SelectItem>
+                  <SelectItem value="INCREMENTO">Incremento</SelectItem>
+                  <SelectItem value="REINTEGRO">Reintegro</SelectItem>
+                  <SelectItem value="NO_PROCEDE">No Procede</SelectItem>
+                  <SelectItem value="AJUSTE">Ajuste</SelectItem>
+                  <SelectItem value="Reintegro - Pago">
+                    Reintegro - Pago
+                  </SelectItem>
+                  <SelectItem value="Normalización">
+                    Normalización
+                  </SelectItem>
+                  <SelectItem value="No procede">No procede</SelectItem>
+                  <SelectItem value="Ajuste contable">
+                    Ajuste contable
+                  </SelectItem>
+                  <SelectItem value="No procede - Giro no efectuado">
+                    No procede - Giro no efectuado
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Usuario
+              </label>
+              <Input
+                placeholder="Nombre del usuario"
+                value={filters.usuario}
+                onChange={(e) => updateFilterField("usuario", e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-border">
+            <Button variant="outline" onClick={handleClearFilters}>
+              Limpiar filtros
+            </Button>
+            <Button onClick={() => setFilterDialogOpen(false)}>
+              Aplicar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

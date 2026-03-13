@@ -18,12 +18,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 const navItems = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard },
+  //{ path: "/", label: "Dashboard", icon: LayoutDashboard },
   { path: "/beneficiarios", label: "Beneficiarios", icon: Users },
   { path: "/movimientos", label: "Movimientos", icon: ArrowLeftRight },
   { path: "/recobros", label: "Casos Recobro", icon: FileText },
-  { path: "/reportes", label: "Reportes", icon: BarChart3 },
-  { path: "/configuracion", label: "Configuración", icon: Settings },
+  //{ path: "/reportes", label: "Reportes", icon: BarChart3 },
+  //{ path: "/configuracion", label: "Configuración", icon: Settings },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
