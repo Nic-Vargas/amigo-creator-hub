@@ -47,7 +47,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {!collapsed && (
             <div className="animate-fade-in">
               <h1 className="font-semibold text-sm text-sidebar-accent-foreground tracking-tight">SISREC</h1>
-              <p className="text-[10px] text-sidebar-foreground/60 leading-none">Saldos & Recobros</p>
+              <p className="text-[10px] text-sidebar-foreground/60 leading-none">Por Niyaraky</p>
             </div>
           )}
         </div>

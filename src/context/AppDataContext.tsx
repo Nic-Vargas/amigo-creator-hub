@@ -33,6 +33,7 @@ type ConceptoId =
 type GuardarMovimientoPayload = {
   caseId: string;
   user: string;
+  periodo?: string;
   valores: Record<
     string,
     {
@@ -191,6 +192,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const guardarMovimientoDesdeRecobro = ({
     caseId,
     user,
+    periodo,
     valores,
   }: GuardarMovimientoPayload) => {
     const caso = casos.find((c) => c.id === caseId);
@@ -281,7 +283,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
               ? valorAnterior
               : valorNumerico
             : 0,
-        periodo: caso.periodo,
+        periodo: periodo?.trim() ? periodo : caso.periodo,
         fecha: getToday(),
         descripcion: `${tipo} aplicado a ${conceptoId.replace("_", " ")}`,
         usuario: user,
@@ -299,6 +301,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         item.id === caseId
           ? {
               ...item,
+              periodo: periodo?.trim() ? periodo : item.periodo,
               valorSalud: nuevoValorSalud,
               valorPension: nuevoValorPension,
               valorCuotaMonetaria: nuevoValorCuotaMonetaria,

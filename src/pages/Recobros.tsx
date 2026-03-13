@@ -111,6 +111,7 @@ export default function Recobros() {
   const [movimientosForm, setMovimientosForm] = useState<MovimientoFormState>(
     {}
   );
+  const [editPeriodo, setEditPeriodo] = useState("");
 
   const [filters, setFilters] = useState<FilterFormState>(initialFilters);
 
@@ -228,6 +229,7 @@ export default function Recobros() {
     const conceptos = getCaseConcepts(caso);
 
     setSelectedCaseId(caseId);
+    setEditPeriodo(caso.periodo);
 
     setMovimientosForm(() => {
       const nextState: MovimientoFormState = {};
@@ -330,6 +332,7 @@ export default function Recobros() {
     guardarMovimientoDesdeRecobro({
       caseId: selectedCaseId,
       user: usuarioActual,
+      periodo: editPeriodo,
       valores: movimientosForm,
     });
 
@@ -340,6 +343,7 @@ export default function Recobros() {
 
     setDialogOpen(false);
     setSelectedCaseId(null);
+    setEditPeriodo("");
     setMovimientosForm({});
   };
 
@@ -822,7 +826,19 @@ export default function Recobros() {
                   </p>
                 </div>
               </div>
-
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">
+                    Período
+                  </label>
+                  <Input
+                    value={editPeriodo}
+                    onChange={(e) => setEditPeriodo(e.target.value)}
+                    placeholder="Ej: 2024-08"
+                    className="font-mono"
+                  />
+                </div>
+              </div>
               <div className="space-y-2">
                 {getCaseConcepts(selectedCase).map((concepto) => (
                   <div
@@ -869,9 +885,18 @@ export default function Recobros() {
               </div>
 
               <div className="flex justify-end gap-2 pt-2 border-t border-border">
-                <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setDialogOpen(false);
+                    setSelectedCaseId(null);
+                    setEditPeriodo("");
+                    setMovimientosForm({});
+                  }}
+                >
                   Cancelar
                 </Button>
+
                 <Button onClick={handleGuardarMovimientos}>Guardar</Button>
               </div>
             </div>
