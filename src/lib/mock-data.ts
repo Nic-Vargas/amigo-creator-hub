@@ -13,6 +13,7 @@ export const LEYES = [
   { id: 'ley_100', nombre: 'Ley 100/1993' },
   { id: 'ley_797', nombre: 'Ley 797/2003' },
   { id: 'ley_2225', nombre: 'Ley 2225/2022' },
+  { id: 'ley_1636', nombre: 'Ley 1636/2013' },
 ] as const;
 
 export type LeyId = typeof LEYES[number]['id'];
