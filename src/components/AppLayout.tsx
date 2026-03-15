@@ -16,6 +16,10 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import isotipoNiyaraky from "@/assets/isotipo-niyaraky.png";
+import logoComfaboy from "@/assets/logo-comfaboy.png";
+import isotipoComfaboy from "@/assets/isotipo-comfaboy.png";
+
 
 const navItems = [
   //{ path: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -34,23 +38,36 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
       <aside
-        className={cn(
-          "flex flex-col bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out border-r border-sidebar-border",
-          collapsed ? "w-[68px]" : "w-[260px]"
-        )}
+      className={cn(
+        "flex flex-col bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out border-r border-sidebar-border overflow-hidden",
+        collapsed ? "w-[68px]" : "w-[260px]"
+      )}
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-4 h-16 border-b border-sidebar-border">
-          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-sidebar-primary text-sidebar-primary-foreground font-bold text-sm shrink-0">
-            SR
+          <div className="flex items-center justify-center shrink-0">
+            <img
+              src={isotipoNiyaraky}
+              alt="Niyaraky"
+              className={cn(
+                "object-contain transition-all duration-300",
+                collapsed ? "w-9 h-9" : "w-10 h-10"
+              )}
+            />
           </div>
+
           {!collapsed && (
-            <div className="animate-fade-in">
-              <h1 className="font-semibold text-sm text-sidebar-accent-foreground tracking-tight">SISREC</h1>
-              <p className="text-[10px] text-sidebar-foreground/60 leading-none">Por Niyaraky</p>
+            <div className="animate-fade-in min-w-0">
+              <h1 className="font-semibold text-sm text-sidebar-accent-foreground tracking-tight">
+                SISREC
+              </h1>
+              <p className="text-[10px] text-sidebar-foreground/60 leading-none">
+                Por Niyaraky
+              </p>
             </div>
           )}
         </div>
+
 
         {/* Navigation */}
         <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
@@ -75,14 +92,30 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* Bottom */}
-        <div className="p-2 border-t border-sidebar-border">
+        <div className="mt-auto p-2 border-t border-sidebar-border space-y-3 overflow-hidden">
+          <div className="flex items-center justify-center min-h-[56px] px-2">
+            <img
+              src={collapsed ? isotipoComfaboy : logoComfaboy}
+              alt="Comfaboy"
+              className={cn(
+                "object-contain transition-all duration-300 shrink-0",
+                collapsed ? "w-10 h-10" : "w-[170px] max-w-full h-auto"
+              )}
+            />
+          </div>
+
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="flex items-center justify-center w-full py-2 rounded-lg text-sidebar-foreground/60 hover:text-sidebar-accent-foreground hover:bg-sidebar-accent/50 transition-colors"
           >
-            {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            {collapsed ? (
+              <ChevronRight className="w-4 h-4" />
+            ) : (
+              <ChevronLeft className="w-4 h-4" />
+            )}
           </button>
         </div>
+
       </aside>
 
       {/* Main content */}
