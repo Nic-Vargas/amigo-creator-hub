@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Search,
   Plus,
@@ -6,6 +6,7 @@ import {
   Download,
   AlertTriangle,
 } from "lucide-react";
+import * as XLSX from "xlsx";
 import { LEYES } from "@/lib/mock-data";
 import { useAppData } from "@/context/AppDataContext";
 import { useToast } from "@/hooks/use-toast";
@@ -25,8 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import * as XLSX from "xlsx";
-
 
 const formatCurrency = (v: number) =>
   new Intl.NumberFormat("es-CO", {
@@ -112,6 +111,8 @@ export default function Recobros() {
     {}
   );
   const [editPeriodo, setEditPeriodo] = useState("");
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [filters, setFilters] = useState<FilterFormState>(initialFilters);
 
@@ -141,9 +142,7 @@ export default function Recobros() {
         filters.caso.trim() === "" ||
         c.id.toLowerCase().includes(filters.caso.trim().toLowerCase());
 
-      const matchesLey =
-        filters.ley === "all" ||
-        c.ley === filters.ley;
+      const matchesLey = filters.ley === "all" || c.ley === filters.ley;
 
       const matchesPeriodo =
         filters.periodo.trim() === "" ||
@@ -156,12 +155,10 @@ export default function Recobros() {
           .includes(filters.beneficiario.trim().toLowerCase());
 
       const matchesEstado =
-        filters.estado === "all" ||
-        c.estado === filters.estado;
+        filters.estado === "all" || c.estado === filters.estado;
 
       const matchesPrioridad =
-        filters.prioridad === "all" ||
-        c.prioridad === filters.prioridad;
+        filters.prioridad === "all" || c.prioridad === filters.prioridad;
 
       const matchesResponsable =
         filters.responsable.trim() === "" ||
@@ -181,6 +178,18 @@ export default function Recobros() {
       );
     });
   }, [casos, search, filters]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filters, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    return filtered.slice(start, end);
+  }, [filtered, currentPage, pageSize]);
 
   const hasActiveFilters = useMemo(() => {
     return (
@@ -204,7 +213,7 @@ export default function Recobros() {
       selectedCase
         ? beneficiarios.find((b) => b.id === selectedCase.beneficiarioId)
         : null,
-    [selectedCase]
+    [beneficiarios, selectedCase]
   );
 
   const getCaseConcepts = (caso: (typeof casos)[number]) => [
@@ -378,7 +387,11 @@ export default function Recobros() {
 
     crearNuevoCaso({
       beneficiarioId: nuevoCasoForm.beneficiarioId,
-      ley: nuevoCasoForm.ley as "ley_100" | "ley_797" | "ley_2225",
+      ley: nuevoCasoForm.ley as
+        | "ley_100"
+        | "ley_797"
+        | "ley_2225"
+        | "ley_1636",
       periodo: nuevoCasoForm.periodo,
       valorSalud: Number(nuevoCasoForm.valorSalud || 0),
       valorPension: Number(nuevoCasoForm.valorPension || 0),
@@ -422,62 +435,61 @@ export default function Recobros() {
   };
 
   const handleExportarRecobros = () => {
-  const dataToExport = filtered.map((caso) => {
-    const ley = LEYES.find((l) => l.id === caso.ley);
+    const dataToExport = filtered.map((caso) => {
+      const ley = LEYES.find((l) => l.id === caso.ley);
 
-    const totalCaso =
-      caso.valorSalud +
-      caso.valorPension +
-      caso.valorCuotaMonetaria +
-      caso.valorTransferencia;
+      const totalCaso =
+        caso.valorSalud +
+        caso.valorPension +
+        caso.valorCuotaMonetaria +
+        caso.valorTransferencia;
 
-    return {
-      Caso: caso.id,
-      Ley: ley?.nombre || caso.ley,
-      Periodo: caso.periodo,
-      Beneficiario: caso.beneficiarioNombre,
-      Salud: caso.valorSalud,
-      Pension: caso.valorPension,
-      CuotaMonetaria: caso.valorCuotaMonetaria,
-      TransferenciaEconomica: caso.valorTransferencia,
-      Total: totalCaso,
-      Estado: caso.estado,
-      Prioridad: caso.prioridad,
-      Responsable: caso.responsable,
-      FechaApertura: caso.fechaApertura,
-      UltimaGestion: caso.ultimaGestion,
-    };
-  });
+      return {
+        Caso: caso.id,
+        Ley: ley?.nombre || caso.ley,
+        Periodo: caso.periodo,
+        Beneficiario: caso.beneficiarioNombre,
+        Salud: caso.valorSalud,
+        Pension: caso.valorPension,
+        CuotaMonetaria: caso.valorCuotaMonetaria,
+        TransferenciaEconomica: caso.valorTransferencia,
+        Total: totalCaso,
+        Estado: caso.estado,
+        Prioridad: caso.prioridad,
+        Responsable: caso.responsable,
+        FechaApertura: caso.fechaApertura,
+        UltimaGestion: caso.ultimaGestion,
+      };
+    });
 
-  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
 
-  worksheet["!cols"] = [
-    { wch: 12 },
-    { wch: 20 },
-    { wch: 12 },
-    { wch: 30 },
-    { wch: 14 },
-    { wch: 14 },
-    { wch: 18 },
-    { wch: 24 },
-    { wch: 14 },
-    { wch: 14 },
-    { wch: 12 },
-    { wch: 18 },
-    { wch: 14 },
-    { wch: 14 },
-  ];
+    worksheet["!cols"] = [
+      { wch: 12 },
+      { wch: 20 },
+      { wch: 12 },
+      { wch: 30 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 18 },
+      { wch: 24 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 18 },
+      { wch: 14 },
+      { wch: 14 },
+    ];
 
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Recobros");
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Recobros");
 
-  const fechaExportacion = new Date().toISOString().slice(0, 10);
-  XLSX.writeFile(
-    workbook,
-    `recobros_${filtered.length}_registros_${fechaExportacion}.xlsx`
-  );
-};
-
+    const fechaExportacion = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(
+      workbook,
+      `recobros_${filtered.length}_registros_${fechaExportacion}.xlsx`
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -585,7 +597,7 @@ export default function Recobros() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((caso, i) => {
+            {paginatedData.map((caso, i) => {
               const ley = LEYES.find((l) => l.id === caso.ley);
               const totalCaso =
                 caso.valorSalud +
@@ -668,6 +680,70 @@ export default function Recobros() {
             })}
           </tbody>
         </table>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4">
+        <div className="text-sm text-muted-foreground">
+          Mostrando{" "}
+          <span className="font-medium text-foreground">
+            {filtered.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+          </span>{" "}
+          a{" "}
+          <span className="font-medium text-foreground">
+            {Math.min(currentPage * pageSize, filtered.length)}
+          </span>{" "}
+          de{" "}
+          <span className="font-medium text-foreground">{filtered.length}</span>{" "}
+          registros
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Mostrar</span>
+            <Select
+              value={String(pageSize)}
+              onValueChange={(value) => {
+                setPageSize(Number(value));
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="w-[90px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Anterior
+            </Button>
+
+            <span className="text-sm text-muted-foreground min-w-[100px] text-center">
+              Página {currentPage} de {totalPages}
+            </span>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              Siguiente
+            </Button>
+          </div>
+        </div>
       </div>
 
       <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
@@ -826,7 +902,8 @@ export default function Recobros() {
                   </p>
                 </div>
               </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-muted-foreground mb-1 block">
                     Período
@@ -839,6 +916,7 @@ export default function Recobros() {
                   />
                 </div>
               </div>
+
               <div className="space-y-2">
                 {getCaseConcepts(selectedCase).map((concepto) => (
                   <div
@@ -896,7 +974,6 @@ export default function Recobros() {
                 >
                   Cancelar
                 </Button>
-
                 <Button onClick={handleGuardarMovimientos}>Guardar</Button>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Search,
   Plus,
@@ -28,7 +28,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import * as XLSX from "xlsx";
-
 
 const formatCurrency = (v: number) =>
   new Intl.NumberFormat("es-CO", {
@@ -63,6 +62,8 @@ export default function Beneficiarios() {
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState<FilterFormState>(initialFilters);
   const [newBeneficiaryDialogOpen, setNewBeneficiaryDialogOpen] = useState(false);
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [nuevoBeneficiarioForm, setNuevoBeneficiarioForm] = useState({
     tipoDoc: "CC",
@@ -154,7 +155,19 @@ export default function Beneficiarios() {
         matchesEstado
       );
     });
-  }, [search, filters]);
+  }, [beneficiarios, search, filters]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filters, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    return filtered.slice(start, end);
+  }, [filtered, currentPage, pageSize]);
 
   const handleExportarBeneficiarios = () => {
     const dataToExport = filtered.map((b) => {
@@ -213,7 +226,6 @@ export default function Beneficiarios() {
     );
   };
 
-
   const hasActiveFilters = useMemo(() => {
     return (
       filters.documento !== "" ||
@@ -225,7 +237,7 @@ export default function Beneficiarios() {
 
   const selected = useMemo(
     () => beneficiarios.find((b) => b.id === selectedId),
-    [selectedId]
+    [beneficiarios, selectedId]
   );
 
   const selectedSaldos = selected ? getBeneficiarioSaldos(selected.id) : null;
@@ -242,81 +254,80 @@ export default function Beneficiarios() {
   };
 
   const updateNuevoBeneficiarioField = (
-  field: keyof typeof nuevoBeneficiarioForm,
-  value: string
-) => {
-  setNuevoBeneficiarioForm((prev) => ({
-    ...prev,
-    [field]: value,
-  }));
-};
+    field: keyof typeof nuevoBeneficiarioForm,
+    value: string
+  ) => {
+    setNuevoBeneficiarioForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
-const handleCrearNuevoBeneficiario = () => {
-  if (
-    !nuevoBeneficiarioForm.documento.trim() ||
-    !nuevoBeneficiarioForm.nombres.trim() ||
-    !nuevoBeneficiarioForm.apellidos.trim()
-  ) {
-    toast({
-      title: "Campos incompletos",
-      description: "Debes ingresar al menos documento, nombres y apellidos.",
-      variant: "destructive",
-    });
-    return;
-  }
+  const handleCrearNuevoBeneficiario = () => {
+    if (
+      !nuevoBeneficiarioForm.documento.trim() ||
+      !nuevoBeneficiarioForm.nombres.trim() ||
+      !nuevoBeneficiarioForm.apellidos.trim()
+    ) {
+      toast({
+        title: "Campos incompletos",
+        description: "Debes ingresar al menos documento, nombres y apellidos.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  try {
-    crearNuevoBeneficiario({
-      tipoDoc: nuevoBeneficiarioForm.tipoDoc as "CC" | "CE" | "TI" | "NIT",
-      documento: nuevoBeneficiarioForm.documento,
-      nombres: nuevoBeneficiarioForm.nombres,
-      apellidos: nuevoBeneficiarioForm.apellidos,
-      email: nuevoBeneficiarioForm.email,
-      celular: nuevoBeneficiarioForm.celular,
-      direccion: nuevoBeneficiarioForm.direccion,
-      telefono: nuevoBeneficiarioForm.telefono,
-      ciudad: nuevoBeneficiarioForm.ciudad,
-      municipio: nuevoBeneficiarioForm.municipio,
-      departamento: nuevoBeneficiarioForm.departamento,
-      estado: nuevoBeneficiarioForm.estado as
-        | "activo"
-        | "bloqueado"
-        | "inactivo",
-    });
+    try {
+      crearNuevoBeneficiario({
+        tipoDoc: nuevoBeneficiarioForm.tipoDoc as "CC" | "CE" | "TI" | "NIT",
+        documento: nuevoBeneficiarioForm.documento,
+        nombres: nuevoBeneficiarioForm.nombres,
+        apellidos: nuevoBeneficiarioForm.apellidos,
+        email: nuevoBeneficiarioForm.email,
+        celular: nuevoBeneficiarioForm.celular,
+        direccion: nuevoBeneficiarioForm.direccion,
+        telefono: nuevoBeneficiarioForm.telefono,
+        ciudad: nuevoBeneficiarioForm.ciudad,
+        municipio: nuevoBeneficiarioForm.municipio,
+        departamento: nuevoBeneficiarioForm.departamento,
+        estado: nuevoBeneficiarioForm.estado as
+          | "activo"
+          | "bloqueado"
+          | "inactivo",
+      });
 
-    toast({
-      title: "Beneficiario creado",
-      description: "El beneficiario fue registrado correctamente.",
-    });
+      toast({
+        title: "Beneficiario creado",
+        description: "El beneficiario fue registrado correctamente.",
+      });
 
-    setNuevoBeneficiarioForm({
-      tipoDoc: "CC",
-      documento: "",
-      nombres: "",
-      apellidos: "",
-      email: "",
-      celular: "",
-      direccion: "",
-      telefono: "",
-      ciudad: "",
-      municipio: "",
-      departamento: "",
-      estado: "activo",
-    });
+      setNuevoBeneficiarioForm({
+        tipoDoc: "CC",
+        documento: "",
+        nombres: "",
+        apellidos: "",
+        email: "",
+        celular: "",
+        direccion: "",
+        telefono: "",
+        ciudad: "",
+        municipio: "",
+        departamento: "",
+        estado: "activo",
+      });
 
-    setNewBeneficiaryDialogOpen(false);
-  } catch (error) {
-    toast({
-      title: "No fue posible crear el beneficiario",
-      description:
-        error instanceof Error
-          ? error.message
-          : "Ocurrió un error inesperado.",
-      variant: "destructive",
-    });
-  }
-};
-
+      setNewBeneficiaryDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: "No fue posible crear el beneficiario",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Ocurrió un error inesperado.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -328,10 +339,17 @@ const handleCrearNuevoBeneficiario = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleExportarBeneficiarios}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportarBeneficiarios}
+          >
             <Download className="w-4 h-4 mr-1.5" /> Exportar
           </Button>
-          <Button size="sm" onClick={() => setNewBeneficiaryDialogOpen(true)}>
+          <Button
+            size="sm"
+            onClick={() => setNewBeneficiaryDialogOpen(true)}
+          >
             <Plus className="w-4 h-4 mr-1.5" /> Nuevo Beneficiario
           </Button>
         </div>
@@ -385,7 +403,7 @@ const handleCrearNuevoBeneficiario = () => {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((b, i) => {
+            {paginatedData.map((b, i) => {
               const saldos = getBeneficiarioSaldos(b.id);
 
               return (
@@ -529,6 +547,70 @@ const handleCrearNuevoBeneficiario = () => {
         </table>
       </div>
 
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4">
+        <div className="text-sm text-muted-foreground">
+          Mostrando{" "}
+          <span className="font-medium text-foreground">
+            {filtered.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+          </span>{" "}
+          a{" "}
+          <span className="font-medium text-foreground">
+            {Math.min(currentPage * pageSize, filtered.length)}
+          </span>{" "}
+          de{" "}
+          <span className="font-medium text-foreground">{filtered.length}</span>{" "}
+          registros
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Mostrar</span>
+            <Select
+              value={String(pageSize)}
+              onValueChange={(value) => {
+                setPageSize(Number(value));
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="w-[90px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Anterior
+            </Button>
+
+            <span className="text-sm text-muted-foreground min-w-[100px] text-center">
+              Página {currentPage} de {totalPages}
+            </span>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              Siguiente
+            </Button>
+          </div>
+        </div>
+      </div>
+
       <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -599,7 +681,9 @@ const handleCrearNuevoBeneficiario = () => {
             </Button>
           </div>
         </DialogContent>
-              <Dialog
+      </Dialog>
+
+      <Dialog
         open={newBeneficiaryDialogOpen}
         onOpenChange={setNewBeneficiaryDialogOpen}
       >
@@ -795,8 +879,6 @@ const handleCrearNuevoBeneficiario = () => {
             </Button>
           </div>
         </DialogContent>
-      </Dialog>
-
       </Dialog>
     </div>
   );

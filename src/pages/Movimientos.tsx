@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, Plus, Filter, Download } from "lucide-react";
 import * as XLSX from "xlsx";
 import { LEYES } from "@/lib/mock-data";
@@ -75,6 +75,8 @@ export default function Movimientos() {
   const [search, setSearch] = useState("");
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState<FilterFormState>(initialFilters);
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filtered = useMemo(() => {
     const searchText = search.trim().toLowerCase();
@@ -130,6 +132,18 @@ export default function Movimientos() {
       );
     });
   }, [movimientos, search, filters]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filters, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    return filtered.slice(start, end);
+  }, [filtered, currentPage, pageSize]);
 
   const hasActiveFilters = useMemo(() => {
     return (
@@ -215,8 +229,15 @@ export default function Movimientos() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleExportarMovimientos}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportarMovimientos}
+          >
             <Download className="w-4 h-4 mr-1.5" /> Exportar Movimiento
+          </Button>
+          <Button size="sm">
+            <Plus className="w-4 h-4 mr-1.5" /> Registrar Movimiento
           </Button>
         </div>
       </div>
@@ -284,7 +305,7 @@ export default function Movimientos() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((m, i) => {
+            {paginatedData.map((m, i) => {
               const tipo = tipoStyles[m.tipo];
               const tipoLabel = m.tipoDetalle || tipo.label;
               const ley = LEYES.find((l) => l.id === m.ley);
@@ -336,6 +357,70 @@ export default function Movimientos() {
             })}
           </tbody>
         </table>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4">
+        <div className="text-sm text-muted-foreground">
+          Mostrando{" "}
+          <span className="font-medium text-foreground">
+            {filtered.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+          </span>{" "}
+          a{" "}
+          <span className="font-medium text-foreground">
+            {Math.min(currentPage * pageSize, filtered.length)}
+          </span>{" "}
+          de{" "}
+          <span className="font-medium text-foreground">{filtered.length}</span>{" "}
+          registros
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Mostrar</span>
+            <Select
+              value={String(pageSize)}
+              onValueChange={(value) => {
+                setPageSize(Number(value));
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="w-[90px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Anterior
+            </Button>
+
+            <span className="text-sm text-muted-foreground min-w-[100px] text-center">
+              Página {currentPage} de {totalPages}
+            </span>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              Siguiente
+            </Button>
+          </div>
+        </div>
       </div>
 
       <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
