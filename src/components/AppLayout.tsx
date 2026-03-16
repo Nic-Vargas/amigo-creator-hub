@@ -62,7 +62,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 SISREC
               </h1>
               <p className="text-[10px] text-sidebar-foreground/60 leading-none">
-                Por Niyaraky
+                by Niyaraky
               </p>
             </div>
           )}
