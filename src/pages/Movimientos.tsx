@@ -236,9 +236,6 @@ export default function Movimientos() {
           >
             <Download className="w-4 h-4 mr-1.5" /> Exportar Movimiento
           </Button>
-          <Button size="sm">
-            <Plus className="w-4 h-4 mr-1.5" /> Registrar Movimiento
-          </Button>
         </div>
       </div>
 
