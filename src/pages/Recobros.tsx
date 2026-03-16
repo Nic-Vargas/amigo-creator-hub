@@ -44,7 +44,7 @@ const estadoColors: Record<string, string> = {
 
 const conceptosMovimiento = [
   "Reintegro - Pago",
-  "Normalización",
+  "Nuevo Desembolso",
   "No procede",
   "Ajuste contable",
   "No procede - Giro no efectuado",

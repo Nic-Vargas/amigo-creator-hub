@@ -398,7 +398,7 @@ export default function Beneficiarios() {
                 Estado
               </th>
               <th className="text-center p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Acciones
+                VER DETALLE
               </th>
             </tr>
           </thead>
