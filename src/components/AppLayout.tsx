@@ -126,7 +126,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Shield className="w-4 h-4 text-accent" />
             <span className="text-xs font-medium text-muted-foreground">Administrador</span>
             <Badge variant="outline" className="text-[10px] ml-1 border-accent/30 text-accent">
-              Caja FOSFEC
+              Comfaboy
             </Badge>
           </div>
           <div className="flex items-center gap-3">

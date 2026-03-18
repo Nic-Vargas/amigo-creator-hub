@@ -43,7 +43,7 @@ const estadoColors: Record<string, string> = {
 };
 
 const conceptosMovimiento = [
-  "Reintegro - Pago",
+  "Pago",
   "Nuevo Desembolso",
   "No procede",
   "Ajuste contable",
@@ -290,7 +290,7 @@ export default function Recobros() {
       const valorIngresado = Number(movimiento.valor || 0);
       const saldoActual = concepto.valor;
 
-      const esPago = movimiento.tipo === "Reintegro - Pago";
+      const esPago = movimiento.tipo === "Pago";
       const esNoProcede =
         movimiento.tipo === "No procede" ||
         movimiento.tipo === "No procede - Giro no efectuado";

@@ -17,7 +17,7 @@ type Movimiento = (typeof initialMovimientos)[number];
 type Beneficiario = (typeof initialBeneficiarios)[number];
 
 type TipoMovimientoUI =
-  | "Reintegro - Pago"
+  | "Pago"
   | "Normalización"
   | "No procede"
   | "Ajuste contable"
@@ -85,7 +85,7 @@ const mapTipoToMovimiento = (
   tipo: TipoMovimientoUI
 ): Movimiento["tipo"] => {
   switch (tipo) {
-    case "Reintegro - Pago":
+    case "Pago":
       return "REINTEGRO";
     case "Normalización":
       return "INCREMENTO";
@@ -106,7 +106,7 @@ const applyMovimiento = (
   inputValue: number
 ) => {
   switch (tipo) {
-    case "Reintegro - Pago":
+    case "Pago":
       return Math.max(0, currentValue - inputValue);
     case "Normalización":
       return currentValue + inputValue;

@@ -70,13 +70,20 @@ const initialFilters: FilterFormState = {
 };
 
 export default function Movimientos() {
-  const { movimientos } = useAppData();
+  const { movimientos, beneficiarios } = useAppData();
 
   const [search, setSearch] = useState("");
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState<FilterFormState>(initialFilters);
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const getDocumentoBeneficiario = (beneficiarioId: string) => {
+  const beneficiario = beneficiarios.find((b) => b.id === beneficiarioId);
+
+  if (!beneficiario) return "";
+
+  return `${beneficiario.tipoDoc} ${beneficiario.documento}`;
+};
 
   const filtered = useMemo(() => {
     const searchText = search.trim().toLowerCase();
@@ -85,15 +92,20 @@ export default function Movimientos() {
       const tipo = tipoStyles[m.tipo];
       const tipoLabel = m.tipoDetalle || tipo.label;
 
+      const documentoBeneficiario = getDocumentoBeneficiario(m.beneficiarioId);
+
       const matchesSearch =
         searchText === "" ||
         m.beneficiarioNombre.toLowerCase().includes(searchText) ||
-        m.id.toLowerCase().includes(searchText) ||
+        documentoBeneficiario.toLowerCase().includes(searchText) ||
         m.descripcion.toLowerCase().includes(searchText);
+
 
       const matchesId =
         filters.id.trim() === "" ||
-        m.id.toLowerCase().includes(filters.id.trim().toLowerCase());
+        documentoBeneficiario
+          .toLowerCase()
+          .includes(filters.id.trim().toLowerCase());
 
       const matchesFecha =
         filters.fecha.trim() === "" ||
@@ -175,7 +187,7 @@ export default function Movimientos() {
       const ley = LEYES.find((l) => l.id === m.ley);
 
       return {
-        ID: m.id,
+        Documento: getDocumentoBeneficiario(m.beneficiarioId),
         Fecha: m.fecha,
         Ley: ley?.nombre || m.ley,
         Periodo: m.periodo,
@@ -243,7 +255,7 @@ export default function Movimientos() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar por beneficiario, ID o descripción..."
+            placeholder="Buscar por beneficiario, documento o descripción..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -264,7 +276,7 @@ export default function Movimientos() {
           <thead>
             <tr className="border-b border-border">
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                ID
+                Documento
               </th>
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Fecha
@@ -279,7 +291,7 @@ export default function Movimientos() {
                 Beneficiario
               </th>
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Tipo
+                Concepto
               </th>
               <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Salud
@@ -313,7 +325,9 @@ export default function Movimientos() {
                   className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors animate-fade-in"
                   style={{ animationDelay: `${i * 30}ms` }}
                 >
-                  <td className="p-3 font-mono text-xs font-medium">{m.id}</td>
+                  <td className="p-3 font-mono text-xs font-medium">
+                    {getDocumentoBeneficiario(m.beneficiarioId) || "—"}
+                  </td>
                   <td className="p-3 text-muted-foreground text-xs">
                     {m.fecha}
                   </td>
@@ -429,10 +443,10 @@ export default function Movimientos() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm text-muted-foreground mb-1 block">
-                ID
+                Documento
               </label>
               <Input
-                placeholder="Ej: M001"
+                placeholder="Ej: 1023456789"
                 value={filters.id}
                 onChange={(e) => updateFilterField("id", e.target.value)}
               />
@@ -513,8 +527,8 @@ export default function Movimientos() {
                   <SelectItem value="REINTEGRO">Reintegro</SelectItem>
                   <SelectItem value="NO_PROCEDE">No Procede</SelectItem>
                   <SelectItem value="AJUSTE">Ajuste</SelectItem>
-                  <SelectItem value="Reintegro - Pago">
-                    Reintegro - Pago
+                  <SelectItem value="Pago">
+                    Pago
                   </SelectItem>
                   <SelectItem value="Normalización">
                     Normalización
