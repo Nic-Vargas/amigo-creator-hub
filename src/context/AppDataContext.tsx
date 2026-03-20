@@ -18,7 +18,7 @@ type Beneficiario = (typeof initialBeneficiarios)[number];
 
 type TipoMovimientoUI =
   | "Pago"
-  | "Normalización"
+  | "Nuevo Desembolso"
   | "No procede"
   | "Ajuste contable"
   | "No procede - Giro no efectuado";
@@ -87,7 +87,7 @@ const mapTipoToMovimiento = (
   switch (tipo) {
     case "Pago":
       return "REINTEGRO";
-    case "Normalización":
+    case "Nuevo Desembolso":
       return "INCREMENTO";
     case "No procede":
       return "NO_PROCEDE";
@@ -108,7 +108,7 @@ const applyMovimiento = (
   switch (tipo) {
     case "Pago":
       return Math.max(0, currentValue - inputValue);
-    case "Normalización":
+    case "Nuevo Desembolso":
       return currentValue + inputValue;
     case "No procede":
       return 0;

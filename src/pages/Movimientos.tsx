@@ -88,62 +88,73 @@ export default function Movimientos() {
   const filtered = useMemo(() => {
     const searchText = search.trim().toLowerCase();
 
-    return movimientos.filter((m) => {
-      const tipo = tipoStyles[m.tipo];
-      const tipoLabel = m.tipoDetalle || tipo.label;
+    return movimientos
+      .filter((m) => {
+        const tipo = tipoStyles[m.tipo];
+        const tipoLabel = m.tipoDetalle || tipo.label;
+        const documentoBeneficiario = getDocumentoBeneficiario(
+          m.beneficiarioId
+        );
 
-      const documentoBeneficiario = getDocumentoBeneficiario(m.beneficiarioId);
+        const matchesSearch =
+          searchText === "" ||
+          m.beneficiarioNombre.toLowerCase().includes(searchText) ||
+          documentoBeneficiario.toLowerCase().includes(searchText) ||
+          m.descripcion.toLowerCase().includes(searchText);
 
-      const matchesSearch =
-        searchText === "" ||
-        m.beneficiarioNombre.toLowerCase().includes(searchText) ||
-        documentoBeneficiario.toLowerCase().includes(searchText) ||
-        m.descripcion.toLowerCase().includes(searchText);
+        const matchesId =
+          filters.id.trim() === "" ||
+          documentoBeneficiario
+            .toLowerCase()
+            .includes(filters.id.trim().toLowerCase());
 
+        const matchesFecha =
+          filters.fecha.trim() === "" ||
+          m.fecha.toLowerCase().includes(filters.fecha.trim().toLowerCase());
 
-      const matchesId =
-        filters.id.trim() === "" ||
-        documentoBeneficiario
-          .toLowerCase()
-          .includes(filters.id.trim().toLowerCase());
+        const matchesLey = filters.ley === "all" || m.ley === filters.ley;
 
-      const matchesFecha =
-        filters.fecha.trim() === "" ||
-        m.fecha.toLowerCase().includes(filters.fecha.trim().toLowerCase());
+        const matchesPeriodo =
+          filters.periodo.trim() === "" ||
+          m.periodo.toLowerCase().includes(filters.periodo.trim().toLowerCase());
 
-      const matchesLey = filters.ley === "all" || m.ley === filters.ley;
+        const matchesBeneficiario =
+          filters.beneficiario.trim() === "" ||
+          m.beneficiarioNombre
+            .toLowerCase()
+            .includes(filters.beneficiario.trim().toLowerCase());
 
-      const matchesPeriodo =
-        filters.periodo.trim() === "" ||
-        m.periodo.toLowerCase().includes(filters.periodo.trim().toLowerCase());
+        const matchesTipo =
+          filters.tipo === "all" ||
+          m.tipo === filters.tipo ||
+          tipoLabel.toLowerCase().includes(filters.tipo.toLowerCase());
 
-      const matchesBeneficiario =
-        filters.beneficiario.trim() === "" ||
-        m.beneficiarioNombre
-          .toLowerCase()
-          .includes(filters.beneficiario.trim().toLowerCase());
+        const matchesUsuario =
+          filters.usuario.trim() === "" ||
+          m.usuario.toLowerCase().includes(filters.usuario.trim().toLowerCase());
 
-      const matchesTipo =
-        filters.tipo === "all" ||
-        m.tipo === filters.tipo ||
-        tipoLabel.toLowerCase().includes(filters.tipo.toLowerCase());
+        return (
+          matchesSearch &&
+          matchesId &&
+          matchesFecha &&
+          matchesLey &&
+          matchesPeriodo &&
+          matchesBeneficiario &&
+          matchesTipo &&
+          matchesUsuario
+        );
+      })
+      .sort((a, b) => {
+        const fechaA = new Date(a.fecha).getTime();
+        const fechaB = new Date(b.fecha).getTime();
 
-      const matchesUsuario =
-        filters.usuario.trim() === "" ||
-        m.usuario.toLowerCase().includes(filters.usuario.trim().toLowerCase());
+        if (fechaA !== fechaB) {
+          return fechaA - fechaB;
+        }
 
-      return (
-        matchesSearch &&
-        matchesId &&
-        matchesFecha &&
-        matchesLey &&
-        matchesPeriodo &&
-        matchesBeneficiario &&
-        matchesTipo &&
-        matchesUsuario
-      );
-    });
-  }, [movimientos, search, filters]);
+        return a.id.localeCompare(b.id);
+      });
+  }, [movimientos, beneficiarios, search, filters]);
 
   useEffect(() => {
     setCurrentPage(1);

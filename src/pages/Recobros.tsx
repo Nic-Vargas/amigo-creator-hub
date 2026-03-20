@@ -73,6 +73,7 @@ type NuevoCasoFormState = {
 
 type FilterFormState = {
   caso: string;
+  documento: string;
   ley: string;
   periodo: string;
   beneficiario: string;
@@ -83,6 +84,7 @@ type FilterFormState = {
 
 const initialFilters: FilterFormState = {
   caso: "",
+  documento: "",
   ley: "all",
   periodo: "",
   beneficiario: "",
@@ -128,19 +130,35 @@ export default function Recobros() {
     prioridad: "Media",
     responsable: usuarioActual,
   });
+  const getDocumentoBeneficiario = (beneficiarioId: string) => {
+    const beneficiario = beneficiarios.find((b) => b.id === beneficiarioId);
+
+    if (!beneficiario) return "";
+
+    return `${beneficiario.tipoDoc} ${beneficiario.documento}`;
+  };
 
   const filtered = useMemo(() => {
     const searchText = search.trim().toLowerCase();
 
     return casos.filter((c) => {
+      const documentoBeneficiario = getDocumentoBeneficiario(
+        c.beneficiarioId
+      ).toLowerCase();
+
       const matchesSearch =
         searchText === "" ||
         c.id.toLowerCase().includes(searchText) ||
-        c.beneficiarioNombre.toLowerCase().includes(searchText);
+        c.beneficiarioNombre.toLowerCase().includes(searchText) ||
+        documentoBeneficiario.includes(searchText);
 
       const matchesCaso =
         filters.caso.trim() === "" ||
         c.id.toLowerCase().includes(filters.caso.trim().toLowerCase());
+
+      const matchesDocumento =
+        filters.documento.trim() === "" ||
+        documentoBeneficiario.includes(filters.documento.trim().toLowerCase());
 
       const matchesLey = filters.ley === "all" || c.ley === filters.ley;
 
@@ -169,6 +187,7 @@ export default function Recobros() {
       return (
         matchesSearch &&
         matchesCaso &&
+        matchesDocumento &&
         matchesLey &&
         matchesPeriodo &&
         matchesBeneficiario &&
@@ -177,7 +196,7 @@ export default function Recobros() {
         matchesResponsable
       );
     });
-  }, [casos, search, filters]);
+  }, [casos, beneficiarios, search, filters]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -194,6 +213,7 @@ export default function Recobros() {
   const hasActiveFilters = useMemo(() => {
     return (
       filters.caso !== "" ||
+      filters.documento !== "" ||
       filters.ley !== "all" ||
       filters.periodo !== "" ||
       filters.beneficiario !== "" ||
@@ -448,6 +468,7 @@ export default function Recobros() {
         Caso: caso.id,
         Ley: ley?.nombre || caso.ley,
         Periodo: caso.periodo,
+        Documento: getDocumentoBeneficiario(caso.beneficiarioId),
         Beneficiario: caso.beneficiarioNombre,
         Salud: caso.valorSalud,
         Pension: caso.valorPension,
@@ -534,7 +555,7 @@ export default function Recobros() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar por caso o beneficiario..."
+            placeholder="Buscar por caso, beneficiario o documento..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -556,8 +577,11 @@ export default function Recobros() {
           <thead>
             <tr className="border-b border-border">
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Caso
+                Documento
               </th>
+              {/*<th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Caso
+              </th>*/}
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Ley
               </th>
@@ -611,15 +635,8 @@ export default function Recobros() {
                   className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors animate-fade-in"
                   style={{ animationDelay: `${i * 30}ms` }}
                 >
-                  <td className="p-3">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-mono text-xs font-semibold">
-                        {caso.id}
-                      </span>
-                      {caso.prioridad === "Alta" && (
-                        <AlertTriangle className="w-3.5 h-3.5 text-destructive" />
-                      )}
-                    </div>
+                  <td className="p-3 font-mono text-xs font-medium">
+                    {getDocumentoBeneficiario(caso.beneficiarioId) || "—"}
                   </td>
                   <td className="p-3 text-xs">{ley?.nombre || caso.ley}</td>
                   <td className="p-3 font-mono text-xs">{caso.periodo}</td>
@@ -761,6 +778,17 @@ export default function Recobros() {
                 placeholder="Ej: CR-001"
                 value={filters.caso}
                 onChange={(e) => updateFilterField("caso", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Documento
+              </label>
+              <Input
+                placeholder="Ej: CC 1023456789"
+                value={filters.documento}
+                onChange={(e) => updateFilterField("documento", e.target.value)}
               />
             </div>
 
