@@ -35,11 +35,10 @@ const formatCurrency = (v: number) =>
   }).format(v);
 
 const estadoColors: Record<string, string> = {
-  Abierto: "bg-warning/15 text-warning border-warning/30",
   "En gestión": "bg-info/15 text-info border-info/30",
-  Acuerdo: "bg-accent/15 text-accent border-accent/30",
-  "En pago": "bg-primary/15 text-primary border-primary/30",
+  "Acuerdo pago": "bg-accent/15 text-accent border-accent/30",
   Cerrado: "bg-muted text-muted-foreground border-border",
+  Inactivo: "bg-warning/15 text-warning border-warning/30",
 };
 
 const conceptosMovimiento = [
@@ -48,6 +47,13 @@ const conceptosMovimiento = [
   "No procede",
   "Ajuste contable",
   "No procede - Giro no efectuado",
+] as const;
+
+const estadosCaso = [
+  "En gestión",
+  "Acuerdo pago",
+  "Cerrado",
+  "Inactivo",
 ] as const;
 
 type MovimientoFormState = Record<
@@ -94,12 +100,14 @@ const initialFilters: FilterFormState = {
 };
 
 export default function Recobros() {
+
   const {
     beneficiarios,
     casos,
     usuarioActual,
     guardarMovimientoDesdeRecobro,
     crearNuevoCaso,
+    actualizarEstadoCaso,
   } = useAppData();
 
   const { toast } = useToast();
@@ -126,7 +134,7 @@ export default function Recobros() {
     valorPension: "",
     valorCuotaMonetaria: "",
     valorTransferencia: "",
-    estado: "Abierto",
+    estado: "En gestión",
     prioridad: "Media",
     responsable: usuarioActual,
   });
@@ -435,7 +443,7 @@ export default function Recobros() {
       valorPension: "",
       valorCuotaMonetaria: "",
       valorTransferencia: "",
-      estado: "Abierto",
+      estado: "En gestión",
       prioridad: "Media",
       responsable: usuarioActual,
     });
@@ -452,6 +460,16 @@ export default function Recobros() {
 
   const handleClearFilters = () => {
     setFilters(initialFilters);
+  };
+
+  const handleCambiarEstado = (
+  caseId: string,
+  nuevoEstado: "En gestión" | "Acuerdo pago" | "Cerrado" | "Inactivo"
+  ) => {
+    const casoActual = casos.find((c) => c.id === caseId);
+    if (!casoActual) return;
+
+    crearNuevoCaso; // deja esta línea fuera, no la uses
   };
 
   const handleExportarRecobros = () => {
@@ -663,11 +681,36 @@ export default function Recobros() {
                     {formatCurrency(totalCaso)}
                   </td>
                   <td className="p-3">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${estadoColors[caso.estado]}`}
+                    <Select
+                      value={caso.estado}
+                      onValueChange={(value) =>
+                        actualizarEstadoCaso(
+                          caso.id,
+                          value as "En gestión" | "Acuerdo pago" | "Cerrado" | "Inactivo"
+                        )
+                      }
                     >
-                      {caso.estado}
-                    </span>
+                      <SelectTrigger
+                        className={`h-7 min-w-[130px] px-2 py-0 border rounded-full text-[10px] font-semibold ${estadoColors[caso.estado]}`}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {estadosCaso.map((estado) => (
+                          <SelectItem
+                            key={estado}
+                            value={estado}
+                            className="focus:bg-muted focus:text-foreground data-[highlighted]:bg-muted"
+                          >
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${estadoColors[estado]}`}
+                            >
+                              {estado}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </td>
                   <td className="p-3">
                     <Badge
@@ -1100,11 +1143,10 @@ export default function Recobros() {
                     <SelectValue placeholder="Seleccione estado" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Abierto">Abierto</SelectItem>
                     <SelectItem value="En gestión">En gestión</SelectItem>
-                    <SelectItem value="Acuerdo">Acuerdo</SelectItem>
-                    <SelectItem value="En pago">En pago</SelectItem>
+                    <SelectItem value="Acuerdo pago">Acuerdo pago</SelectItem>
                     <SelectItem value="Cerrado">Cerrado</SelectItem>
+                    <SelectItem value="Inactivo">Inactivo</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

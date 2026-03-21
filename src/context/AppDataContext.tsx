@@ -72,6 +72,10 @@ type AppDataContextType = {
   guardarMovimientoDesdeRecobro: (payload: GuardarMovimientoPayload) => void;
   crearNuevoCaso: (payload: CrearCasoPayload) => void;
   crearNuevoBeneficiario: (payload: CrearBeneficiarioPayload) => void;
+  actualizarEstadoCaso: (
+  caseId: string,
+  nuevoEstado: "En gestión" | "Acuerdo pago" | "Cerrado" | "Inactivo"
+) => void;
 };
 
 const AppDataContext = createContext<AppDataContextType | undefined>(undefined);
@@ -140,6 +144,23 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem(CASOS_STORAGE_KEY);
     return saved ? JSON.parse(saved) : initialCasosRecobro;
   });
+
+  const actualizarEstadoCaso = (
+    caseId: string,
+    nuevoEstado: "En gestión" | "Acuerdo pago" | "Cerrado" | "Inactivo"
+  ) => {
+    setCasos((prev) =>
+      prev.map((caso) =>
+        caso.id === caseId
+          ? {
+              ...caso,
+              estado: nuevoEstado,
+              ultimaGestion: new Date().toISOString().slice(0, 10),
+            }
+          : caso
+      )
+    );
+  };
 
   const [movimientos, setMovimientos] = useState<Movimiento[]>(() => {
     const saved = localStorage.getItem(MOVIMIENTOS_STORAGE_KEY);
@@ -481,18 +502,19 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     setBeneficiarios((prev) => [nuevoBeneficiario, ...prev]);
   };
 
-  const value = useMemo(
-    () => ({
-      beneficiarios,
-      casos,
-      movimientos,
-      usuarioActual,
-      guardarMovimientoDesdeRecobro,
-      crearNuevoCaso,
-      crearNuevoBeneficiario,
-    }),
-    [beneficiarios, casos, movimientos, usuarioActual]
-  );
+    const value = useMemo(
+      () => ({
+        beneficiarios,
+        casos,
+        movimientos,
+        usuarioActual,
+        guardarMovimientoDesdeRecobro,
+        crearNuevoCaso,
+        crearNuevoBeneficiario,
+        actualizarEstadoCaso,
+      }),
+      [beneficiarios, casos, movimientos, usuarioActual]
+    );
 
   return (
     <AppDataContext.Provider value={value}>
