@@ -54,6 +54,7 @@ const estadosCaso = [
   "Acuerdo pago",
   "Cerrado",
   "Inactivo",
+  "Jurídico",
 ] as const;
 
 type MovimientoFormState = Record<
