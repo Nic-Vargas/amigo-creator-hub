@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Search, Plus, Filter, Download } from "lucide-react";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs/dist/exceljs.min.js";
+import { saveAs } from "file-saver";
 import { LEYES } from "@/lib/mock-data";
 import { useAppData } from "@/context/AppDataContext";
 import { Input } from "@/components/ui/input";
@@ -191,56 +192,211 @@ export default function Movimientos() {
     setFilters(initialFilters);
   };
 
-  const handleExportarMovimientos = () => {
-    const dataToExport = filtered.map((m) => {
+const handleExportarMovimientos = async () => {
+  try {
+    const response = await fetch(
+      "/templates/plantilla-exportacion-movimientos.xlsx"
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        "No se encontró la plantilla en /public/templates/plantilla-exportacion-movimientos.xlsx"
+      );
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(arrayBuffer);
+
+    const worksheet = workbook.worksheets[0];
+
+    const movimientosOrdenados = [...filtered].sort((a, b) => {
+      const fechaA = new Date(a.fecha).getTime();
+      const fechaB = new Date(b.fecha).getTime();
+
+      if (fechaA !== fechaB) return fechaA - fechaB;
+      return a.id.localeCompare(b.id);
+    });
+
+    const getDocumentoBeneficiario = (beneficiarioId: string) => {
+      const beneficiario = beneficiarios.find((b) => b.id === beneficiarioId);
+      if (!beneficiario) return "";
+      return `${beneficiario.tipoDoc} ${beneficiario.documento}`;
+    };
+
+    const esPagoMovimiento = (m: (typeof movimientosOrdenados)[number]) =>
+      m.tipoDetalle === "Pago" || m.tipo === "REINTEGRO";
+
+    const toSignedValue = (
+      m: (typeof movimientosOrdenados)[number],
+      valor: number
+    ) => {
+      if (!valor) return 0;
+      return esPagoMovimiento(m) ? -Math.abs(valor) : Math.abs(valor);
+    };
+
+    const toDisplayTotal = (
+      m: (typeof movimientosOrdenados)[number],
+      valorSalud: number,
+      valorPension: number,
+      valorCuotaMonetaria: number,
+      valorTransferencia: number
+    ) => {
+      const sumaConceptos =
+        Math.abs(valorSalud) +
+        Math.abs(valorPension) +
+        Math.abs(valorCuotaMonetaria) +
+        Math.abs(valorTransferencia);
+
+      return sumaConceptos;
+    };
+
+    const dataRows = movimientosOrdenados.map((m) => {
       const tipo = tipoStyles[m.tipo];
       const tipoLabel = m.tipoDetalle || tipo.label;
       const ley = LEYES.find((l) => l.id === m.ley);
 
+      const valorSalud = toSignedValue(m, m.valorSalud);
+      const valorPension = toSignedValue(m, m.valorPension);
+      const valorCuotaMonetaria = toSignedValue(m, m.valorCuotaMonetaria);
+      const valorTransferencia = toSignedValue(m, m.valorTransferencia);
+
+      const totalFila = toDisplayTotal(
+        m,
+        valorSalud,
+        valorPension,
+        valorCuotaMonetaria,
+        valorTransferencia
+      );
+
       return {
-        Documento: getDocumentoBeneficiario(m.beneficiarioId),
-        Fecha: m.fecha,
-        Ley: ley?.nombre || m.ley,
-        Periodo: m.periodo,
-        Beneficiario: m.beneficiarioNombre,
-        Tipo: tipoLabel,
-        Salud: m.valorSalud,
-        Pension: m.valorPension,
-        CuotaMonetaria: m.valorCuotaMonetaria,
-        TransferenciaEconomica: m.valorTransferencia,
-        Total: m.valor,
-        Usuario: m.usuario,
-        Descripcion: m.descripcion,
+        documento: getDocumentoBeneficiario(m.beneficiarioId),
+        fecha: m.fecha,
+        ley: ley?.nombre || m.ley,
+        periodo: m.periodo,
+        beneficiario: m.beneficiarioNombre,
+        tipo: tipoLabel,
+        salud: valorSalud,
+        pension: valorPension,
+        cuotaMonetaria: valorCuotaMonetaria,
+        transferenciaEconomica: valorTransferencia,
+        total: totalFila,
+        usuario: m.usuario,
+        descripcion: m.descripcion,
       };
     });
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-
-    worksheet["!cols"] = [
-      { wch: 12 },
-      { wch: 14 },
-      { wch: 20 },
-      { wch: 12 },
-      { wch: 28 },
-      { wch: 28 },
-      { wch: 14 },
-      { wch: 14 },
-      { wch: 18 },
-      { wch: 24 },
-      { wch: 14 },
-      { wch: 18 },
-      { wch: 40 },
-    ];
-
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Movimientos");
-
-    const fechaExportacion = new Date().toISOString().slice(0, 10);
-    XLSX.writeFile(
-      workbook,
-      `movimientos_${filtered.length}_registros_${fechaExportacion}.xlsx`
+    const saldoSalud = dataRows.reduce((acc, row) => acc + row.salud, 0);
+    const saldoPension = dataRows.reduce((acc, row) => acc + row.pension, 0);
+    const saldoCuotaMonetaria = dataRows.reduce(
+      (acc, row) => acc + row.cuotaMonetaria,
+      0
     );
-  };
+    const saldoTransferencia = dataRows.reduce(
+      (acc, row) => acc + row.transferenciaEconomica,
+      0
+    );
+    const saldoTotal =
+      saldoSalud + saldoPension + saldoCuotaMonetaria + saldoTransferencia;
+
+    const startRow = 8;
+    const endTemplateRow = 300;
+
+    if (dataRows.length > endTemplateRow - startRow + 1) {
+      throw new Error(
+        `La plantilla solo soporta ${endTemplateRow - startRow + 1} registros.`
+      );
+    }
+
+    // Limpiar contenido anterior sin borrar estilos
+    for (let rowNumber = startRow; rowNumber <= endTemplateRow; rowNumber++) {
+      for (let colNumber = 1; colNumber <= 13; colNumber++) {
+        const cell = worksheet.getCell(rowNumber, colNumber);
+        cell.value = null;
+      }
+    }
+
+    // Función para mostrar dash en cero y moneda en otros casos
+    const setAccountingCell = (cellRef: string, value: number) => {
+      const cell = worksheet.getCell(cellRef);
+      cell.value = value === 0 ? "-" : value;
+      if (value !== 0) {
+        cell.numFmt = '$ #,##0.00;[Red]-$ #,##0.00';
+      }
+    };
+
+    // Resumen superior
+    setAccountingCell("G5", saldoSalud);
+    setAccountingCell("H5", saldoPension);
+    setAccountingCell("I5", saldoCuotaMonetaria);
+    setAccountingCell("J5", saldoTransferencia);
+
+    const cellK5 = worksheet.getCell("K5");
+    cellK5.value = saldoTotal;
+    cellK5.numFmt = '$ #,##0.00;[Red]-$ #,##0.00';
+
+    // Escribir detalle respetando formato de la plantilla
+    dataRows.forEach((row, index) => {
+      const rowNumber = startRow + index;
+
+      worksheet.getCell(`A${rowNumber}`).value = row.documento;
+        worksheet.getCell(`B${rowNumber}`).value = row.fecha;
+        worksheet.getCell(`C${rowNumber}`).value = row.ley;
+        worksheet.getCell(`D${rowNumber}`).value = row.periodo;
+        worksheet.getCell(`E${rowNumber}`).value = row.beneficiario;
+        worksheet.getCell(`F${rowNumber}`).value = row.tipo;
+
+        const g = worksheet.getCell(`G${rowNumber}`);
+        const h = worksheet.getCell(`H${rowNumber}`);
+        const i = worksheet.getCell(`I${rowNumber}`);
+        const j = worksheet.getCell(`J${rowNumber}`);
+        const k = worksheet.getCell(`K${rowNumber}`);
+
+        g.value = row.salud === 0 ? "-" : row.salud;
+        h.value = row.pension === 0 ? "-" : row.pension;
+        i.value = row.cuotaMonetaria === 0 ? "-" : row.cuotaMonetaria;
+        j.value = row.transferenciaEconomica === 0 ? "-" : row.transferenciaEconomica;
+        k.value = row.total === 0 ? "-" : row.total;
+
+        [g, h, i, j, k].forEach((cell) => {
+          if (typeof cell.value === "number") {
+            cell.numFmt = '$ #,##0.00;[Red]-$ #,##0.00';
+          }
+        });
+
+        worksheet.getCell(`L${rowNumber}`).value = row.usuario;
+        worksheet.getCell(`M${rowNumber}`).value = row.descripcion;
+      });
+
+      // Ajustar ancho de columnas
+      worksheet.getColumn(1).width = 16;
+      worksheet.getColumn(2).width = 14;
+      worksheet.getColumn(3).width = 18;
+      worksheet.getColumn(4).width = 12;
+      worksheet.getColumn(5).width = 24;
+      worksheet.getColumn(6).width = 18;
+      worksheet.getColumn(7).width = 16;
+      worksheet.getColumn(8).width = 16;
+      worksheet.getColumn(9).width = 18;
+      worksheet.getColumn(10).width = 24;
+      worksheet.getColumn(11).width = 16;
+      worksheet.getColumn(12).width = 16;
+      worksheet.getColumn(13).width = 38;
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const fechaExportacion = new Date().toISOString().slice(0, 10);
+
+    saveAs(
+      new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      }),
+      `movimientos_plantilla_${dataRows.length}_registros_${fechaExportacion}.xlsx`
+    );
+  } catch (error) {
+    console.error("Error exportando plantilla:", error);
+  }
+};
 
   return (
     <div className="space-y-6">
@@ -302,7 +458,7 @@ export default function Movimientos() {
                 Beneficiario
               </th>
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Concepto
+                Tipo
               </th>
               <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Salud
@@ -311,10 +467,10 @@ export default function Movimientos() {
                 Pensión
               </th>
               <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                C. Monetaria
+                Cuota Monetaria
               </th>
               <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Transf. Econ.
+                Transferencia Economica
               </th>
               <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Total
