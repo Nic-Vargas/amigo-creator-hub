@@ -122,6 +122,7 @@ export default function Recobros() {
     {}
   );
   const [editPeriodo, setEditPeriodo] = useState("");
+  const [fechaPago, setFechaPago] = useState("");
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -282,6 +283,7 @@ export default function Recobros() {
       return nextState;
     });
 
+    setFechaPago(new Date().toISOString().slice(0, 10));
     setDialogOpen(true);
   };
 
@@ -371,6 +373,7 @@ export default function Recobros() {
       caseId: selectedCaseId,
       user: usuarioActual,
       periodo: editPeriodo,
+      fechaPago,
       valores: movimientosForm,
     });
 
@@ -382,6 +385,7 @@ export default function Recobros() {
     setDialogOpen(false);
     setSelectedCaseId(null);
     setEditPeriodo("");
+    setFechaPago("");
     setMovimientosForm({});
   };
 
@@ -987,6 +991,17 @@ export default function Recobros() {
                     className="font-mono"
                   />
                 </div>
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">
+                    Fecha de pago
+                  </label>
+                  <Input
+                    type="date"
+                    value={fechaPago}
+                    onChange={(e) => setFechaPago(e.target.value)}
+                    className="font-mono"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -1041,6 +1056,7 @@ export default function Recobros() {
                     setDialogOpen(false);
                     setSelectedCaseId(null);
                     setEditPeriodo("");
+                    setFechaPago("");
                     setMovimientosForm({});
                   }}
                 >
@@ -1107,14 +1123,25 @@ export default function Recobros() {
 
               <div>
                 <label className="text-sm text-muted-foreground mb-1 block">
-                  Periodo
+                  Período
                 </label>
                 <Input
+                  value={editPeriodo}
+                  onChange={(e) => setEditPeriodo(e.target.value)}
                   placeholder="Ej: 2024-08"
-                  value={nuevoCasoForm.periodo}
-                  onChange={(e) =>
-                    updateNuevoCasoField("periodo", e.target.value)
-                  }
+                  className="font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">
+                  Fecha de pago
+                </label>
+                <Input
+                  type="date"
+                  value={fechaPago}
+                  onChange={(e) => setFechaPago(e.target.value)}
+                  className="font-mono"
                 />
               </div>
 

@@ -13,7 +13,9 @@ const initialCasosRecobro = seedData.casosRecobro;
 const initialMovimientos = seedData.movimientos;
 
 type CasoRecobro = (typeof initialCasosRecobro)[number];
-type Movimiento = (typeof initialMovimientos)[number];
+type Movimiento = (typeof initialMovimientos)[number] & {
+  fechaModificacion?: string;
+};
 type Beneficiario = (typeof initialBeneficiarios)[number];
 
 type TipoMovimientoUI =
@@ -27,6 +29,7 @@ type GuardarMovimientoPayload = {
   caseId: string;
   user: string;
   periodo?: string;
+  fechaPago?: string;
   valores: Record<
     string,
     {
@@ -193,12 +196,13 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(USUARIO_STORAGE_KEY, usuarioActual);
   }, [usuarioActual]);
 
-  const guardarMovimientoDesdeRecobro = ({
-    caseId,
-    user,
-    periodo,
-    valores,
-  }: GuardarMovimientoPayload) => {
+const guardarMovimientoDesdeRecobro = ({
+  caseId,
+  user,
+  periodo,
+  fechaPago,
+  valores,
+}: GuardarMovimientoPayload) => {
     const caso = casos.find((c) => c.id === caseId);
     if (!caso) return;
 
@@ -299,7 +303,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
               : valorNumerico
             : 0,
         periodo: periodo?.trim() ? periodo : caso.periodo,
-        fecha: getToday(),
+        fecha: fechaPago?.trim() ? fechaPago : getToday(),
+        fechaModificacion: getToday(),
         descripcion: `${tipo} aplicado a ${conceptoId.replace(/_/g, " ")}`,
         usuario: user,
       });
@@ -439,6 +444,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
           valorTransferencia: item.valorTransferencia,
           periodo,
           fecha: getToday(),
+          fechaModificacion: getToday(),
           descripcion: item.descripcion,
           usuario: responsable || usuarioActual,
         };

@@ -478,6 +478,9 @@ const handleExportarMovimientos = async () => {
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Usuario
               </th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Fecha modificación
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -529,6 +532,9 @@ const handleExportarMovimientos = async () => {
                   </td>
                   <td className="p-3 text-muted-foreground text-xs">
                     {m.usuario}
+                  </td>
+                  <td className="p-3 text-muted-foreground text-xs">
+                    {m.fechaModificacion || m.fecha}
                   </td>
                 </tr>
               );
