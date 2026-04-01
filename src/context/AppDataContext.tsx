@@ -15,6 +15,7 @@ const initialMovimientos = seedData.movimientos;
 type CasoRecobro = (typeof initialCasosRecobro)[number];
 type Movimiento = (typeof initialMovimientos)[number] & {
   fechaModificacion?: string;
+  medioPago?: string;
 };
 type Beneficiario = (typeof initialBeneficiarios)[number];
 
@@ -35,6 +36,7 @@ type GuardarMovimientoPayload = {
     {
       valor: string;
       tipo: string;
+      medioPago?: string;
     }
   >;
 };
@@ -305,6 +307,7 @@ const guardarMovimientoDesdeRecobro = ({
         periodo: periodo?.trim() ? periodo : caso.periodo,
         fecha: fechaPago?.trim() ? fechaPago : getToday(),
         fechaModificacion: getToday(),
+        medioPago: tipo === "Pago" ? data.medioPago || "" : "",
         descripcion: `${tipo} aplicado a ${conceptoId.replace(/_/g, " ")}`,
         usuario: user,
       });

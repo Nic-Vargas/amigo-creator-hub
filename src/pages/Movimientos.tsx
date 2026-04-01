@@ -58,6 +58,7 @@ type FilterFormState = {
   beneficiario: string;
   tipo: string;
   usuario: string;
+  medioPago: string;
 };
 
 const initialFilters: FilterFormState = {
@@ -68,6 +69,7 @@ const initialFilters: FilterFormState = {
   beneficiario: "",
   tipo: "all",
   usuario: "",
+  medioPago: "",
 };
 
 export default function Movimientos() {
@@ -96,6 +98,11 @@ export default function Movimientos() {
         const documentoBeneficiario = getDocumentoBeneficiario(
           m.beneficiarioId
         );
+        const matchesMedioPago =
+        filters.medioPago.trim() === "" ||
+        (m.medioPago || "")
+          .toLowerCase()
+          .includes(filters.medioPago.trim().toLowerCase());
 
         const matchesSearch =
           searchText === "" ||
@@ -142,7 +149,8 @@ export default function Movimientos() {
           matchesPeriodo &&
           matchesBeneficiario &&
           matchesTipo &&
-          matchesUsuario
+          matchesUsuario &&
+          matchesMedioPago
         );
       })
       .sort((a, b) => {
@@ -177,7 +185,8 @@ export default function Movimientos() {
       filters.periodo !== "" ||
       filters.beneficiario !== "" ||
       filters.tipo !== "all" ||
-      filters.usuario !== ""
+      filters.usuario !== "" ||
+      filters.medioPago !== ""
     );
   }, [filters]);
 
@@ -192,7 +201,7 @@ export default function Movimientos() {
     setFilters(initialFilters);
   };
 
-const handleExportarMovimientos = async () => {
+const handleExportarMovimientos = async () => { 
   try {
     const response = await fetch(
       "/templates/plantilla-exportacion-movimientos.xlsx"
@@ -283,6 +292,7 @@ const handleExportarMovimientos = async () => {
         transferenciaEconomica: valorTransferencia,
         total: totalFila,
         usuario: m.usuario,
+        medioPago: m.medioPago || "",
         descripcion: m.descripcion,
       };
     });
@@ -479,6 +489,9 @@ const handleExportarMovimientos = async () => {
                 Usuario
               </th>
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Medio de pago
+              </th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Fecha modificación
               </th>
             </tr>
@@ -532,6 +545,9 @@ const handleExportarMovimientos = async () => {
                   </td>
                   <td className="p-3 text-muted-foreground text-xs">
                     {m.usuario}
+                  </td>
+                  <td className="p-3 text-muted-foreground text-xs">
+                    {m.medioPago || "—"}
                   </td>
                   <td className="p-3 text-muted-foreground text-xs">
                     {m.fechaModificacion || m.fecha}
@@ -633,6 +649,17 @@ const handleExportarMovimientos = async () => {
                 placeholder="Ej: 2024-01-15"
                 value={filters.fecha}
                 onChange={(e) => updateFilterField("fecha", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">
+                Medio de pago
+              </label>
+              <Input
+                placeholder="Ej: Nequi"
+                value={filters.medioPago}
+                onChange={(e) => updateFilterField("medioPago", e.target.value)}
               />
             </div>
 

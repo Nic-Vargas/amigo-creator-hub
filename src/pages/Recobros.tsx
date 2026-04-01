@@ -49,6 +49,15 @@ const conceptosMovimiento = [
   "No procede - Giro no efectuado",
 ] as const;
 
+const mediosPago = [
+  "Nequi",
+  "NU Bank",
+  "Bancolombia",
+  "AV Villas",
+  "BBVA",
+  "Bre-B",
+] as const;
+
 const estadosCaso = [
   "En gestión",
   "Acuerdo pago",
@@ -62,6 +71,7 @@ type MovimientoFormState = Record<
   {
     valor: string;
     tipo: string;
+    medioPago?: string;
   }
 >;
 
@@ -277,6 +287,7 @@ export default function Recobros() {
         nextState[concepto.id] = {
           valor: "",
           tipo: "",
+          medioPago: "",
         };
       });
 
@@ -305,6 +316,17 @@ export default function Recobros() {
       [conceptoId]: {
         ...prev[conceptoId],
         tipo: value,
+        medioPago: value === "Pago" ? prev[conceptoId]?.medioPago || "" : "",
+      },
+    }));
+  };
+
+  const updateMovimientoMedioPago = (conceptoId: string, value: string) => {
+    setMovimientosForm((prev) => ({
+      ...prev,
+      [conceptoId]: {
+        ...prev[conceptoId],
+        medioPago: value,
       },
     }));
   };
@@ -315,6 +337,7 @@ export default function Recobros() {
     const conceptosActuales = getCaseConcepts(selectedCase);
 
     for (const concepto of conceptosActuales) {
+      
       const movimiento = movimientosForm[concepto.id];
       if (!movimiento || !movimiento.tipo) continue;
 
@@ -322,6 +345,14 @@ export default function Recobros() {
       const saldoActual = concepto.valor;
 
       const esPago = movimiento.tipo === "Pago";
+      if (esPago && !movimiento.medioPago) {
+        toast({
+          title: "Medio de pago requerido",
+          description: `Debes seleccionar el medio de pago para ${concepto.nombre}.`,
+          variant: "destructive",
+        });
+        return;
+      }
       const esNoProcede =
         movimiento.tipo === "No procede" ||
         movimiento.tipo === "No procede - Giro no efectuado";
@@ -1006,46 +1037,68 @@ export default function Recobros() {
 
               <div className="space-y-2">
                 {getCaseConcepts(selectedCase).map((concepto) => (
-                  <div
-                    key={concepto.id}
-                    className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr] gap-3 items-center py-2 border-b border-border last:border-0"
+                <div
+                  key={concepto.id}
+                  className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr_1fr] gap-3 items-center py-2 border-b border-border last:border-0"
+                >
+                  <div className="flex flex-col">
+                    <span className="text-sm text-muted-foreground">
+                      {concepto.nombre}
+                    </span>
+                    <span className="text-xs font-mono text-foreground">
+                      Saldo actual: {formatCurrency(concepto.valor)}
+                    </span>
+                  </div>
+
+                  <Input
+                    placeholder="Ingrese valor"
+                    value={movimientosForm[concepto.id]?.valor ?? ""}
+                    onChange={(e) =>
+                      updateMovimientoValor(concepto.id, e.target.value)
+                    }
+                    className="font-mono"
+                  />
+
+                  <Select
+                    value={movimientosForm[concepto.id]?.tipo ?? ""}
+                    onValueChange={(value) =>
+                      updateMovimientoTipo(concepto.id, value)
+                    }
                   >
-                    <div className="flex flex-col">
-                      <span className="text-sm text-muted-foreground">
-                        {concepto.nombre}
-                      </span>
-                      <span className="text-xs font-mono text-foreground">
-                        Saldo actual: {formatCurrency(concepto.valor)}
-                      </span>
-                    </div>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccione concepto" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {conceptosMovimiento.map((item) => (
+                        <SelectItem key={item} value={item}>
+                          {item}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                    <Input
-                      placeholder="Ingrese valor"
-                      value={movimientosForm[concepto.id]?.valor ?? ""}
-                      onChange={(e) =>
-                        updateMovimientoValor(concepto.id, e.target.value)
-                      }
-                      className="font-mono"
-                    />
-
+                  {movimientosForm[concepto.id]?.tipo === "Pago" ? (
                     <Select
-                      value={movimientosForm[concepto.id]?.tipo ?? ""}
+                      value={movimientosForm[concepto.id]?.medioPago ?? ""}
                       onValueChange={(value) =>
-                        updateMovimientoTipo(concepto.id, value)
+                        updateMovimientoMedioPago(concepto.id, value)
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Seleccione concepto" />
+                        <SelectValue placeholder="Medio de pago" />
                       </SelectTrigger>
                       <SelectContent>
-                        {conceptosMovimiento.map((item) => (
-                          <SelectItem key={item} value={item}>
-                            {item}
+                        {mediosPago.map((medio) => (
+                          <SelectItem key={medio} value={medio}>
+                            {medio}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
+                  ) : (
+                    <div />
+                  )}
+                </div>
                 ))}
               </div>
 
