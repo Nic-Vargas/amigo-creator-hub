@@ -72,6 +72,7 @@ type MovimientoFormState = Record<
     valor: string;
     tipo: string;
     medioPago?: string;
+    soportePagoNombre?: string;
   }
 >;
 
@@ -288,6 +289,7 @@ export default function Recobros() {
           valor: "",
           tipo: "",
           medioPago: "",
+          soportePagoNombre: "",
         };
       });
 
@@ -311,12 +313,19 @@ export default function Recobros() {
   };
 
   const updateMovimientoTipo = (conceptoId: string, value: string) => {
+    const requiereDatosSalud =
+      conceptoId === "salud" &&
+      ["Pago", "No procede", "Ajuste contable"].includes(value);
+
     setMovimientosForm((prev) => ({
       ...prev,
       [conceptoId]: {
         ...prev[conceptoId],
         tipo: value,
-        medioPago: value === "Pago" ? prev[conceptoId]?.medioPago || "" : "",
+        medioPago: requiereDatosSalud ? prev[conceptoId]?.medioPago || "" : "",
+        soportePagoNombre: requiereDatosSalud
+          ? prev[conceptoId]?.soportePagoNombre || ""
+          : "",
       },
     }));
   };
@@ -330,6 +339,16 @@ export default function Recobros() {
       },
     }));
   };
+
+  const updateMovimientoSoporte = (conceptoId: string, fileName: string) => {
+  setMovimientosForm((prev) => ({
+    ...prev,
+    [conceptoId]: {
+      ...prev[conceptoId],
+      soportePagoNombre: fileName,
+    },
+  }));
+};
 
   const handleGuardarMovimientos = () => {
     if (!selectedCaseId || !selectedCase) return;
@@ -345,10 +364,24 @@ export default function Recobros() {
       const saldoActual = concepto.valor;
 
       const esPago = movimiento.tipo === "Pago";
-      if (esPago && !movimiento.medioPago) {
+
+      const requiereDatosPagoSalud =
+        concepto.id === "salud" &&
+        ["Pago", "No procede", "Ajuste contable"].includes(movimiento.tipo);
+
+      if (requiereDatosPagoSalud && !movimiento.medioPago) {
         toast({
           title: "Medio de pago requerido",
           description: `Debes seleccionar el medio de pago para ${concepto.nombre}.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (requiereDatosPagoSalud && !movimiento.soportePagoNombre) {
+        toast({
+          title: "Soporte requerido",
+          description: `Debes cargar el soporte de pago para ${concepto.nombre}.`,
           variant: "destructive",
         });
         return;
@@ -1039,7 +1072,7 @@ export default function Recobros() {
                 {getCaseConcepts(selectedCase).map((concepto) => (
                 <div
                   key={concepto.id}
-                  className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr_1fr] gap-3 items-center py-2 border-b border-border last:border-0"
+                  className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr_1.2fr] gap-3 items-center py-2 border-b border-border last:border-0"
                 >
                   <div className="flex flex-col">
                     <span className="text-sm text-muted-foreground">
@@ -1077,24 +1110,59 @@ export default function Recobros() {
                     </SelectContent>
                   </Select>
 
-                  {movimientosForm[concepto.id]?.tipo === "Pago" ? (
-                    <Select
-                      value={movimientosForm[concepto.id]?.medioPago ?? ""}
-                      onValueChange={(value) =>
-                        updateMovimientoMedioPago(concepto.id, value)
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Medio de pago" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mediosPago.map((medio) => (
-                          <SelectItem key={medio} value={medio}>
-                            {medio}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  {concepto.id === "salud" &&
+                  ["Pago", "No procede", "Ajuste Contable", "Ajuste contable"].includes(
+                    movimientosForm[concepto.id]?.tipo ?? ""
+                  ) ? (
+                    <div className="space-y-2">
+                      <Select
+                        value={movimientosForm[concepto.id]?.medioPago ?? ""}
+                        onValueChange={(value) =>
+                          updateMovimientoMedioPago(concepto.id, value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Medio de pago" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {mediosPago.map((medio) => (
+                            <SelectItem key={medio} value={medio}>
+                              {medio}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <input
+                        id={`soporte-${concepto.id}`}
+                        type="file"
+                        accept=".pdf,.png,.jpg,.jpeg"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            updateMovimientoSoporte(concepto.id, file.name);
+                          }
+                        }}
+                      />
+
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            document.getElementById(`soporte-${concepto.id}`)?.click()
+                          }
+                        >
+                          Cargar soporte
+                        </Button>
+
+                        <span className="text-xs text-muted-foreground truncate max-w-[180px]">
+                          {movimientosForm[concepto.id]?.soportePagoNombre || "Sin archivo"}
+                        </span>
+                      </div>
+                    </div>
                   ) : (
                     <div />
                   )}

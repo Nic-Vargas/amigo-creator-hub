@@ -16,6 +16,7 @@ type CasoRecobro = (typeof initialCasosRecobro)[number];
 type Movimiento = (typeof initialMovimientos)[number] & {
   fechaModificacion?: string;
   medioPago?: string;
+  soportePagoNombre?: string;
 };
 type Beneficiario = (typeof initialBeneficiarios)[number];
 
@@ -37,6 +38,7 @@ type GuardarMovimientoPayload = {
       valor: string;
       tipo: string;
       medioPago?: string;
+      soportePagoNombre?: string;
     }
   >;
 };
@@ -268,6 +270,11 @@ const guardarMovimientoDesdeRecobro = ({
         1
       );
 
+      const requiereDatosPagoSalud =
+      conceptoId === "salud" &&
+      ["Pago", "No procede", "Ajuste contable"].includes(tipo);
+
+
       nuevosMovimientos.push({
         id: movimientoId,
         beneficiarioId: caso.beneficiarioId,
@@ -307,7 +314,10 @@ const guardarMovimientoDesdeRecobro = ({
         periodo: periodo?.trim() ? periodo : caso.periodo,
         fecha: fechaPago?.trim() ? fechaPago : getToday(),
         fechaModificacion: getToday(),
-        medioPago: tipo === "Pago" ? data.medioPago || "" : "",
+        medioPago: requiereDatosPagoSalud ? data.medioPago || "" : "",
+        soportePagoNombre: requiereDatosPagoSalud
+          ? data.soportePagoNombre || ""
+          : "",
         descripcion: `${tipo} aplicado a ${conceptoId.replace(/_/g, " ")}`,
         usuario: user,
       });
