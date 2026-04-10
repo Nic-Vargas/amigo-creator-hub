@@ -270,9 +270,9 @@ const guardarMovimientoDesdeRecobro = ({
         1
       );
 
-      const requiereDatosPagoSalud =
-      conceptoId === "salud" &&
-      ["Pago", "No procede", "Ajuste contable"].includes(tipo);
+      const requiereDatosPago =
+    ["salud", "pension", "cuota_monetaria", "transferencia_economica"].includes(conceptoId) &&
+    ["Pago", "No procede", "Ajuste contable"].includes(tipo);
 
 
       nuevosMovimientos.push({
@@ -314,8 +314,8 @@ const guardarMovimientoDesdeRecobro = ({
         periodo: periodo?.trim() ? periodo : caso.periodo,
         fecha: fechaPago?.trim() ? fechaPago : getToday(),
         fechaModificacion: getToday(),
-        medioPago: requiereDatosPagoSalud ? data.medioPago || "" : "",
-        soportePagoNombre: requiereDatosPagoSalud
+        medioPago: requiereDatosPago ? data.medioPago || "" : "",
+        soportePagoNombre: requiereDatosPago
           ? data.soportePagoNombre || ""
           : "",
         descripcion: `${tipo} aplicado a ${conceptoId.replace(/_/g, " ")}`,

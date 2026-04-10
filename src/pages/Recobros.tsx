@@ -58,6 +58,13 @@ const mediosPago = [
   "Bre-B",
 ] as const;
 
+const conceptosConSoporte = [
+  "salud",
+  "pension",
+  "cuota_monetaria",
+  "transferencia_economica",
+] as const;
+
 const estadosCaso = [
   "En gestión",
   "Acuerdo pago",
@@ -313,8 +320,10 @@ export default function Recobros() {
   };
 
   const updateMovimientoTipo = (conceptoId: string, value: string) => {
-    const requiereDatosSalud =
-      conceptoId === "salud" &&
+    const requiereDatosPago =
+      conceptosConSoporte.includes(
+        conceptoId as (typeof conceptosConSoporte)[number]
+      ) &&
       ["Pago", "No procede", "Ajuste contable"].includes(value);
 
     setMovimientosForm((prev) => ({
@@ -322,8 +331,8 @@ export default function Recobros() {
       [conceptoId]: {
         ...prev[conceptoId],
         tipo: value,
-        medioPago: requiereDatosSalud ? prev[conceptoId]?.medioPago || "" : "",
-        soportePagoNombre: requiereDatosSalud
+        medioPago: requiereDatosPago ? prev[conceptoId]?.medioPago || "" : "",
+        soportePagoNombre: requiereDatosPago
           ? prev[conceptoId]?.soportePagoNombre || ""
           : "",
       },
@@ -365,11 +374,13 @@ export default function Recobros() {
 
       const esPago = movimiento.tipo === "Pago";
 
-      const requiereDatosPagoSalud =
-        concepto.id === "salud" &&
+      const requiereDatosPago =
+        conceptosConSoporte.includes(
+          concepto.id as (typeof conceptosConSoporte)[number]
+        ) &&
         ["Pago", "No procede", "Ajuste contable"].includes(movimiento.tipo);
 
-      if (requiereDatosPagoSalud && !movimiento.medioPago) {
+      if (requiereDatosPago && !movimiento.medioPago) {
         toast({
           title: "Medio de pago requerido",
           description: `Debes seleccionar el medio de pago para ${concepto.nombre}.`,
@@ -378,7 +389,7 @@ export default function Recobros() {
         return;
       }
 
-      if (requiereDatosPagoSalud && !movimiento.soportePagoNombre) {
+      if (requiereDatosPago && !movimiento.soportePagoNombre) {
         toast({
           title: "Soporte requerido",
           description: `Debes cargar el soporte de pago para ${concepto.nombre}.`,
@@ -1049,8 +1060,8 @@ export default function Recobros() {
                     Período
                   </label>
                   <Input
-                    value={editPeriodo}
-                    onChange={(e) => setEditPeriodo(e.target.value)}
+                    value={nuevoCasoForm.periodo}
+                    onChange={(e) => updateNuevoCasoField("periodo", e.target.value)}
                     placeholder="Ej: 2024-08"
                     className="font-mono"
                   />
@@ -1110,8 +1121,10 @@ export default function Recobros() {
                     </SelectContent>
                   </Select>
 
-                  {concepto.id === "salud" &&
-                  ["Pago", "No procede", "Ajuste Contable", "Ajuste contable"].includes(
+                  {conceptosConSoporte.includes(
+                    concepto.id as (typeof conceptosConSoporte)[number]
+                  ) &&
+                  ["Pago", "No procede", "Ajuste contable"].includes(
                     movimientosForm[concepto.id]?.tipo ?? ""
                   ) ? (
                     <div className="space-y-2">
