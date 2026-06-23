@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -33,6 +34,7 @@ const navItems = [
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -124,9 +126,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6 shrink-0">
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-accent" />
-            <span className="text-xs font-medium text-muted-foreground">Administrador</span>
+            <span className="text-xs font-medium text-muted-foreground">
+              {user?.role ?? "Usuario"}
+            </span>
             <Badge variant="outline" className="text-[10px] ml-1 border-accent/30 text-accent">
-              Comfaboy
+              {user?.companyName ?? "Empresa"}
             </Badge>
           </div>
           <div className="flex items-center gap-3">
@@ -136,14 +140,24 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </Button>
             <div className="flex items-center gap-2 pl-3 border-l border-border">
               <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold">
-                JP
+                {user?.fullName
+                  ?.split(" ")
+                  .map((part) => part[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase() ?? "US"}
               </div>
               <div className="hidden sm:block">
-                <p className="text-sm font-medium leading-none">Juan Pérez</p>
-                <p className="text-[11px] text-muted-foreground">admin.cartera</p>
+                <p className="text-sm font-medium leading-none">{user?.fullName ?? "Usuario"}</p>
+                <p className="text-[11px] text-muted-foreground">{user?.email ?? ""}</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" className="text-muted-foreground">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground"
+              onClick={logout}
+            >
               <LogOut className="w-4 h-4" />
             </Button>
           </div>
