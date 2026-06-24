@@ -10,7 +10,7 @@ import {
   Mail,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAppData } from "@/context/AppDataContext";
+import { apiFetch } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,6 +55,32 @@ const initialFilters: FilterFormState = {
   ciudad: "",
   estado: "all",
 };
+type BeneficiarioApi = {
+  id: string;
+  tipoDocumento: string;
+  documento: string;
+  nombres: string;
+  apellidos: string;
+  email: string | null;
+  celular: string | null;
+  telefono: string | null;
+  direccion: string | null;
+  ciudad: string | null;
+  municipio: string | null;
+  departamento: string | null;
+  estado: string | null;
+  saldoTotal: string;
+  createdAt: string;
+};
+
+type RecobroApi = {
+  id: string;
+  beneficiaryId: string;
+  valorSalud: string;
+  valorPension: string;
+  valorCuotaMonetaria: string;
+  valorTransferenciaEconomica: string;
+};
 
 export default function Beneficiarios() {
   const [search, setSearch] = useState("");
@@ -80,45 +106,76 @@ export default function Beneficiarios() {
     estado: "activo",
   });
 
-  const { beneficiarios, casos, crearNuevoBeneficiario } = useAppData();
+ const [beneficiarios, setBeneficiarios] = useState<BeneficiarioApi[]>([]);
+const [casos, setCasos] = useState<RecobroApi[]>([]);
+const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+    const cargarDatos = async () => {
+    try {
+      setLoading(true);
 
-  const getBeneficiarioSaldos = (beneficiarioId: string) => {
-    const casosBeneficiario = casos.filter(
-      (c) => c.beneficiarioId === beneficiarioId
-    );
+      const [beneficiariosData, casosData] = await Promise.all([
+        apiFetch<BeneficiarioApi[]>("/beneficiaries"),
+        apiFetch<RecobroApi[]>("/recobros"),
+      ]);
 
-    const valorSalud = casosBeneficiario.reduce(
-      (acc, c) => acc + c.valorSalud,
-      0
-    );
-    const valorPension = casosBeneficiario.reduce(
-      (acc, c) => acc + c.valorPension,
-      0
-    );
-    const valorCuotaMonetaria = casosBeneficiario.reduce(
-      (acc, c) => acc + c.valorCuotaMonetaria,
-      0
-    );
-    const valorTransferencia = casosBeneficiario.reduce(
-      (acc, c) => acc + c.valorTransferencia,
-      0
-    );
+      setBeneficiarios(beneficiariosData);
+      setCasos(casosData);
+    } catch (error) {
+      toast({
+        title: "Error cargando beneficiarios",
+        description:
+          error instanceof Error
+            ? error.message
+            : "No fue posible consultar la información.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const saldoTotal =
+  useEffect(() => {
+    cargarDatos();
+  }, []);
+
+const getBeneficiarioSaldos = (beneficiarioId: string) => {
+  const casosBeneficiario = casos.filter(
+    (c) => c.beneficiaryId === beneficiarioId
+  );
+
+  const valorSalud = casosBeneficiario.reduce(
+    (acc, c) => acc + Number(c.valorSalud),
+    0
+  );
+
+  const valorPension = casosBeneficiario.reduce(
+    (acc, c) => acc + Number(c.valorPension),
+    0
+  );
+
+  const valorCuotaMonetaria = casosBeneficiario.reduce(
+    (acc, c) => acc + Number(c.valorCuotaMonetaria),
+    0
+  );
+
+  const valorTransferencia = casosBeneficiario.reduce(
+    (acc, c) => acc + Number(c.valorTransferenciaEconomica),
+    0
+  );
+
+  return {
+    valorSalud,
+    valorPension,
+    valorCuotaMonetaria,
+    valorTransferencia,
+    saldoTotal:
       valorSalud +
       valorPension +
       valorCuotaMonetaria +
-      valorTransferencia;
-
-    return {
-      valorSalud,
-      valorPension,
-      valorCuotaMonetaria,
       valorTransferencia,
-      saldoTotal,
-    };
   };
+};
 
   const filtered = useMemo(() => {
     const searchText = search.trim().toLowerCase();
@@ -142,10 +199,10 @@ export default function Beneficiarios() {
 
       const matchesCiudad =
         filters.ciudad.trim() === "" ||
-        b.ciudad.toLowerCase().includes(filters.ciudad.trim().toLowerCase());
+        (b.ciudad ?? "").toLowerCase().includes(filters.ciudad.trim().toLowerCase());
 
       const matchesEstado =
-        filters.estado === "all" || b.estado === filters.estado;
+        filters.estado === "all" || (b.estado ?? "ACTIVO").toLowerCase() === filters.estado;
 
       return (
         matchesSearch &&
@@ -174,7 +231,7 @@ export default function Beneficiarios() {
       const saldos = getBeneficiarioSaldos(b.id);
 
       return {
-        Documento: `${b.tipoDoc} ${b.documento}`,
+        Documento: `${b.tipoDocumento} ${b.documento}`,
         Nombres: b.nombres,
         Apellidos: b.apellidos,
         Ciudad: b.ciudad,
@@ -190,7 +247,7 @@ export default function Beneficiarios() {
         CuotaMonetaria: saldos.valorCuotaMonetaria,
         TransferenciaEconomica: saldos.valorTransferencia,
         SaldoTotal: saldos.saldoTotal,
-        FechaRegistro: b.fechaRegistro,
+        FechaRegistro: new Date(b.createdAt).toLocaleDateString("es-CO"),
       };
     });
 
@@ -263,7 +320,7 @@ export default function Beneficiarios() {
     }));
   };
 
-  const handleCrearNuevoBeneficiario = () => {
+  const handleCrearNuevoBeneficiario = async () => {
     if (
       !nuevoBeneficiarioForm.documento.trim() ||
       !nuevoBeneficiarioForm.nombres.trim() ||
@@ -278,22 +335,21 @@ export default function Beneficiarios() {
     }
 
     try {
-      crearNuevoBeneficiario({
-        tipoDoc: nuevoBeneficiarioForm.tipoDoc as "CC" | "CE" | "TI" | "NIT",
-        documento: nuevoBeneficiarioForm.documento,
-        nombres: nuevoBeneficiarioForm.nombres,
-        apellidos: nuevoBeneficiarioForm.apellidos,
-        email: nuevoBeneficiarioForm.email,
-        celular: nuevoBeneficiarioForm.celular,
-        direccion: nuevoBeneficiarioForm.direccion,
-        telefono: nuevoBeneficiarioForm.telefono,
-        ciudad: nuevoBeneficiarioForm.ciudad,
-        municipio: nuevoBeneficiarioForm.municipio,
-        departamento: nuevoBeneficiarioForm.departamento,
-        estado: nuevoBeneficiarioForm.estado as
-          | "activo"
-          | "bloqueado"
-          | "inactivo",
+      await apiFetch<BeneficiarioApi>("/beneficiaries", {
+        method: "POST",
+        body: JSON.stringify({
+          tipoDocumento: nuevoBeneficiarioForm.tipoDoc,
+          documento: nuevoBeneficiarioForm.documento,
+          nombres: nuevoBeneficiarioForm.nombres,
+          apellidos: nuevoBeneficiarioForm.apellidos,
+          email: nuevoBeneficiarioForm.email || undefined,
+          celular: nuevoBeneficiarioForm.celular || undefined,
+          direccion: nuevoBeneficiarioForm.direccion || undefined,
+          telefono: nuevoBeneficiarioForm.telefono || undefined,
+          ciudad: nuevoBeneficiarioForm.ciudad || undefined,
+          municipio: nuevoBeneficiarioForm.municipio || undefined,
+          departamento: nuevoBeneficiarioForm.departamento || undefined,
+        }),
       });
 
       toast({
@@ -317,6 +373,7 @@ export default function Beneficiarios() {
       });
 
       setNewBeneficiaryDialogOpen(false);
+      await cargarDatos();
     } catch (error) {
       toast({
         title: "No fue posible crear el beneficiario",
@@ -328,6 +385,14 @@ export default function Beneficiarios() {
       });
     }
   };
+
+  if (loading) {
+    return (
+      <div className="p-6 text-sm text-muted-foreground">
+        Cargando beneficiarios...
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -414,24 +479,24 @@ export default function Beneficiarios() {
                 >
                   <td className="p-3">
                     <span className="font-mono text-xs">
-                      {b.tipoDoc} {b.documento}
+                      {b.tipoDocumento} {b.documento}
                     </span>
                   </td>
                   <td className="p-3 font-medium">
                     {b.nombres} {b.apellidos}
                   </td>
-                  <td className="p-3 text-muted-foreground">{b.ciudad}</td>
+                  <td className="p-3 text-muted-foreground">{b.ciudad ?? ""}</td>
                   <td className="p-3 text-muted-foreground text-xs">
-                    {b.celular}
+                    {b.celular ?? ""}
                   </td>
                   <td className="p-3 text-right font-mono font-semibold">
                     {formatCurrency(saldos.saldoTotal)}
                   </td>
                   <td className="p-3">
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border capitalize ${estadoStyles[b.estado]}`}
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border capitalize ${estadoStyles[(b.estado ?? "ACTIVO").toLowerCase()]}`}
                     >
-                      {b.estado}
+                      {(b.estado ?? "ACTIVO").toLowerCase()}
                     </span>
                   </td>
                   <td className="p-3 text-center">
@@ -463,7 +528,7 @@ export default function Beneficiarios() {
                                   {selected.nombres} {selected.apellidos}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
-                                  {selected.tipoDoc} {selected.documento}
+                                  {selected.tipoDocumento} {selected.documento}
                                 </p>
                               </div>
                             </div>
@@ -472,18 +537,18 @@ export default function Beneficiarios() {
                               <div className="flex items-center gap-2 text-muted-foreground">
                                 <MapPin className="w-3.5 h-3.5 shrink-0" />
                                 <span>
-                                  {selected.direccion}, {selected.ciudad}
+                                  {selected.direccion ?? "Sin dirección"}, {selected.ciudad}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2 text-muted-foreground">
                                 <Phone className="w-3.5 h-3.5 shrink-0" />
                                 <span>
-                                  {selected.telefono} / {selected.celular}
+                                  {selected.telefono ?? "Sin teléfono"} / {selected.celular}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2 text-muted-foreground col-span-2">
                                 <Mail className="w-3.5 h-3.5 shrink-0" />
-                                <span>{selected.email}</span>
+                                <span>{selected.email ?? "Sin correo"}</span>
                               </div>
                             </div>
 
