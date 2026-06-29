@@ -1,14 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  Search,
-  Plus,
-  Filter,
-  Download,
-  AlertTriangle,
-} from "lucide-react";
+import { Search, Plus, Filter, Download } from "lucide-react";
 import * as XLSX from "xlsx";
 import { LEYES } from "@/lib/mock-data";
-import { useAppData } from "@/context/AppDataContext";
+import { apiFetch } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -35,13 +30,16 @@ const formatCurrency = (v: number) =>
   }).format(v);
 
 const estadoColors: Record<string, string> = {
+  Abierto: "bg-info/15 text-info border-info/30",
   "En gestión": "bg-info/15 text-info border-info/30",
-  "Acuerdo pago": "bg-accent/15 text-accent border-accent/30",
+  Acuerdo: "bg-accent/15 text-accent border-accent/30",
+  "En pago": "bg-warning/15 text-warning border-warning/30",
   Cerrado: "bg-muted text-muted-foreground border-border",
-  Inactivo: "bg-warning/15 text-warning border-warning/30",
 };
 
-const conceptosMovimiento = [
+const estadosCaso = ["Abierto", "En gestión", "Acuerdo", "En pago", "Cerrado"] as const;
+
+const tiposMovimiento = [
   "Pago",
   "Nuevo Desembolso",
   "No procede",
@@ -49,52 +47,90 @@ const conceptosMovimiento = [
   "No procede - Giro no efectuado",
 ] as const;
 
-const mediosPago = [
-  "Nequi",
-  "NU Bank",
-  "Bancolombia",
-  "AV Villas",
-  "BBVA",
-  "Bre-B",
-] as const;
+const mediosPago = ["Nequi", "NU Bank", "Bancolombia", "AV Villas", "BBVA", "Bre-B"] as const;
 
-const conceptosConSoporte = [
-  "salud",
-  "pension",
-  "cuota_monetaria",
-  "transferencia_economica",
-] as const;
+const estadoApiToUi: Record<string, string> = {
+  ABIERTO: "Abierto",
+  EN_GESTION: "En gestión",
+  ACUERDO: "Acuerdo",
+  EN_PAGO: "En pago",
+  CERRADO: "Cerrado",
+};
 
-const estadosCaso = [
-  "En gestión",
-  "Acuerdo pago",
-  "Cerrado",
-  "Inactivo",
-  "Jurídico",
-] as const;
+const estadoUiToApi: Record<string, string> = {
+  Abierto: "ABIERTO",
+  "En gestión": "EN_GESTION",
+  Acuerdo: "ACUERDO",
+  "En pago": "EN_PAGO",
+  Cerrado: "CERRADO",
+};
 
-type MovimientoFormState = Record<
-  string,
-  {
-    valor: string;
-    tipo: string;
-    medioPago?: string;
-    soportePagoNombre?: string;
-  }
->;
+const prioridadApiToUi: Record<string, string> = {
+  ALTA: "Alta",
+  MEDIA: "Media",
+  BAJA: "Baja",
+};
 
-type NuevoCasoFormState = {
-  beneficiarioId: string;
+const prioridadUiToApi: Record<string, string> = {
+  Alta: "ALTA",
+  Media: "MEDIA",
+  Baja: "BAJA",
+};
+
+const tipoMovimientoUiToApi: Record<string, string> = {
+  Pago: "REINTEGRO",
+  "Nuevo Desembolso": "INCREMENTO",
+  "No procede": "NO_PROCEDE",
+  "Ajuste contable": "AJUSTE",
+  "No procede - Giro no efectuado": "NO_PROCEDE",
+};
+
+type BeneficiarioApi = {
+  id: string;
+  tipoDocumento: string;
+  documento: string;
+  nombres: string;
+  apellidos: string;
+};
+
+type RecobroApi = {
+  id: string;
+  beneficiaryId: string;
   ley: string;
   periodo: string;
   valorSalud: string;
   valorPension: string;
   valorCuotaMonetaria: string;
-  valorTransferencia: string;
-  estado: string;
-  prioridad: string;
-  responsable: string;
+  valorTransferenciaEconomica: string;
+  valorTotal: string;
+  estado: "ABIERTO" | "EN_GESTION" | "ACUERDO" | "EN_PAGO" | "CERRADO";
+  prioridad: "ALTA" | "MEDIA" | "BAJA";
+  responsable?: {
+    id: string;
+    fullName: string;
+    email: string;
+  } | null;
+  beneficiary?: BeneficiarioApi;
+  fechaApertura: string;
+  ultimaGestionAt: string | null;
+  createdAt: string;
 };
+
+type MovementConceptApi =
+  | "SALUD"
+  | "PENSION"
+  | "CUOTA_MONETARIA"
+  | "TRANSFERENCIA_ECONOMICA";
+
+type MovementFormItem = {
+  valor: string;
+  tipo: string;
+  medioPago: string;
+  soportePagoNombre: string;
+  adjustmentDirection: "SUMA" | "RESTA" | "";
+};
+
+type MovementFormState = Record<MovementConceptApi, MovementFormItem>;
 
 type FilterFormState = {
   caso: string;
@@ -105,6 +141,20 @@ type FilterFormState = {
   estado: string;
   prioridad: string;
   responsable: string;
+};
+
+type NuevoCasoFormState = {
+  beneficiarioId: string;
+  ley: string;
+  periodo: string;
+  valorSalud: string;
+  valorPension: string;
+  valorCuotaMonetaria: string;
+  valorTransferencia: string;
+  prioridad: string;
+  responsable: string;
+  fechaPago: string;
+  estado: string;
 };
 
 const initialFilters: FilterFormState = {
@@ -118,33 +168,61 @@ const initialFilters: FilterFormState = {
   responsable: "",
 };
 
+const initialMovementForm: MovementFormState = {
+  SALUD: {
+    valor: "",
+    tipo: "",
+    medioPago: "",
+    soportePagoNombre: "",
+    adjustmentDirection: "",
+  },
+  PENSION: {
+    valor: "",
+    tipo: "",
+    medioPago: "",
+    soportePagoNombre: "",
+    adjustmentDirection: "",
+  },
+  CUOTA_MONETARIA: {
+    valor: "",
+    tipo: "",
+    medioPago: "",
+    soportePagoNombre: "",
+    adjustmentDirection: "",
+  },
+  TRANSFERENCIA_ECONOMICA: {
+    valor: "",
+    tipo: "",
+    medioPago: "",
+    soportePagoNombre: "",
+    adjustmentDirection: "",
+  },
+};
+
 export default function Recobros() {
-
-  const {
-    beneficiarios,
-    casos,
-    usuarioActual,
-    guardarMovimientoDesdeRecobro,
-    crearNuevoCaso,
-    actualizarEstadoCaso,
-  } = useAppData();
-
+  const { user } = useAuth();
   const { toast } = useToast();
+
+  const [beneficiarios, setBeneficiarios] = useState<BeneficiarioApi[]>([]);
+  const [casos, setCasos] = useState<RecobroApi[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
+
   const [newCaseDialogOpen, setNewCaseDialogOpen] = useState(false);
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
-  const [movimientosForm, setMovimientosForm] = useState<MovimientoFormState>(
-    {}
-  );
-  const [editPeriodo, setEditPeriodo] = useState("");
-  const [fechaPago, setFechaPago] = useState("");
+  const [movementDialogOpen, setMovementDialogOpen] = useState(false);
+
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-
   const [filters, setFilters] = useState<FilterFormState>(initialFilters);
+
+  const [movementPeriodo, setMovementPeriodo] = useState("");
+  const [movementFechaPago, setMovementFechaPago] = useState("");
+  const [movementForm, setMovementForm] = useState<MovementFormState>(initialMovementForm);
+
+  const usuarioActual = user?.fullName ?? "Usuario";
 
   const [nuevoCasoForm, setNuevoCasoForm] = useState<NuevoCasoFormState>({
     beneficiarioId: "",
@@ -154,30 +232,111 @@ export default function Recobros() {
     valorPension: "",
     valorCuotaMonetaria: "",
     valorTransferencia: "",
-    estado: "En gestión",
     prioridad: "Media",
     responsable: usuarioActual,
+    fechaPago: "",
+    estado: "Abierto",
   });
+
+  const cargarDatos = async () => {
+    try {
+      setLoading(true);
+
+      const [beneficiariosData, casosData] = await Promise.all([
+        apiFetch<BeneficiarioApi[]>("/beneficiaries"),
+        apiFetch<RecobroApi[]>("/recobros"),
+      ]);
+
+      setBeneficiarios(beneficiariosData);
+      setCasos(casosData);
+    } catch (error) {
+      toast({
+        title: "Error cargando recobros",
+        description:
+          error instanceof Error
+            ? error.message
+            : "No fue posible consultar la información.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    cargarDatos();
+  }, []);
+
+  const selectedCase = useMemo(
+    () => casos.find((c) => c.id === selectedCaseId) ?? null,
+    [casos, selectedCaseId]
+  );
+
+  const selectedBeneficiary = useMemo(() => {
+    if (!selectedCase) return null;
+
+    if (selectedCase.beneficiary) return selectedCase.beneficiary;
+
+    return beneficiarios.find((b) => b.id === selectedCase.beneficiaryId) ?? null;
+  }, [selectedCase, beneficiarios]);
+
   const getDocumentoBeneficiario = (beneficiarioId: string) => {
     const beneficiario = beneficiarios.find((b) => b.id === beneficiarioId);
 
     if (!beneficiario) return "";
 
-    return `${beneficiario.tipoDoc} ${beneficiario.documento}`;
+    return `${beneficiario.tipoDocumento} ${beneficiario.documento}`;
   };
+
+  const getNombreBeneficiario = (caso: RecobroApi) => {
+    if (caso.beneficiary) {
+      return `${caso.beneficiary.nombres} ${caso.beneficiary.apellidos}`;
+    }
+
+    const beneficiario = beneficiarios.find((b) => b.id === caso.beneficiaryId);
+
+    return beneficiario
+      ? `${beneficiario.nombres} ${beneficiario.apellidos}`
+      : "Sin beneficiario";
+  };
+
+  const getConceptosCaso = (caso: RecobroApi) => [
+    {
+      key: "SALUD" as const,
+      label: "Salud",
+      saldo: Number(caso.valorSalud),
+    },
+    {
+      key: "PENSION" as const,
+      label: "Pensión",
+      saldo: Number(caso.valorPension),
+    },
+    {
+      key: "CUOTA_MONETARIA" as const,
+      label: "Cuota Monetaria",
+      saldo: Number(caso.valorCuotaMonetaria),
+    },
+    {
+      key: "TRANSFERENCIA_ECONOMICA" as const,
+      label: "Transferencia Económica",
+      saldo: Number(caso.valorTransferenciaEconomica),
+    },
+  ];
 
   const filtered = useMemo(() => {
     const searchText = search.trim().toLowerCase();
 
     return casos.filter((c) => {
-      const documentoBeneficiario = getDocumentoBeneficiario(
-        c.beneficiarioId
-      ).toLowerCase();
+      const documentoBeneficiario = getDocumentoBeneficiario(c.beneficiaryId).toLowerCase();
+      const nombreBeneficiario = getNombreBeneficiario(c).toLowerCase();
+      const estadoUi = estadoApiToUi[c.estado] ?? c.estado;
+      const prioridadUi = prioridadApiToUi[c.prioridad] ?? c.prioridad;
+      const responsableNombre = c.responsable?.fullName ?? "";
 
       const matchesSearch =
         searchText === "" ||
         c.id.toLowerCase().includes(searchText) ||
-        c.beneficiarioNombre.toLowerCase().includes(searchText) ||
+        nombreBeneficiario.includes(searchText) ||
         documentoBeneficiario.includes(searchText);
 
       const matchesCaso =
@@ -196,19 +355,16 @@ export default function Recobros() {
 
       const matchesBeneficiario =
         filters.beneficiario.trim() === "" ||
-        c.beneficiarioNombre
-          .toLowerCase()
-          .includes(filters.beneficiario.trim().toLowerCase());
+        nombreBeneficiario.includes(filters.beneficiario.trim().toLowerCase());
 
-      const matchesEstado =
-        filters.estado === "all" || c.estado === filters.estado;
+      const matchesEstado = filters.estado === "all" || estadoUi === filters.estado;
 
       const matchesPrioridad =
-        filters.prioridad === "all" || c.prioridad === filters.prioridad;
+        filters.prioridad === "all" || prioridadUi === filters.prioridad;
 
       const matchesResponsable =
         filters.responsable.trim() === "" ||
-        c.responsable
+        responsableNombre
           .toLowerCase()
           .includes(filters.responsable.trim().toLowerCase());
 
@@ -235,6 +391,7 @@ export default function Recobros() {
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     const end = start + pageSize;
+
     return filtered.slice(start, end);
   }, [filtered, currentPage, pageSize]);
 
@@ -251,223 +408,18 @@ export default function Recobros() {
     );
   }, [filters]);
 
-  const selectedCase = useMemo(
-    () => casos.find((c) => c.id === selectedCaseId),
-    [casos, selectedCaseId]
-  );
-
-  const selectedBeneficiary = useMemo(
-    () =>
-      selectedCase
-        ? beneficiarios.find((b) => b.id === selectedCase.beneficiarioId)
-        : null,
-    [beneficiarios, selectedCase]
-  );
-
-  const getCaseConcepts = (caso: (typeof casos)[number]) => [
-    { id: "salud", nombre: "Salud", valor: caso.valorSalud },
-    { id: "pension", nombre: "Pensión", valor: caso.valorPension },
-    {
-      id: "cuota_monetaria",
-      nombre: "Cuota Monetaria",
-      valor: caso.valorCuotaMonetaria,
-    },
-    {
-      id: "transferencia_economica",
-      nombre: "Transferencia Económica",
-      valor: caso.valorTransferencia,
-    },
-  ];
-
-  const handleOpenDialog = (caseId: string) => {
-    const caso = casos.find((c) => c.id === caseId);
-    if (!caso) return;
-
-    const conceptos = getCaseConcepts(caso);
-
-    setSelectedCaseId(caseId);
-    setEditPeriodo(caso.periodo);
-
-    setMovimientosForm(() => {
-      const nextState: MovimientoFormState = {};
-
-      conceptos.forEach((concepto) => {
-        nextState[concepto.id] = {
-          valor: "",
-          tipo: "",
-          medioPago: "",
-          soportePagoNombre: "",
-        };
-      });
-
-      return nextState;
-    });
-
-    setFechaPago(new Date().toISOString().slice(0, 10));
-    setDialogOpen(true);
-  };
-
-  const updateMovimientoValor = (conceptoId: string, value: string) => {
-    const onlyNumbers = value.replace(/[^\d]/g, "");
-
-    setMovimientosForm((prev) => ({
+  const updateFilterField = (field: keyof FilterFormState, value: string) => {
+    setFilters((prev) => ({
       ...prev,
-      [conceptoId]: {
-        ...prev[conceptoId],
-        valor: onlyNumbers,
-      },
+      [field]: value,
     }));
   };
 
-  const updateMovimientoTipo = (conceptoId: string, value: string) => {
-    const requiereDatosPago =
-      conceptosConSoporte.includes(
-        conceptoId as (typeof conceptosConSoporte)[number]
-      ) &&
-      ["Pago", "No procede", "Ajuste contable"].includes(value);
-
-    setMovimientosForm((prev) => ({
-      ...prev,
-      [conceptoId]: {
-        ...prev[conceptoId],
-        tipo: value,
-        medioPago: requiereDatosPago ? prev[conceptoId]?.medioPago || "" : "",
-        soportePagoNombre: requiereDatosPago
-          ? prev[conceptoId]?.soportePagoNombre || ""
-          : "",
-      },
-    }));
+  const handleClearFilters = () => {
+    setFilters(initialFilters);
   };
 
-  const updateMovimientoMedioPago = (conceptoId: string, value: string) => {
-    setMovimientosForm((prev) => ({
-      ...prev,
-      [conceptoId]: {
-        ...prev[conceptoId],
-        medioPago: value,
-      },
-    }));
-  };
-
-  const updateMovimientoSoporte = (conceptoId: string, fileName: string) => {
-  setMovimientosForm((prev) => ({
-    ...prev,
-    [conceptoId]: {
-      ...prev[conceptoId],
-      soportePagoNombre: fileName,
-    },
-  }));
-};
-
-  const handleGuardarMovimientos = () => {
-    if (!selectedCaseId || !selectedCase) return;
-
-    const conceptosActuales = getCaseConcepts(selectedCase);
-
-    for (const concepto of conceptosActuales) {
-      
-      const movimiento = movimientosForm[concepto.id];
-      if (!movimiento || !movimiento.tipo) continue;
-
-      const valorIngresado = Number(movimiento.valor || 0);
-      const saldoActual = concepto.valor;
-
-      const esPago = movimiento.tipo === "Pago";
-
-      const requiereDatosPago =
-        conceptosConSoporte.includes(
-          concepto.id as (typeof conceptosConSoporte)[number]
-        ) &&
-        ["Pago", "No procede", "Ajuste contable"].includes(movimiento.tipo);
-
-      if (requiereDatosPago && !movimiento.medioPago) {
-        toast({
-          title: "Medio de pago requerido",
-          description: `Debes seleccionar el medio de pago para ${concepto.nombre}.`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (requiereDatosPago && !movimiento.soportePagoNombre) {
-        toast({
-          title: "Soporte requerido",
-          description: `Debes cargar el soporte de pago para ${concepto.nombre}.`,
-          variant: "destructive",
-        });
-        return;
-      }
-      const esNoProcede =
-        movimiento.tipo === "No procede" ||
-        movimiento.tipo === "No procede - Giro no efectuado";
-
-      if (esPago) {
-        if (saldoActual <= 0) {
-          toast({
-            title: "Movimiento no permitido",
-            description: `No puedes aplicar "${movimiento.tipo}" sobre ${concepto.nombre} porque el saldo actual es 0.`,
-            variant: "destructive",
-          });
-          return;
-        }
-
-        if (valorIngresado <= 0) {
-          toast({
-            title: "Valor inválido",
-            description: `Debes ingresar un valor mayor a 0 para ${concepto.nombre}.`,
-            variant: "destructive",
-          });
-          return;
-        }
-
-        if (valorIngresado > saldoActual) {
-          toast({
-            title: "Valor excedido",
-            description: `No puedes aplicar un pago de ${formatCurrency(
-              valorIngresado
-            )} en ${concepto.nombre} porque supera el saldo actual de ${formatCurrency(
-              saldoActual
-            )}.`,
-            variant: "destructive",
-          });
-          return;
-        }
-      }
-
-      if (esNoProcede && saldoActual <= 0) {
-        toast({
-          title: "Movimiento no permitido",
-          description: `No puedes aplicar "${movimiento.tipo}" sobre ${concepto.nombre} porque el saldo actual ya es 0.`,
-          variant: "destructive",
-        });
-        return;
-      }
-    }
-
-    guardarMovimientoDesdeRecobro({
-      caseId: selectedCaseId,
-      user: usuarioActual,
-      periodo: editPeriodo,
-      fechaPago,
-      valores: movimientosForm,
-    });
-
-    toast({
-      title: "Movimiento guardado",
-      description: "Los cambios se aplicaron correctamente.",
-    });
-
-    setDialogOpen(false);
-    setSelectedCaseId(null);
-    setEditPeriodo("");
-    setFechaPago("");
-    setMovimientosForm({});
-  };
-
-  const updateNuevoCasoField = (
-    field: keyof NuevoCasoFormState,
-    value: string
-  ) => {
+  const updateNuevoCasoField = (field: keyof NuevoCasoFormState, value: string) => {
     setNuevoCasoForm((prev) => ({
       ...prev,
       [field]: value,
@@ -490,137 +442,337 @@ export default function Recobros() {
     }));
   };
 
-  const handleCrearNuevoCaso = () => {
-    if (!nuevoCasoForm.beneficiarioId || !nuevoCasoForm.periodo.trim()) return;
-
-    crearNuevoCaso({
-      beneficiarioId: nuevoCasoForm.beneficiarioId,
-      ley: nuevoCasoForm.ley as
-        | "ley_100"
-        | "ley_797"
-        | "ley_2225"
-        | "ley_1636",
-      periodo: nuevoCasoForm.periodo,
-      valorSalud: Number(nuevoCasoForm.valorSalud || 0),
-      valorPension: Number(nuevoCasoForm.valorPension || 0),
-      valorCuotaMonetaria: Number(nuevoCasoForm.valorCuotaMonetaria || 0),
-      valorTransferencia: Number(nuevoCasoForm.valorTransferencia || 0),
-      estado: nuevoCasoForm.estado as
-        | "Abierto"
-        | "En gestión"
-        | "Acuerdo"
-        | "En pago"
-        | "Cerrado",
-      prioridad: nuevoCasoForm.prioridad as "Alta" | "Media" | "Baja",
-      responsable: nuevoCasoForm.responsable || usuarioActual,
-    });
-
-    setNuevoCasoForm({
-      beneficiarioId: "",
-      ley: "ley_100",
-      periodo: "",
-      valorSalud: "",
-      valorPension: "",
-      valorCuotaMonetaria: "",
-      valorTransferencia: "",
-      estado: "En gestión",
-      prioridad: "Media",
-      responsable: usuarioActual,
-    });
-
-    setNewCaseDialogOpen(false);
-  };
-
-  const updateFilterField = (field: keyof FilterFormState, value: string) => {
-    setFilters((prev) => ({
+  const updateMovementField = (
+    concepto: MovementConceptApi,
+    field: keyof MovementFormItem,
+    value: string
+  ) => {
+    setMovementForm((prev) => ({
       ...prev,
-      [field]: value,
+      [concepto]: {
+        ...prev[concepto],
+        [field]: value,
+      },
     }));
   };
 
-  const handleClearFilters = () => {
-    setFilters(initialFilters);
+  const handleCrearNuevoCaso = async () => {
+    if (!nuevoCasoForm.beneficiarioId || !nuevoCasoForm.periodo.trim()) {
+      toast({
+        title: "Campos incompletos",
+        description: "Debes seleccionar beneficiario y periodo.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await apiFetch<RecobroApi>("/recobros", {
+        method: "POST",
+        body: JSON.stringify({
+          beneficiaryId: nuevoCasoForm.beneficiarioId,
+          ley: nuevoCasoForm.ley,
+          periodo: nuevoCasoForm.periodo,
+          valorSalud: Number(nuevoCasoForm.valorSalud || 0),
+          valorPension: Number(nuevoCasoForm.valorPension || 0),
+          valorCuotaMonetaria: Number(nuevoCasoForm.valorCuotaMonetaria || 0),
+          valorTransferenciaEconomica: Number(nuevoCasoForm.valorTransferencia || 0),
+          prioridad: prioridadUiToApi[nuevoCasoForm.prioridad] ?? "MEDIA",
+        }),
+      });
+
+      toast({
+        title: "Caso creado",
+        description: "El caso de recobro fue registrado correctamente.",
+      });
+
+      setNuevoCasoForm({
+        beneficiarioId: "",
+        ley: "ley_100",
+        periodo: "",
+        valorSalud: "",
+        valorPension: "",
+        valorCuotaMonetaria: "",
+        valorTransferencia: "",
+        prioridad: "Media",
+        responsable: usuarioActual,
+        fechaPago: "",
+        estado: "Abierto",
+      });
+
+      setNewCaseDialogOpen(false);
+      await cargarDatos();
+    } catch (error) {
+      toast({
+        title: "No fue posible crear el caso",
+        description:
+          error instanceof Error ? error.message : "Ocurrió un error inesperado.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleCambiarEstado = (
-  caseId: string,
-  nuevoEstado: "En gestión" | "Acuerdo pago" | "Cerrado" | "Inactivo"
-  ) => {
-    const casoActual = casos.find((c) => c.id === caseId);
-    if (!casoActual) return;
+  const handleActualizarEstadoCaso = async (caseId: string, estadoUi: string) => {
+    try {
+      await apiFetch<RecobroApi>(`/recobros/${caseId}/estado`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          estado: estadoUiToApi[estadoUi],
+        }),
+      });
 
-    crearNuevoCaso; // deja esta línea fuera, no la uses
+      toast({
+        title: "Estado actualizado",
+        description: "El estado del caso fue actualizado correctamente.",
+      });
+
+      await cargarDatos();
+    } catch (error) {
+      toast({
+        title: "No fue posible cambiar el estado",
+        description:
+          error instanceof Error ? error.message : "Ocurrió un error inesperado.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleOpenMovimiento = (caseId: string) => {
+    const caso = casos.find((c) => c.id === caseId);
+
+    if (!caso) return;
+
+    setSelectedCaseId(caseId);
+    setMovementPeriodo(caso.periodo);
+    setMovementFechaPago(new Date().toISOString().slice(0, 10));
+    setMovementForm(initialMovementForm);
+    setMovementDialogOpen(true);
+  };
+
+  const handleGuardarMovimiento = async () => {
+    if (!selectedCase) {
+      toast({
+        title: "Caso no seleccionado",
+        description: "Debes seleccionar un caso antes de registrar movimientos.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const conceptos = getConceptosCaso(selectedCase);
+
+    const movimientos = conceptos
+      .map((concepto) => {
+        const form = movementForm[concepto.key];
+
+        return {
+          concepto: concepto.key,
+          label: concepto.label,
+          saldo: concepto.saldo,
+          tipoUi: form.tipo,
+          tipoApi: tipoMovimientoUiToApi[form.tipo],
+          valor: Number(form.valor || 0),
+          medioPago: form.medioPago,
+          soportePagoNombre: form.soportePagoNombre,
+          adjustmentDirection: form.adjustmentDirection,
+        };
+      })
+      .filter((movimiento) => movimiento.tipoUi);
+
+    if (movimientos.length === 0) {
+      toast({
+        title: "Sin movimientos",
+        description: "Debes seleccionar al menos un tipo de movimiento.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    for (const movimiento of movimientos) {
+      const requiereValor =
+        movimiento.tipoApi === "REINTEGRO" ||
+        movimiento.tipoApi === "INCREMENTO" ||
+        movimiento.tipoApi === "AJUSTE";
+
+      const requiereMedioYSoporte = movimiento.tipoApi === "REINTEGRO";
+
+      if (!movimiento.tipoApi) {
+        toast({
+          title: "Tipo inválido",
+          description: `El tipo seleccionado para ${movimiento.label} no es válido.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (requiereValor && movimiento.valor <= 0) {
+        toast({
+          title: "Valor inválido",
+          description: `Debes ingresar un valor mayor a cero para ${movimiento.label}.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (
+        (movimiento.tipoApi === "REINTEGRO" ||
+          (movimiento.tipoApi === "AJUSTE" && movimiento.adjustmentDirection === "RESTA")) &&
+        movimiento.valor > movimiento.saldo
+      ) {
+        toast({
+          title: "Valor excedido",
+          description: `El valor de ${movimiento.label} supera el saldo actual.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (movimiento.tipoApi === "NO_PROCEDE" && movimiento.saldo <= 0) {
+        toast({
+          title: "Movimiento no permitido",
+          description: `No puedes aplicar No procede sobre ${movimiento.label} porque el saldo ya es cero.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (movimiento.tipoApi === "AJUSTE" && !movimiento.adjustmentDirection) {
+        toast({
+          title: "Dirección de ajuste requerida",
+          description: `Debes seleccionar si el ajuste de ${movimiento.label} suma o resta.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (requiereMedioYSoporte && !movimiento.medioPago) {
+        toast({
+          title: "Medio de pago requerido",
+          description: `Debes seleccionar el medio de pago para ${movimiento.label}.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (requiereMedioYSoporte && !movimiento.soportePagoNombre) {
+        toast({
+          title: "Soporte requerido",
+          description: `Debes cargar el soporte para ${movimiento.label}.`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    try {
+      for (const movimiento of movimientos) {
+        await apiFetch("/movimientos", {
+          method: "POST",
+          body: JSON.stringify({
+            recobroCaseId: selectedCase.id,
+            tipo: movimiento.tipoApi,
+            concepto: movimiento.concepto,
+            valor: movimiento.tipoApi === "NO_PROCEDE" ? 0 : movimiento.valor,
+            adjustmentDirection:
+              movimiento.tipoApi === "AJUSTE"
+                ? movimiento.adjustmentDirection
+                : undefined,
+            descripcion: [
+              `${movimiento.tipoUi} registrado desde Recobros`,
+              movementPeriodo ? `Periodo: ${movementPeriodo}` : null,
+              movementFechaPago ? `Fecha pago: ${movementFechaPago}` : null,
+              movimiento.medioPago ? `Medio: ${movimiento.medioPago}` : null,
+              movimiento.soportePagoNombre
+                ? `Soporte: ${movimiento.soportePagoNombre}`
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" | "),
+          }),
+        });
+      }
+
+      toast({
+        title: "Movimiento registrado",
+        description: "Los saldos fueron actualizados correctamente.",
+      });
+
+      setMovementDialogOpen(false);
+      setSelectedCaseId(null);
+      setMovementPeriodo("");
+      setMovementFechaPago("");
+      setMovementForm(initialMovementForm);
+
+      await cargarDatos();
+    } catch (error) {
+      toast({
+        title: "No fue posible registrar el movimiento",
+        description:
+          error instanceof Error ? error.message : "Ocurrió un error inesperado.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleExportarRecobros = () => {
     const dataToExport = filtered.map((caso) => {
       const ley = LEYES.find((l) => l.id === caso.ley);
-
-      const totalCaso =
-        caso.valorSalud +
-        caso.valorPension +
-        caso.valorCuotaMonetaria +
-        caso.valorTransferencia;
+      const totalCaso = Number(caso.valorTotal);
+      const estadoUi = estadoApiToUi[caso.estado] ?? caso.estado;
+      const prioridadUi = prioridadApiToUi[caso.prioridad] ?? caso.prioridad;
 
       return {
         Caso: caso.id,
         Ley: ley?.nombre || caso.ley,
         Periodo: caso.periodo,
-        Documento: getDocumentoBeneficiario(caso.beneficiarioId),
-        Beneficiario: caso.beneficiarioNombre,
-        Salud: caso.valorSalud,
-        Pension: caso.valorPension,
-        CuotaMonetaria: caso.valorCuotaMonetaria,
-        TransferenciaEconomica: caso.valorTransferencia,
+        Documento: getDocumentoBeneficiario(caso.beneficiaryId),
+        Beneficiario: getNombreBeneficiario(caso),
+        Salud: Number(caso.valorSalud),
+        Pension: Number(caso.valorPension),
+        CuotaMonetaria: Number(caso.valorCuotaMonetaria),
+        TransferenciaEconomica: Number(caso.valorTransferenciaEconomica),
         Total: totalCaso,
-        Estado: caso.estado,
-        Prioridad: caso.prioridad,
-        Responsable: caso.responsable,
-        FechaApertura: caso.fechaApertura,
-        UltimaGestion: caso.ultimaGestion,
+        Estado: estadoUi,
+        Prioridad: prioridadUi,
+        Responsable: caso.responsable?.fullName ?? "Sin responsable",
+        FechaApertura: new Date(caso.fechaApertura).toLocaleDateString("es-CO"),
+        UltimaGestion: caso.ultimaGestionAt
+          ? new Date(caso.ultimaGestionAt).toLocaleDateString("es-CO")
+          : "",
       };
     });
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-
-    worksheet["!cols"] = [
-      { wch: 12 },
-      { wch: 20 },
-      { wch: 12 },
-      { wch: 30 },
-      { wch: 14 },
-      { wch: 14 },
-      { wch: 18 },
-      { wch: 24 },
-      { wch: 14 },
-      { wch: 14 },
-      { wch: 12 },
-      { wch: 18 },
-      { wch: 14 },
-      { wch: 14 },
-    ];
-
     const workbook = XLSX.utils.book_new();
+
     XLSX.utils.book_append_sheet(workbook, worksheet, "Recobros");
 
     const fechaExportacion = new Date().toISOString().slice(0, 10);
+
     XLSX.writeFile(
       workbook,
       `recobros_${filtered.length}_registros_${fechaExportacion}.xlsx`
     );
   };
 
+  if (loading) {
+    return (
+      <div className="p-6 text-sm text-muted-foreground">
+        Cargando casos de recobro...
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            Casos de Recobro
-          </h1>
+          <h1 className="text-2xl font-bold text-foreground">Casos de Recobro</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Expedientes de recobro por ley y periodo
           </p>
         </div>
+
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleExportarRecobros}>
             <Download className="w-4 h-4 mr-1.5" /> Exportar
@@ -635,7 +787,8 @@ export default function Recobros() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {Object.entries(
           casos.reduce((acc, c) => {
-            acc[c.estado] = (acc[c.estado] || 0) + 1;
+            const estadoUi = estadoApiToUi[c.estado] ?? c.estado;
+            acc[estadoUi] = (acc[estadoUi] || 0) + 1;
             return acc;
           }, {} as Record<string, number>)
         ).map(([estado, count]) => (
@@ -677,9 +830,6 @@ export default function Recobros() {
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Documento
               </th>
-              {/*<th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Caso
-              </th>*/}
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Ley
               </th>
@@ -718,14 +868,14 @@ export default function Recobros() {
               </th>
             </tr>
           </thead>
+
           <tbody>
             {paginatedData.map((caso, i) => {
               const ley = LEYES.find((l) => l.id === caso.ley);
-              const totalCaso =
-                caso.valorSalud +
-                caso.valorPension +
-                caso.valorCuotaMonetaria +
-                caso.valorTransferencia;
+              const totalCaso = Number(caso.valorTotal);
+              const estadoUi = estadoApiToUi[caso.estado] ?? caso.estado;
+              const prioridadUi =
+                prioridadApiToUi[caso.prioridad] ?? caso.prioridad;
 
               return (
                 <tr
@@ -734,27 +884,29 @@ export default function Recobros() {
                   style={{ animationDelay: `${i * 30}ms` }}
                 >
                   <td className="p-3 font-mono text-xs font-medium">
-                    {getDocumentoBeneficiario(caso.beneficiarioId) || "—"}
+                    {getDocumentoBeneficiario(caso.beneficiaryId) || "—"}
                   </td>
                   <td className="p-3 text-xs">{ley?.nombre || caso.ley}</td>
                   <td className="p-3 font-mono text-xs">{caso.periodo}</td>
-                  <td className="p-3 font-medium">{caso.beneficiarioNombre}</td>
+                  <td className="p-3 font-medium">{getNombreBeneficiario(caso)}</td>
                   <td className="p-3 text-right font-mono text-xs">
-                    {caso.valorSalud > 0 ? formatCurrency(caso.valorSalud) : "—"}
-                  </td>
-                  <td className="p-3 text-right font-mono text-xs">
-                    {caso.valorPension > 0
-                      ? formatCurrency(caso.valorPension)
+                    {Number(caso.valorSalud) > 0
+                      ? formatCurrency(Number(caso.valorSalud))
                       : "—"}
                   </td>
                   <td className="p-3 text-right font-mono text-xs">
-                    {caso.valorCuotaMonetaria > 0
-                      ? formatCurrency(caso.valorCuotaMonetaria)
+                    {Number(caso.valorPension) > 0
+                      ? formatCurrency(Number(caso.valorPension))
                       : "—"}
                   </td>
                   <td className="p-3 text-right font-mono text-xs">
-                    {caso.valorTransferencia > 0
-                      ? formatCurrency(caso.valorTransferencia)
+                    {Number(caso.valorCuotaMonetaria) > 0
+                      ? formatCurrency(Number(caso.valorCuotaMonetaria))
+                      : "—"}
+                  </td>
+                  <td className="p-3 text-right font-mono text-xs">
+                    {Number(caso.valorTransferenciaEconomica) > 0
+                      ? formatCurrency(Number(caso.valorTransferenciaEconomica))
                       : "—"}
                   </td>
                   <td className="p-3 text-right font-mono font-semibold">
@@ -762,31 +914,20 @@ export default function Recobros() {
                   </td>
                   <td className="p-3">
                     <Select
-                      value={caso.estado}
+                      value={estadoUi}
                       onValueChange={(value) =>
-                        actualizarEstadoCaso(
-                          caso.id,
-                          value as "En gestión" | "Acuerdo pago" | "Cerrado" | "Inactivo"
-                        )
+                        handleActualizarEstadoCaso(caso.id, value)
                       }
                     >
                       <SelectTrigger
-                        className={`h-7 min-w-[130px] px-2 py-0 border rounded-full text-[10px] font-semibold ${estadoColors[caso.estado]}`}
+                        className={`h-7 min-w-[130px] px-2 py-0 border rounded-full text-[10px] font-semibold ${estadoColors[estadoUi]}`}
                       >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {estadosCaso.map((estado) => (
-                          <SelectItem
-                            key={estado}
-                            value={estado}
-                            className="focus:bg-muted focus:text-foreground data-[highlighted]:bg-muted"
-                          >
-                            <span
-                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${estadoColors[estado]}`}
-                            >
-                              {estado}
-                            </span>
+                          <SelectItem key={estado} value={estado}>
+                            {estado}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -794,23 +935,21 @@ export default function Recobros() {
                   </td>
                   <td className="p-3">
                     <Badge
-                      variant={
-                        caso.prioridad === "Alta" ? "destructive" : "secondary"
-                      }
+                      variant={prioridadUi === "Alta" ? "destructive" : "secondary"}
                       className="text-[10px]"
                     >
-                      {caso.prioridad}
+                      {prioridadUi}
                     </Badge>
                   </td>
                   <td className="p-3 text-muted-foreground text-xs">
-                    {caso.responsable}
+                    {caso.responsable?.fullName ?? usuarioActual}
                   </td>
                   <td className="p-3 text-center">
                     <Button
                       variant="outline"
                       size="sm"
                       className="text-xs h-7"
-                      onClick={() => handleOpenDialog(caso.id)}
+                      onClick={() => handleOpenMovimiento(caso.id)}
                     >
                       Grabar Mov.
                     </Button>
@@ -886,6 +1025,206 @@ export default function Recobros() {
         </div>
       </div>
 
+      <Dialog open={movementDialogOpen} onOpenChange={setMovementDialogOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Estado de cuenta</DialogTitle>
+          </DialogHeader>
+
+          {selectedCase && selectedBeneficiary && (
+            <div className="space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">
+                  {selectedBeneficiary.nombres[0]}
+                  {selectedBeneficiary.apellidos[0]}
+                </div>
+
+                <div>
+                  <p className="font-semibold">
+                    {selectedBeneficiary.nombres} {selectedBeneficiary.apellidos}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedBeneficiary.tipoDocumento} {selectedBeneficiary.documento}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">
+                    Período
+                  </label>
+                  <Input
+                    value={movementPeriodo}
+                    onChange={(e) => setMovementPeriodo(e.target.value)}
+                    placeholder="Ej: 2026-05"
+                    className="font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">
+                    Fecha de pago
+                  </label>
+                  <Input
+                    type="date"
+                    value={movementFechaPago}
+                    onChange={(e) => setMovementFechaPago(e.target.value)}
+                    className="font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {getConceptosCaso(selectedCase).map((concepto) => {
+                  const form = movementForm[concepto.key];
+                  const requierePago = form.tipo === "Pago";
+                  const esAjuste = form.tipo === "Ajuste contable";
+
+                  return (
+                    <div
+                      key={concepto.key}
+                      className="grid grid-cols-1 md:grid-cols-[1.2fr_0.9fr_1fr_1fr] gap-3 items-start py-3 border-b border-border last:border-0"
+                    >
+                      <div>
+                        <p className="text-sm font-medium">{concepto.label}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Saldo actual: {formatCurrency(concepto.saldo)}
+                        </p>
+                      </div>
+
+                      <Input
+                        placeholder="Ingrese valor"
+                        value={form.valor}
+                        onChange={(e) => {
+                          const onlyNumbers = e.target.value.replace(/[^\d]/g, "");
+                          updateMovementField(concepto.key, "valor", onlyNumbers);
+                        }}
+                        className="font-mono"
+                      />
+
+                      <Select
+                        value={form.tipo}
+                        onValueChange={(value) =>
+                          updateMovementField(concepto.key, "tipo", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccione concepto" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {tiposMovimiento.map((item) => (
+                            <SelectItem key={item} value={item}>
+                              {item}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <div className="space-y-2">
+                        {esAjuste && (
+                          <Select
+                            value={form.adjustmentDirection}
+                            onValueChange={(value) =>
+                              updateMovementField(
+                                concepto.key,
+                                "adjustmentDirection",
+                                value
+                              )
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Suma / Resta" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="SUMA">Suma</SelectItem>
+                              <SelectItem value="RESTA">Resta</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+
+                        {requierePago && (
+                          <>
+                            <Select
+                              value={form.medioPago}
+                              onValueChange={(value) =>
+                                updateMovementField(concepto.key, "medioPago", value)
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Medio de pago" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {mediosPago.map((medio) => (
+                                  <SelectItem key={medio} value={medio}>
+                                    {medio}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+
+                            <input
+                              id={`soporte-${concepto.key}`}
+                              type="file"
+                              accept=".pdf,.png,.jpg,.jpeg"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  updateMovementField(
+                                    concepto.key,
+                                    "soportePagoNombre",
+                                    file.name
+                                  );
+                                }
+                              }}
+                            />
+
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                  document
+                                    .getElementById(`soporte-${concepto.key}`)
+                                    ?.click()
+                                }
+                              >
+                                Cargar soporte
+                              </Button>
+
+                              <span className="text-xs text-muted-foreground truncate max-w-[180px]">
+                                {form.soportePagoNombre || "Sin archivo"}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-border">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setMovementDialogOpen(false);
+                    setSelectedCaseId(null);
+                    setMovementForm(initialMovementForm);
+                  }}
+                >
+                  Cancelar
+                </Button>
+
+                <Button onClick={handleGuardarMovimiento}>Guardar</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -898,7 +1237,7 @@ export default function Recobros() {
                 Caso
               </label>
               <Input
-                placeholder="Ej: CR-001"
+                placeholder="ID del caso"
                 value={filters.caso}
                 onChange={(e) => updateFilterField("caso", e.target.value)}
               />
@@ -909,7 +1248,7 @@ export default function Recobros() {
                 Documento
               </label>
               <Input
-                placeholder="Ej: CC 1023456789"
+                placeholder="Documento"
                 value={filters.documento}
                 onChange={(e) => updateFilterField("documento", e.target.value)}
               />
@@ -942,7 +1281,7 @@ export default function Recobros() {
                 Periodo
               </label>
               <Input
-                placeholder="Ej: 2024-01"
+                placeholder="Ej: 2026-05"
                 value={filters.periodo}
                 onChange={(e) => updateFilterField("periodo", e.target.value)}
               />
@@ -974,11 +1313,11 @@ export default function Recobros() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="Abierto">Abierto</SelectItem>
-                  <SelectItem value="En gestión">En gestión</SelectItem>
-                  <SelectItem value="Acuerdo">Acuerdo</SelectItem>
-                  <SelectItem value="En pago">En pago</SelectItem>
-                  <SelectItem value="Cerrado">Cerrado</SelectItem>
+                  {estadosCaso.map((estado) => (
+                    <SelectItem key={estado} value={estado}>
+                      {estado}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -1021,185 +1360,8 @@ export default function Recobros() {
             <Button variant="outline" onClick={handleClearFilters}>
               Limpiar filtros
             </Button>
-            <Button onClick={() => setFilterDialogOpen(false)}>
-              Aplicar
-            </Button>
+            <Button onClick={() => setFilterDialogOpen(false)}>Aplicar</Button>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Estado de Cuenta</DialogTitle>
-          </DialogHeader>
-
-          {selectedCase && selectedBeneficiary && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">
-                  {selectedBeneficiary.nombres[0]}
-                  {selectedBeneficiary.apellidos[0]}
-                </div>
-
-                <div>
-                  <p className="font-semibold">
-                    {selectedBeneficiary.nombres}{" "}
-                    {selectedBeneficiary.apellidos}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {selectedBeneficiary.tipoDoc}{" "}
-                    {selectedBeneficiary.documento}
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">
-                    Período
-                  </label>
-                  <Input
-                    value={nuevoCasoForm.periodo}
-                    onChange={(e) => updateNuevoCasoField("periodo", e.target.value)}
-                    placeholder="Ej: 2024-08"
-                    className="font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">
-                    Fecha de pago
-                  </label>
-                  <Input
-                    type="date"
-                    value={fechaPago}
-                    onChange={(e) => setFechaPago(e.target.value)}
-                    className="font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                {getCaseConcepts(selectedCase).map((concepto) => (
-                <div
-                  key={concepto.id}
-                  className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr_1.2fr] gap-3 items-center py-2 border-b border-border last:border-0"
-                >
-                  <div className="flex flex-col">
-                    <span className="text-sm text-muted-foreground">
-                      {concepto.nombre}
-                    </span>
-                    <span className="text-xs font-mono text-foreground">
-                      Saldo actual: {formatCurrency(concepto.valor)}
-                    </span>
-                  </div>
-
-                  <Input
-                    placeholder="Ingrese valor"
-                    value={movimientosForm[concepto.id]?.valor ?? ""}
-                    onChange={(e) =>
-                      updateMovimientoValor(concepto.id, e.target.value)
-                    }
-                    className="font-mono"
-                  />
-
-                  <Select
-                    value={movimientosForm[concepto.id]?.tipo ?? ""}
-                    onValueChange={(value) =>
-                      updateMovimientoTipo(concepto.id, value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccione concepto" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {conceptosMovimiento.map((item) => (
-                        <SelectItem key={item} value={item}>
-                          {item}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  {conceptosConSoporte.includes(
-                    concepto.id as (typeof conceptosConSoporte)[number]
-                  ) &&
-                  ["Pago", "No procede", "Ajuste contable"].includes(
-                    movimientosForm[concepto.id]?.tipo ?? ""
-                  ) ? (
-                    <div className="space-y-2">
-                      <Select
-                        value={movimientosForm[concepto.id]?.medioPago ?? ""}
-                        onValueChange={(value) =>
-                          updateMovimientoMedioPago(concepto.id, value)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Medio de pago" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {mediosPago.map((medio) => (
-                            <SelectItem key={medio} value={medio}>
-                              {medio}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-
-                      <input
-                        id={`soporte-${concepto.id}`}
-                        type="file"
-                        accept=".pdf,.png,.jpg,.jpeg"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            updateMovimientoSoporte(concepto.id, file.name);
-                          }
-                        }}
-                      />
-
-                      <div className="flex items-center gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            document.getElementById(`soporte-${concepto.id}`)?.click()
-                          }
-                        >
-                          Cargar soporte
-                        </Button>
-
-                        <span className="text-xs text-muted-foreground truncate max-w-[180px]">
-                          {movimientosForm[concepto.id]?.soportePagoNombre || "Sin archivo"}
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div />
-                  )}
-                </div>
-                ))}
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2 border-t border-border">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setDialogOpen(false);
-                    setSelectedCaseId(null);
-                    setEditPeriodo("");
-                    setFechaPago("");
-                    setMovimientosForm({});
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button onClick={handleGuardarMovimientos}>Guardar</Button>
-              </div>
-            </div>
-          )}
         </DialogContent>
       </Dialog>
 
@@ -1222,12 +1384,12 @@ export default function Recobros() {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Seleccione beneficiario" />
+                    <SelectValue placeholder="Seleccionar beneficiario" />
                   </SelectTrigger>
                   <SelectContent>
-                    {beneficiarios.map((b) => (
-                      <SelectItem key={b.id} value={b.id}>
-                        {b.nombres} {b.apellidos}
+                    {beneficiarios.map((beneficiario) => (
+                      <SelectItem key={beneficiario.id} value={beneficiario.id}>
+                        {beneficiario.nombres} {beneficiario.apellidos}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1260,9 +1422,11 @@ export default function Recobros() {
                   Período
                 </label>
                 <Input
-                  value={editPeriodo}
-                  onChange={(e) => setEditPeriodo(e.target.value)}
-                  placeholder="Ej: 2024-08"
+                  value={nuevoCasoForm.periodo}
+                  onChange={(e) =>
+                    updateNuevoCasoField("periodo", e.target.value)
+                  }
+                  placeholder="Ej: 2026-05"
                   className="font-mono"
                 />
               </div>
@@ -1273,8 +1437,10 @@ export default function Recobros() {
                 </label>
                 <Input
                   type="date"
-                  value={fechaPago}
-                  onChange={(e) => setFechaPago(e.target.value)}
+                  value={nuevoCasoForm.fechaPago}
+                  onChange={(e) =>
+                    updateNuevoCasoField("fechaPago", e.target.value)
+                  }
                   className="font-mono"
                 />
               </div>
@@ -1283,12 +1449,7 @@ export default function Recobros() {
                 <label className="text-sm text-muted-foreground mb-1 block">
                   Responsable
                 </label>
-                <Input
-                  value={nuevoCasoForm.responsable}
-                  onChange={(e) =>
-                    updateNuevoCasoField("responsable", e.target.value)
-                  }
-                />
+                <Input value={nuevoCasoForm.responsable} disabled />
               </div>
 
               <div>
@@ -1305,10 +1466,11 @@ export default function Recobros() {
                     <SelectValue placeholder="Seleccione estado" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="En gestión">En gestión</SelectItem>
-                    <SelectItem value="Acuerdo pago">Acuerdo pago</SelectItem>
-                    <SelectItem value="Cerrado">Cerrado</SelectItem>
-                    <SelectItem value="Inactivo">Inactivo</SelectItem>
+                    {estadosCaso.map((estado) => (
+                      <SelectItem key={estado} value={estado}>
+                        {estado}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
