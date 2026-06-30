@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, Plus, Filter, Download } from "lucide-react";
+import { Search, Filter, Download } from "lucide-react";
 import ExcelJS from "exceljs/dist/exceljs.min.js";
 import { saveAs } from "file-saver";
 import { LEYES } from "@/lib/mock-data";
-import { useAppData } from "@/context/AppDataContext";
+import { apiFetch } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,7 +38,7 @@ const tipoStyles: Record<string, { label: string; color: string }> = {
     color: "bg-info/15 text-info border-info/30",
   },
   REINTEGRO: {
-    label: "Reintegro",
+    label: "Pago",
     color: "bg-accent/15 text-accent border-accent/30",
   },
   NO_PROCEDE: {
@@ -72,53 +73,196 @@ const initialFilters: FilterFormState = {
   medioPago: "",
 };
 
+type BeneficiaryApi = {
+  id: string;
+  tipoDocumento: string;
+  documento: string;
+  nombres: string;
+  apellidos: string;
+};
+
+type RecobroCaseApi = {
+  id: string;
+  ley: string;
+  periodo: string;
+};
+
+type UserApi = {
+  id: string;
+  fullName: string;
+  email: string;
+};
+
+type MovimientoApi = {
+  id: string;
+  recobroCaseId: string;
+  beneficiaryId: string;
+  tipo: "SALDO_INICIAL" | "INCREMENTO" | "REINTEGRO" | "NO_PROCEDE" | "AJUSTE";
+  concepto:
+    | "SALUD"
+    | "PENSION"
+    | "CUOTA_MONETARIA"
+    | "TRANSFERENCIA_ECONOMICA";
+  adjustmentDirection?: "SUMA" | "RESTA" | null;
+  valor: string;
+  descripcion: string | null;
+  saldoAnteriorConcepto: string;
+  saldoNuevoConcepto: string;
+  caseTotalAnterior: string;
+  caseTotalNuevo: string;
+  beneficiaryTotalAnterior: string;
+  beneficiaryTotalNuevo: string;
+  createdAt: string;
+  beneficiary?: BeneficiaryApi;
+  recobroCase?: RecobroCaseApi;
+  user?: UserApi;
+};
+
+type MovimientoRow = {
+  id: string;
+  documento: string;
+  fecha: string;
+  ley: string;
+  periodo: string;
+  beneficiario: string;
+  tipo: MovimientoApi["tipo"];
+  tipoLabel: string;
+  concepto: MovimientoApi["concepto"];
+  valorSalud: number;
+  valorPension: number;
+  valorCuotaMonetaria: number;
+  valorTransferencia: number;
+  valor: number;
+  usuario: string;
+  medioPago: string;
+  descripcion: string;
+  fechaModificacion: string;
+};
+
+function getMedioPagoFromDescription(description: string) {
+  const match = description.match(/Medio:\s*([^|]+)/i);
+  return match?.[1]?.trim() ?? "";
+}
+
+function getTipoLabel(m: MovimientoApi) {
+  if (m.tipo === "REINTEGRO") return "Pago";
+  if (m.tipo === "AJUSTE" && m.adjustmentDirection) {
+    return `Ajuste ${m.adjustmentDirection === "SUMA" ? "Suma" : "Resta"}`;
+  }
+
+  return tipoStyles[m.tipo]?.label ?? m.tipo;
+}
+
+function getSignedValue(m: MovimientoApi) {
+  const value = Number(m.valor);
+
+  if (m.tipo === "REINTEGRO") return -Math.abs(value);
+  if (m.tipo === "NO_PROCEDE") return -Math.abs(value);
+  if (m.tipo === "AJUSTE" && m.adjustmentDirection === "RESTA") {
+    return -Math.abs(value);
+  }
+
+  return Math.abs(value);
+}
+
+function mapMovimientoToRow(m: MovimientoApi): MovimientoRow {
+  const signedValue = getSignedValue(m);
+  const descripcion = m.descripcion ?? "";
+
+  return {
+    id: m.id,
+    documento: m.beneficiary
+      ? `${m.beneficiary.tipoDocumento} ${m.beneficiary.documento}`
+      : "",
+    fecha: new Date(m.createdAt).toLocaleDateString("es-CO"),
+    ley: m.recobroCase?.ley ?? "",
+    periodo: m.recobroCase?.periodo ?? "",
+    beneficiario: m.beneficiary
+      ? `${m.beneficiary.nombres} ${m.beneficiary.apellidos}`
+      : "Sin beneficiario",
+    tipo: m.tipo,
+    tipoLabel: getTipoLabel(m),
+    concepto: m.concepto,
+    valorSalud: m.concepto === "SALUD" ? signedValue : 0,
+    valorPension: m.concepto === "PENSION" ? signedValue : 0,
+    valorCuotaMonetaria: m.concepto === "CUOTA_MONETARIA" ? signedValue : 0,
+    valorTransferencia:
+      m.concepto === "TRANSFERENCIA_ECONOMICA" ? signedValue : 0,
+    valor: signedValue,
+    usuario: m.user?.fullName ?? "Sin usuario",
+    medioPago: getMedioPagoFromDescription(descripcion),
+    descripcion,
+    fechaModificacion: new Date(m.createdAt).toLocaleString("es-CO"),
+  };
+}
+
 export default function Movimientos() {
-  const { movimientos, beneficiarios } = useAppData();
+  const { toast } = useToast();
+
+  const [movimientos, setMovimientos] = useState<MovimientoApi[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState<FilterFormState>(initialFilters);
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const getDocumentoBeneficiario = (beneficiarioId: string) => {
-  const beneficiario = beneficiarios.find((b) => b.id === beneficiarioId);
 
-  if (!beneficiario) return "";
+  const cargarMovimientos = async () => {
+    try {
+      setLoading(true);
+      const data = await apiFetch<MovimientoApi[]>("/movimientos");
+      setMovimientos(data);
+    } catch (error) {
+      toast({
+        title: "Error cargando movimientos",
+        description:
+          error instanceof Error
+            ? error.message
+            : "No fue posible consultar los movimientos.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  return `${beneficiario.tipoDoc} ${beneficiario.documento}`;
-};
+  useEffect(() => {
+    cargarMovimientos();
+  }, []);
+
+  const movimientosRows = useMemo(
+    () => movimientos.map(mapMovimientoToRow),
+    [movimientos]
+  );
 
   const filtered = useMemo(() => {
     const searchText = search.trim().toLowerCase();
 
-    return movimientos
+    return movimientosRows
       .filter((m) => {
-        const tipo = tipoStyles[m.tipo];
-        const tipoLabel = m.tipoDetalle || tipo.label;
-        const documentoBeneficiario = getDocumentoBeneficiario(
-          m.beneficiarioId
-        );
         const matchesMedioPago =
-        filters.medioPago.trim() === "" ||
-        (m.medioPago || "")
-          .toLowerCase()
-          .includes(filters.medioPago.trim().toLowerCase());
+          filters.medioPago.trim() === "" ||
+          m.medioPago
+            .toLowerCase()
+            .includes(filters.medioPago.trim().toLowerCase());
 
         const matchesSearch =
           searchText === "" ||
-          m.beneficiarioNombre.toLowerCase().includes(searchText) ||
-          documentoBeneficiario.toLowerCase().includes(searchText) ||
+          m.beneficiario.toLowerCase().includes(searchText) ||
+          m.documento.toLowerCase().includes(searchText) ||
           m.descripcion.toLowerCase().includes(searchText);
 
         const matchesId =
           filters.id.trim() === "" ||
-          documentoBeneficiario
-            .toLowerCase()
-            .includes(filters.id.trim().toLowerCase());
+          m.documento.toLowerCase().includes(filters.id.trim().toLowerCase());
 
         const matchesFecha =
           filters.fecha.trim() === "" ||
-          m.fecha.toLowerCase().includes(filters.fecha.trim().toLowerCase());
+          m.fecha.toLowerCase().includes(filters.fecha.trim().toLowerCase()) ||
+          m.fechaModificacion
+            .toLowerCase()
+            .includes(filters.fecha.trim().toLowerCase());
 
         const matchesLey = filters.ley === "all" || m.ley === filters.ley;
 
@@ -128,14 +272,14 @@ export default function Movimientos() {
 
         const matchesBeneficiario =
           filters.beneficiario.trim() === "" ||
-          m.beneficiarioNombre
+          m.beneficiario
             .toLowerCase()
             .includes(filters.beneficiario.trim().toLowerCase());
 
         const matchesTipo =
           filters.tipo === "all" ||
           m.tipo === filters.tipo ||
-          tipoLabel.toLowerCase().includes(filters.tipo.toLowerCase());
+          m.tipoLabel.toLowerCase().includes(filters.tipo.toLowerCase());
 
         const matchesUsuario =
           filters.usuario.trim() === "" ||
@@ -154,16 +298,11 @@ export default function Movimientos() {
         );
       })
       .sort((a, b) => {
-        const fechaA = new Date(a.fecha).getTime();
-        const fechaB = new Date(b.fecha).getTime();
-
-        if (fechaA !== fechaB) {
-          return fechaA - fechaB;
-        }
-
-        return a.id.localeCompare(b.id);
+        const fechaA = new Date(a.fechaModificacion).getTime();
+        const fechaB = new Date(b.fechaModificacion).getTime();
+        return fechaA - fechaB;
       });
-  }, [movimientos, beneficiarios, search, filters]);
+  }, [movimientosRows, search, filters]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -201,156 +340,107 @@ export default function Movimientos() {
     setFilters(initialFilters);
   };
 
-const handleExportarMovimientos = async () => { 
-  try {
-    const response = await fetch(
-      "/templates/plantilla-exportacion-movimientos.xlsx"
-    );
-
-    if (!response.ok) {
-      throw new Error(
-        "No se encontró la plantilla en /public/templates/plantilla-exportacion-movimientos.xlsx"
-      );
-    }
-
-    const arrayBuffer = await response.arrayBuffer();
-
-    const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(arrayBuffer);
-
-    const worksheet = workbook.worksheets[0];
-
-    const movimientosOrdenados = [...filtered].sort((a, b) => {
-      const fechaA = new Date(a.fecha).getTime();
-      const fechaB = new Date(b.fecha).getTime();
-
-      if (fechaA !== fechaB) return fechaA - fechaB;
-      return a.id.localeCompare(b.id);
-    });
-
-    const getDocumentoBeneficiario = (beneficiarioId: string) => {
-      const beneficiario = beneficiarios.find((b) => b.id === beneficiarioId);
-      if (!beneficiario) return "";
-      return `${beneficiario.tipoDoc} ${beneficiario.documento}`;
-    };
-
-    const esPagoMovimiento = (m: (typeof movimientosOrdenados)[number]) =>
-      m.tipoDetalle === "Pago" || m.tipo === "REINTEGRO";
-
-    const toSignedValue = (
-      m: (typeof movimientosOrdenados)[number],
-      valor: number
-    ) => {
-      if (!valor) return 0;
-      return esPagoMovimiento(m) ? -Math.abs(valor) : Math.abs(valor);
-    };
-
-    const toDisplayTotal = (
-      m: (typeof movimientosOrdenados)[number],
-      valorSalud: number,
-      valorPension: number,
-      valorCuotaMonetaria: number,
-      valorTransferencia: number
-    ) => {
-      const sumaConceptos =
-        Math.abs(valorSalud) +
-        Math.abs(valorPension) +
-        Math.abs(valorCuotaMonetaria) +
-        Math.abs(valorTransferencia);
-
-      return sumaConceptos;
-    };
-
-    const dataRows = movimientosOrdenados.map((m) => {
-      const tipo = tipoStyles[m.tipo];
-      const tipoLabel = m.tipoDetalle || tipo.label;
-      const ley = LEYES.find((l) => l.id === m.ley);
-
-      const valorSalud = toSignedValue(m, m.valorSalud);
-      const valorPension = toSignedValue(m, m.valorPension);
-      const valorCuotaMonetaria = toSignedValue(m, m.valorCuotaMonetaria);
-      const valorTransferencia = toSignedValue(m, m.valorTransferencia);
-
-      const totalFila = toDisplayTotal(
-        m,
-        valorSalud,
-        valorPension,
-        valorCuotaMonetaria,
-        valorTransferencia
+  const handleExportarMovimientos = async () => {
+    try {
+      const response = await fetch(
+        "/templates/plantilla-exportacion-movimientos.xlsx"
       );
 
-      return {
-        documento: getDocumentoBeneficiario(m.beneficiarioId),
-        fecha: m.fecha,
-        ley: ley?.nombre || m.ley,
-        periodo: m.periodo,
-        beneficiario: m.beneficiarioNombre,
-        tipo: tipoLabel,
-        salud: valorSalud,
-        pension: valorPension,
-        cuotaMonetaria: valorCuotaMonetaria,
-        transferenciaEconomica: valorTransferencia,
-        total: totalFila,
-        usuario: m.usuario,
-        medioPago: m.medioPago || "",
-        descripcion: m.descripcion,
+      if (!response.ok) {
+        throw new Error(
+          "No se encontró la plantilla en /public/templates/plantilla-exportacion-movimientos.xlsx"
+        );
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(arrayBuffer);
+
+      const worksheet = workbook.worksheets[0];
+
+      const movimientosOrdenados = [...filtered].sort((a, b) => {
+        const fechaA = new Date(a.fechaModificacion).getTime();
+        const fechaB = new Date(b.fechaModificacion).getTime();
+        return fechaA - fechaB;
+      });
+
+      const dataRows = movimientosOrdenados.map((m) => {
+        const ley = LEYES.find((l) => l.id === m.ley);
+
+        return {
+          documento: m.documento,
+          fecha: m.fecha,
+          ley: ley?.nombre || m.ley,
+          periodo: m.periodo,
+          beneficiario: m.beneficiario,
+          tipo: m.tipoLabel,
+          salud: m.valorSalud,
+          pension: m.valorPension,
+          cuotaMonetaria: m.valorCuotaMonetaria,
+          transferenciaEconomica: m.valorTransferencia,
+          total:
+            Math.abs(m.valorSalud) +
+            Math.abs(m.valorPension) +
+            Math.abs(m.valorCuotaMonetaria) +
+            Math.abs(m.valorTransferencia),
+          usuario: m.usuario,
+          medioPago: m.medioPago,
+          descripcion: m.descripcion,
+        };
+      });
+
+      const saldoSalud = dataRows.reduce((acc, row) => acc + row.salud, 0);
+      const saldoPension = dataRows.reduce((acc, row) => acc + row.pension, 0);
+      const saldoCuotaMonetaria = dataRows.reduce(
+        (acc, row) => acc + row.cuotaMonetaria,
+        0
+      );
+      const saldoTransferencia = dataRows.reduce(
+        (acc, row) => acc + row.transferenciaEconomica,
+        0
+      );
+      const saldoTotal =
+        saldoSalud + saldoPension + saldoCuotaMonetaria + saldoTransferencia;
+
+      const startRow = 8;
+      const endTemplateRow = 300;
+
+      if (dataRows.length > endTemplateRow - startRow + 1) {
+        throw new Error(
+          `La plantilla solo soporta ${endTemplateRow - startRow + 1} registros.`
+        );
+      }
+
+      for (let rowNumber = startRow; rowNumber <= endTemplateRow; rowNumber++) {
+        for (let colNumber = 1; colNumber <= 13; colNumber++) {
+          const cell = worksheet.getCell(rowNumber, colNumber);
+          cell.value = null;
+        }
+      }
+
+      const setAccountingCell = (cellRef: string, value: number) => {
+        const cell = worksheet.getCell(cellRef);
+        cell.value = value === 0 ? "-" : value;
+
+        if (value !== 0) {
+          cell.numFmt = "$ #,##0.00;[Red]-$ #,##0.00";
+        }
       };
-    });
 
-    const saldoSalud = dataRows.reduce((acc, row) => acc + row.salud, 0);
-    const saldoPension = dataRows.reduce((acc, row) => acc + row.pension, 0);
-    const saldoCuotaMonetaria = dataRows.reduce(
-      (acc, row) => acc + row.cuotaMonetaria,
-      0
-    );
-    const saldoTransferencia = dataRows.reduce(
-      (acc, row) => acc + row.transferenciaEconomica,
-      0
-    );
-    const saldoTotal =
-      saldoSalud + saldoPension + saldoCuotaMonetaria + saldoTransferencia;
+      setAccountingCell("G5", saldoSalud);
+      setAccountingCell("H5", saldoPension);
+      setAccountingCell("I5", saldoCuotaMonetaria);
+      setAccountingCell("J5", saldoTransferencia);
 
-    const startRow = 8;
-    const endTemplateRow = 300;
+      const cellK5 = worksheet.getCell("K5");
+      cellK5.value = saldoTotal;
+      cellK5.numFmt = "$ #,##0.00;[Red]-$ #,##0.00";
 
-    if (dataRows.length > endTemplateRow - startRow + 1) {
-      throw new Error(
-        `La plantilla solo soporta ${endTemplateRow - startRow + 1} registros.`
-      );
-    }
+      dataRows.forEach((row, index) => {
+        const rowNumber = startRow + index;
 
-    // Limpiar contenido anterior sin borrar estilos
-    for (let rowNumber = startRow; rowNumber <= endTemplateRow; rowNumber++) {
-      for (let colNumber = 1; colNumber <= 13; colNumber++) {
-        const cell = worksheet.getCell(rowNumber, colNumber);
-        cell.value = null;
-      }
-    }
-
-    // Función para mostrar dash en cero y moneda en otros casos
-    const setAccountingCell = (cellRef: string, value: number) => {
-      const cell = worksheet.getCell(cellRef);
-      cell.value = value === 0 ? "-" : value;
-      if (value !== 0) {
-        cell.numFmt = '$ #,##0.00;[Red]-$ #,##0.00';
-      }
-    };
-
-    // Resumen superior
-    setAccountingCell("G5", saldoSalud);
-    setAccountingCell("H5", saldoPension);
-    setAccountingCell("I5", saldoCuotaMonetaria);
-    setAccountingCell("J5", saldoTransferencia);
-
-    const cellK5 = worksheet.getCell("K5");
-    cellK5.value = saldoTotal;
-    cellK5.numFmt = '$ #,##0.00;[Red]-$ #,##0.00';
-
-    // Escribir detalle respetando formato de la plantilla
-    dataRows.forEach((row, index) => {
-      const rowNumber = startRow + index;
-
-      worksheet.getCell(`A${rowNumber}`).value = row.documento;
+        worksheet.getCell(`A${rowNumber}`).value = row.documento;
         worksheet.getCell(`B${rowNumber}`).value = row.fecha;
         worksheet.getCell(`C${rowNumber}`).value = row.ley;
         worksheet.getCell(`D${rowNumber}`).value = row.periodo;
@@ -366,12 +456,13 @@ const handleExportarMovimientos = async () => {
         g.value = row.salud === 0 ? "-" : row.salud;
         h.value = row.pension === 0 ? "-" : row.pension;
         i.value = row.cuotaMonetaria === 0 ? "-" : row.cuotaMonetaria;
-        j.value = row.transferenciaEconomica === 0 ? "-" : row.transferenciaEconomica;
+        j.value =
+          row.transferenciaEconomica === 0 ? "-" : row.transferenciaEconomica;
         k.value = row.total === 0 ? "-" : row.total;
 
         [g, h, i, j, k].forEach((cell) => {
           if (typeof cell.value === "number") {
-            cell.numFmt = '$ #,##0.00;[Red]-$ #,##0.00';
+            cell.numFmt = "$ #,##0.00;[Red]-$ #,##0.00";
           }
         });
 
@@ -379,34 +470,35 @@ const handleExportarMovimientos = async () => {
         worksheet.getCell(`M${rowNumber}`).value = row.descripcion;
       });
 
-      // Ajustar ancho de columnas
-      worksheet.getColumn(1).width = 16;
-      worksheet.getColumn(2).width = 14;
-      worksheet.getColumn(3).width = 18;
-      worksheet.getColumn(4).width = 12;
-      worksheet.getColumn(5).width = 24;
-      worksheet.getColumn(6).width = 18;
-      worksheet.getColumn(7).width = 16;
-      worksheet.getColumn(8).width = 16;
-      worksheet.getColumn(9).width = 18;
-      worksheet.getColumn(10).width = 24;
-      worksheet.getColumn(11).width = 16;
-      worksheet.getColumn(12).width = 16;
-      worksheet.getColumn(13).width = 38;
+      const buffer = await workbook.xlsx.writeBuffer();
+      const fechaExportacion = new Date().toISOString().slice(0, 10);
 
-    const buffer = await workbook.xlsx.writeBuffer();
-    const fechaExportacion = new Date().toISOString().slice(0, 10);
+      saveAs(
+        new Blob([buffer], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        }),
+        `movimientos_plantilla_${dataRows.length}_registros_${fechaExportacion}.xlsx`
+      );
+    } catch (error) {
+      console.error("Error exportando plantilla:", error);
+      toast({
+        title: "Error exportando movimientos",
+        description:
+          error instanceof Error
+            ? error.message
+            : "No fue posible exportar la información.",
+        variant: "destructive",
+      });
+    }
+  };
 
-    saveAs(
-      new Blob([buffer], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      }),
-      `movimientos_plantilla_${dataRows.length}_registros_${fechaExportacion}.xlsx`
+  if (loading) {
+    return (
+      <div className="p-6 text-sm text-muted-foreground">
+        Cargando movimientos...
+      </div>
     );
-  } catch (error) {
-    console.error("Error exportando plantilla:", error);
   }
-};
 
   return (
     <div className="space-y-6">
@@ -417,6 +509,7 @@ const handleExportarMovimientos = async () => {
             Registro de saldos iniciales, incrementos, reintegros y ajustes
           </p>
         </div>
+
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -438,6 +531,7 @@ const handleExportarMovimientos = async () => {
             className="pl-9"
           />
         </div>
+
         <Button
           variant="outline"
           size="icon"
@@ -480,7 +574,7 @@ const handleExportarMovimientos = async () => {
                 Cuota Monetaria
               </th>
               <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Transferencia Economica
+                Transferencia Económica
               </th>
               <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Total
@@ -496,11 +590,16 @@ const handleExportarMovimientos = async () => {
               </th>
             </tr>
           </thead>
+
           <tbody>
             {paginatedData.map((m, i) => {
               const tipo = tipoStyles[m.tipo];
-              const tipoLabel = m.tipoDetalle || tipo.label;
               const ley = LEYES.find((l) => l.id === m.ley);
+              const totalFila =
+                Math.abs(m.valorSalud) +
+                Math.abs(m.valorPension) +
+                Math.abs(m.valorCuotaMonetaria) +
+                Math.abs(m.valorTransferencia);
 
               return (
                 <tr
@@ -509,39 +608,39 @@ const handleExportarMovimientos = async () => {
                   style={{ animationDelay: `${i * 30}ms` }}
                 >
                   <td className="p-3 font-mono text-xs font-medium">
-                    {getDocumentoBeneficiario(m.beneficiarioId) || "—"}
+                    {m.documento || "—"}
                   </td>
                   <td className="p-3 text-muted-foreground text-xs">
                     {m.fecha}
                   </td>
                   <td className="p-3 text-xs">{ley?.nombre || m.ley}</td>
                   <td className="p-3 font-mono text-xs">{m.periodo}</td>
-                  <td className="p-3 font-medium">{m.beneficiarioNombre}</td>
+                  <td className="p-3 font-medium">{m.beneficiario}</td>
                   <td className="p-3">
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${tipo.color}`}
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${tipo?.color}`}
                     >
-                      {tipoLabel}
+                      {m.tipoLabel}
                     </span>
                   </td>
                   <td className="p-3 text-right font-mono text-xs">
-                    {m.valorSalud > 0 ? formatCurrency(m.valorSalud) : "—"}
+                    {m.valorSalud !== 0 ? formatCurrency(m.valorSalud) : "—"}
                   </td>
                   <td className="p-3 text-right font-mono text-xs">
-                    {m.valorPension > 0 ? formatCurrency(m.valorPension) : "—"}
+                    {m.valorPension !== 0 ? formatCurrency(m.valorPension) : "—"}
                   </td>
                   <td className="p-3 text-right font-mono text-xs">
-                    {m.valorCuotaMonetaria > 0
+                    {m.valorCuotaMonetaria !== 0
                       ? formatCurrency(m.valorCuotaMonetaria)
                       : "—"}
                   </td>
                   <td className="p-3 text-right font-mono text-xs">
-                    {m.valorTransferencia > 0
+                    {m.valorTransferencia !== 0
                       ? formatCurrency(m.valorTransferencia)
                       : "—"}
                   </td>
                   <td className="p-3 text-right font-mono font-semibold">
-                    {formatCurrency(m.valor)}
+                    {formatCurrency(totalFila)}
                   </td>
                   <td className="p-3 text-muted-foreground text-xs">
                     {m.usuario}
@@ -550,7 +649,7 @@ const handleExportarMovimientos = async () => {
                     {m.medioPago || "—"}
                   </td>
                   <td className="p-3 text-muted-foreground text-xs">
-                    {m.fechaModificacion || m.fecha}
+                    {m.fechaModificacion}
                   </td>
                 </tr>
               );
@@ -646,7 +745,7 @@ const handleExportarMovimientos = async () => {
                 Fecha
               </label>
               <Input
-                placeholder="Ej: 2024-01-15"
+                placeholder="Ej: 2026-06-23"
                 value={filters.fecha}
                 onChange={(e) => updateFilterField("fecha", e.target.value)}
               />
@@ -690,7 +789,7 @@ const handleExportarMovimientos = async () => {
                 Periodo
               </label>
               <Input
-                placeholder="Ej: 2024-01"
+                placeholder="Ej: 2026-05"
                 value={filters.periodo}
                 onChange={(e) => updateFilterField("periodo", e.target.value)}
               />
@@ -724,22 +823,9 @@ const handleExportarMovimientos = async () => {
                   <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="SALDO_INICIAL">Saldo Inicial</SelectItem>
                   <SelectItem value="INCREMENTO">Incremento</SelectItem>
-                  <SelectItem value="REINTEGRO">Reintegro</SelectItem>
+                  <SelectItem value="REINTEGRO">Pago</SelectItem>
                   <SelectItem value="NO_PROCEDE">No Procede</SelectItem>
                   <SelectItem value="AJUSTE">Ajuste</SelectItem>
-                  <SelectItem value="Pago">
-                    Pago
-                  </SelectItem>
-                  <SelectItem value="Normalización">
-                    Normalización
-                  </SelectItem>
-                  <SelectItem value="No procede">No procede</SelectItem>
-                  <SelectItem value="Ajuste contable">
-                    Ajuste contable
-                  </SelectItem>
-                  <SelectItem value="No procede - Giro no efectuado">
-                    No procede - Giro no efectuado
-                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -760,9 +846,7 @@ const handleExportarMovimientos = async () => {
             <Button variant="outline" onClick={handleClearFilters}>
               Limpiar filtros
             </Button>
-            <Button onClick={() => setFilterDialogOpen(false)}>
-              Aplicar
-            </Button>
+            <Button onClick={() => setFilterDialogOpen(false)}>Aplicar</Button>
           </div>
         </DialogContent>
       </Dialog>
