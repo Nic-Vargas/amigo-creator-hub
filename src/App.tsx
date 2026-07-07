@@ -15,6 +15,7 @@ import Configuracion from "./pages/Configuracion";
 import NotFound from "./pages/NotFound";
 import { AppDataProvider } from "@/context/AppDataContext";
 import { AuthProvider } from "@/context/AuthContext";
+import Importacion from "./pages/Importacion";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
                         <Route path="/beneficiarios" element={<Beneficiarios />} />
                         <Route path="/movimientos" element={<Movimientos />} />
                         <Route path="/recobros" element={<Recobros />} />
+                        <Route path="/importacion" element={<Importacion />} />
                         <Route path="/reportes" element={<Reportes />} />
                         <Route path="/configuracion" element={<Configuracion />} />
                         <Route path="*" element={<NotFound />} />

@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
+  Upload,
   ArrowLeftRight,
   FileText,
   BarChart3,
@@ -25,6 +26,7 @@ import isotipoComfaboy from "@/assets/isotipo-comfaboy.png";
 const navItems = [
   //{ path: "/", label: "Dashboard", icon: LayoutDashboard },
   { path: "/beneficiarios", label: "Beneficiarios", icon: Users },
+  { path: "/importacion", label: "Importación", icon: Upload },
   { path: "/movimientos", label: "Movimientos", icon: ArrowLeftRight },
   { path: "/recobros", label: "Casos Recobro", icon: FileText },
   //{ path: "/reportes", label: "Reportes", icon: BarChart3 },
