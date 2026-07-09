@@ -10,7 +10,7 @@ export type ImportRecobrosResponse = {
   movementsCreated: number;
 };
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://192.168.10.29:3000";
 
 export async function importarRecobrosExcel(
   file: File
