@@ -665,32 +665,64 @@ export default function Recobros() {
     }
 
     try {
-      for (const movimiento of movimientos) {
-        await apiFetch("/movimientos", {
-          method: "POST",
-          body: JSON.stringify({
-            recobroCaseId: selectedCase.id,
+      const tiposDescripcion = Array.from(
+        new Set(movimientos.map((movimiento) => movimiento.tipoUi))
+      ).join(", ");
+
+      const mediosDescripcion = movimientos
+        .filter((movimiento) => movimiento.medioPago)
+        .map(
+          (movimiento) =>
+            `${movimiento.label}: ${movimiento.medioPago}`
+        )
+        .join(", ");
+
+      const soportesDescripcion = movimientos
+        .filter((movimiento) => movimiento.soportePagoNombre)
+        .map(
+          (movimiento) =>
+            `${movimiento.label}: ${movimiento.soportePagoNombre}`
+        )
+        .join(", ");
+
+      await apiFetch("/movimientos", {
+        method: "POST",
+        body: JSON.stringify({
+          recobroCaseId: selectedCase.id,
+
+          detalles: movimientos.map((movimiento) => ({
             tipo: movimiento.tipoApi,
             concepto: movimiento.concepto,
-            valor: movimiento.tipoApi === "NO_PROCEDE" ? 0 : movimiento.valor,
+            valor:
+              movimiento.tipoApi === "NO_PROCEDE"
+                ? 0
+                : movimiento.valor,
+
             adjustmentDirection:
               movimiento.tipoApi === "AJUSTE"
                 ? movimiento.adjustmentDirection
                 : undefined,
-            descripcion: [
-              `${movimiento.tipoUi} registrado desde Recobros`,
-              movementPeriodo ? `Periodo: ${movementPeriodo}` : null,
-              movementFechaPago ? `Fecha pago: ${movementFechaPago}` : null,
-              movimiento.medioPago ? `Medio: ${movimiento.medioPago}` : null,
-              movimiento.soportePagoNombre
-                ? `Soporte: ${movimiento.soportePagoNombre}`
-                : null,
-            ]
-              .filter(Boolean)
-              .join(" | "),
-          }),
-        });
-      }
+          })),
+
+          descripcion: [
+            `${tiposDescripcion} registrado desde Recobros`,
+            movementPeriodo
+              ? `Periodo: ${movementPeriodo}`
+              : null,
+            movementFechaPago
+              ? `Fecha pago: ${movementFechaPago}`
+              : null,
+            mediosDescripcion
+              ? `Medio: ${mediosDescripcion}`
+              : null,
+            soportesDescripcion
+              ? `Soporte: ${soportesDescripcion}`
+              : null,
+          ]
+            .filter(Boolean)
+            .join(" | "),
+        }),
+      });
 
       toast({
         title: "Movimiento registrado",
