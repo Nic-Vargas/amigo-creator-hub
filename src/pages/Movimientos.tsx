@@ -36,7 +36,9 @@ type MovementConcept =
   | "SALUD"
   | "PENSION"
   | "CUOTA_MONETARIA"
-  | "TRANSFERENCIA_ECONOMICA";
+  | "TRANSFERENCIA_ECONOMICA"
+  | "BONO_ALIMENTACION"
+  | "BENEFICIOS_ECONOMICOS_488";
 
 type AdjustmentDirection = "SUMA" | "RESTA";
 
@@ -104,6 +106,8 @@ type MovimientoRow = {
   valorPension: number;
   valorCuotaMonetaria: number;
   valorTransferencia: number;
+  valorBonoAlimentacion: number;
+  valorBeneficiosEconomicos488: number;
   valorTotal: number;
   usuario: string;
   medioPago: string;
@@ -254,11 +258,23 @@ function mapMovimientoToRow(movement: MovimientoApi): MovimientoRow {
     "TRANSFERENCIA_ECONOMICA"
   );
 
+    const valorBonoAlimentacion = getDetailValueByConcept(
+    details,
+    "BONO_ALIMENTACION"
+  );
+
+  const valorBeneficiosEconomicos488 = getDetailValueByConcept(
+    details,
+    "BENEFICIOS_ECONOMICOS_488"
+  );
+
   const valorTotal =
     valorSalud +
     valorPension +
     valorCuotaMonetaria +
-    valorTransferencia;
+    valorTransferencia +
+    valorBonoAlimentacion +
+    valorBeneficiosEconomicos488;
 
   return {
     id: movement.id,
@@ -294,6 +310,10 @@ function mapMovimientoToRow(movement: MovimientoApi): MovimientoRow {
     valorCuotaMonetaria,
 
     valorTransferencia,
+
+    valorBonoAlimentacion,
+
+    valorBeneficiosEconomicos488,
 
     valorTotal,
 
@@ -550,7 +570,15 @@ export default function Movimientos() {
               movement.valorCuotaMonetaria,
             transferenciaEconomica:
               movement.valorTransferencia,
-            total: movement.valorTotal,
+
+            bonoAlimentacion:
+              movement.valorBonoAlimentacion,
+
+            beneficiosEconomicos488:
+              movement.valorBeneficiosEconomicos488,
+
+            total:
+              movement.valorTotal,
             usuario: movement.usuario,
             medioPago: movement.medioPago,
             descripcion: movement.descripcion,
@@ -579,11 +607,25 @@ export default function Movimientos() {
         0
       );
 
+      const saldoBonoAlimentacion = dataRows.reduce(
+        (total, row) =>
+          total + row.bonoAlimentacion,
+        0
+      );
+
+      const saldoBeneficiosEconomicos488 = dataRows.reduce(
+        (total, row) =>
+          total + row.beneficiosEconomicos488,
+        0
+      );
+
       const saldoTotal =
         saldoSalud +
         saldoPension +
         saldoCuotaMonetaria +
-        saldoTransferencia;
+        saldoTransferencia +
+        saldoBonoAlimentacion +
+        saldoBeneficiosEconomicos488;
 
       const startRow = 8;
       const endTemplateRow = 300;
@@ -604,7 +646,7 @@ export default function Movimientos() {
       ) {
         for (
           let columnNumber = 1;
-          columnNumber <= 13;
+          columnNumber <= 15;
           columnNumber++
         ) {
           worksheet.getCell(
@@ -632,7 +674,9 @@ export default function Movimientos() {
       setAccountingCell("H5", saldoPension);
       setAccountingCell("I5", saldoCuotaMonetaria);
       setAccountingCell("J5", saldoTransferencia);
-      setAccountingCell("K5", saldoTotal);
+      setAccountingCell("K5", saldoBonoAlimentacion);
+      setAccountingCell("L5", saldoBeneficiosEconomicos488);
+      setAccountingCell("M5", saldoTotal);
 
       dataRows.forEach((row, index) => {
         const rowNumber = startRow + index;
@@ -667,8 +711,14 @@ export default function Movimientos() {
         const transferCell =
           worksheet.getCell(`J${rowNumber}`);
 
-        const totalCell =
+        const foodBonusCell =
           worksheet.getCell(`K${rowNumber}`);
+
+        const economicBenefitsCell =
+          worksheet.getCell(`L${rowNumber}`);
+
+        const totalCell =
+          worksheet.getCell(`M${rowNumber}`);
 
         healthCell.value =
           row.salud === 0 ? "-" : row.salud;
@@ -685,6 +735,16 @@ export default function Movimientos() {
           row.transferenciaEconomica === 0
             ? "-"
             : row.transferenciaEconomica;
+        
+        foodBonusCell.value =
+          row.bonoAlimentacion === 0
+            ? "-"
+            : row.bonoAlimentacion;
+
+        economicBenefitsCell.value =
+          row.beneficiosEconomicos488 === 0
+            ? "-"
+            : row.beneficiosEconomicos488;
 
         totalCell.value =
           row.total === 0 ? "-" : row.total;
@@ -694,6 +754,8 @@ export default function Movimientos() {
           pensionCell,
           monetaryQuotaCell,
           transferCell,
+          foodBonusCell,
+          economicBenefitsCell,
           totalCell,
         ].forEach((cell) => {
           if (typeof cell.value === "number") {
@@ -702,10 +764,10 @@ export default function Movimientos() {
           }
         });
 
-        worksheet.getCell(`L${rowNumber}`).value =
+        worksheet.getCell(`N${rowNumber}`).value =
           row.usuario;
 
-        worksheet.getCell(`M${rowNumber}`).value =
+        worksheet.getCell(`O${rowNumber}`).value =
           row.descripcion;
       });
 
@@ -848,6 +910,14 @@ export default function Movimientos() {
               </th>
 
               <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Bono Alimentación
+              </th>
+
+              <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Beneficios
+              </th>
+
+              <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Total
               </th>
 
@@ -869,7 +939,7 @@ export default function Movimientos() {
             {paginatedData.length === 0 ? (
               <tr>
                 <td
-                  colSpan={14}
+                  colSpan={16}
                   className="p-8 text-center text-sm text-muted-foreground"
                 >
                   No se encontraron movimientos.
@@ -950,6 +1020,22 @@ export default function Movimientos() {
                       {movement.valorTransferencia !== 0
                         ? formatCurrency(
                             movement.valorTransferencia
+                          )
+                        : "—"}
+                    </td>
+
+                    <td className="p-3 text-right font-mono text-xs">
+                      {movement.valorBonoAlimentacion !== 0
+                        ? formatCurrency(
+                            movement.valorBonoAlimentacion
+                          )
+                        : "—"}
+                    </td>
+
+                    <td className="p-3 text-right font-mono text-xs">
+                      {movement.valorBeneficiosEconomicos488 !== 0
+                        ? formatCurrency(
+                            movement.valorBeneficiosEconomicos488
                           )
                         : "—"}
                     </td>

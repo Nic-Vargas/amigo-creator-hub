@@ -80,6 +80,8 @@ type RecobroApi = {
   valorPension: string;
   valorCuotaMonetaria: string;
   valorTransferenciaEconomica: string;
+  valorBonoAlimentacion: string;
+  valorBeneficiosEconomicos488: string;
 };
 
 export default function Beneficiarios() {
@@ -163,17 +165,30 @@ const getBeneficiarioSaldos = (beneficiarioId: string) => {
     (acc, c) => acc + Number(c.valorTransferenciaEconomica),
     0
   );
+  const valorBonoAlimentacion = casosBeneficiario.reduce(
+    (acc, c) => acc + Number(c.valorBonoAlimentacion),
+    0
+  );
+
+  const valorBeneficiosEconomicos488 = casosBeneficiario.reduce(
+    (acc, c) => acc + Number(c.valorBeneficiosEconomicos488),
+    0
+  );
 
   return {
     valorSalud,
     valorPension,
     valorCuotaMonetaria,
     valorTransferencia,
+    valorBonoAlimentacion,
+    valorBeneficiosEconomicos488,
     saldoTotal:
       valorSalud +
       valorPension +
       valorCuotaMonetaria +
-      valorTransferencia,
+      valorTransferencia +
+      valorBonoAlimentacion +
+      valorBeneficiosEconomicos488,
   };
 };
 
@@ -246,6 +261,8 @@ const getBeneficiarioSaldos = (beneficiarioId: string) => {
         Pension: saldos.valorPension,
         CuotaMonetaria: saldos.valorCuotaMonetaria,
         TransferenciaEconomica: saldos.valorTransferencia,
+        BonoAlimentacion: saldos.valorBonoAlimentacion,
+        BeneficiosEconomicos488: saldos.valorBeneficiosEconomicos488,
         SaldoTotal: saldos.saldoTotal,
         FechaRegistro: new Date(b.createdAt).toLocaleDateString("es-CO"),
       };
@@ -267,7 +284,7 @@ const getBeneficiarioSaldos = (beneficiarioId: string) => {
       { wch: 12 },
       { wch: 14 },
       { wch: 14 },
-      { wch: 18 },
+      { wch: 20 },
       { wch: 24 },
       { wch: 14 },
       { wch: 14 },
@@ -487,7 +504,7 @@ const getBeneficiarioSaldos = (beneficiarioId: string) => {
                   </td>
                   <td className="p-3 text-muted-foreground">{b.ciudad ?? ""}</td>
                   <td className="p-3 text-muted-foreground text-xs">
-                    {b.celular ?? ""}
+                    {b.telefono || b.celular || ""}
                   </td>
                   <td className="p-3 text-right font-mono font-semibold">
                     {formatCurrency(saldos.saldoTotal)}
@@ -511,7 +528,7 @@ const getBeneficiarioSaldos = (beneficiarioId: string) => {
                           <Eye className="w-4 h-4" />
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-lg">
+                      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>Estado de Cuenta</DialogTitle>
                         </DialogHeader>
@@ -543,62 +560,115 @@ const getBeneficiarioSaldos = (beneficiarioId: string) => {
                               <div className="flex items-center gap-2 text-muted-foreground">
                                 <Phone className="w-3.5 h-3.5 shrink-0" />
                                 <span>
-                                  {selected.telefono ?? "Sin teléfono"} / {selected.celular}
+                                  {selected.telefono || selected.celular || "Sin teléfono"}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2 text-muted-foreground col-span-2">
                                 <Mail className="w-3.5 h-3.5 shrink-0" />
-                                <span>{selected.email ?? "Sin correo"}</span>
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between py-2 border-b border-border">
-                                <span className="text-sm text-muted-foreground">
-                                  Salud
-                                </span>
-                                <span className="text-sm font-mono font-semibold">
-                                  {formatCurrency(selectedSaldos.valorSalud)}
-                                </span>
-                              </div>
-
-                              <div className="flex items-center justify-between py-2 border-b border-border">
-                                <span className="text-sm text-muted-foreground">
-                                  Pensión
-                                </span>
-                                <span className="text-sm font-mono font-semibold">
-                                  {formatCurrency(selectedSaldos.valorPension)}
-                                </span>
-                              </div>
-
-                              <div className="flex items-center justify-between py-2 border-b border-border">
-                                <span className="text-sm text-muted-foreground">
-                                  Cuota Monetaria
-                                </span>
-                                <span className="text-sm font-mono font-semibold">
-                                  {formatCurrency(
-                                    selectedSaldos.valorCuotaMonetaria
-                                  )}
-                                </span>
-                              </div>
-
-                              <div className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                                <span className="text-sm text-muted-foreground">
-                                  Transferencia Económica
-                                </span>
-                                <span className="text-sm font-mono font-semibold">
-                                  {formatCurrency(
-                                    selectedSaldos.valorTransferencia
-                                  )}
+                                <span className="break-all">
+                                  {selected.email ?? "Sin correo"}
                                 </span>
                               </div>
                             </div>
 
-                            <div className="flex justify-between pt-2 border-t border-border">
-                              <span className="font-semibold">Saldo Total</span>
-                              <span className="font-bold font-mono text-lg">
-                                {formatCurrency(selectedSaldos.saldoTotal)}
-                              </span>
+                            <div className="space-y-3 pt-2">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h3 className="text-sm font-semibold text-foreground">
+                                    Resumen de saldos por concepto
+                                  </h3>
+                                  <p className="text-xs text-muted-foreground mt-0.5">
+                                    Valores actuales registrados en COP
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="rounded-lg border border-border overflow-hidden">
+                                <div className="grid grid-cols-[1fr_auto] gap-4 bg-muted/40 px-4 py-2.5 border-b border-border">
+                                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                    Concepto
+                                  </span>
+
+                                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide text-right">
+                                    Saldo
+                                  </span>
+                                </div>
+
+                                {[
+                                  {
+                                    label: "Salud",
+                                    value: selectedSaldos.valorSalud,
+                                    badgeClass: "bg-blue-500/10 text-blue-600",
+                                    abbreviation: "S",
+                                  },
+                                  {
+                                    label: "Pensión",
+                                    value: selectedSaldos.valorPension,
+                                    badgeClass: "bg-emerald-500/10 text-emerald-600",
+                                    abbreviation: "P",
+                                  },
+                                  {
+                                    label: "Cuota Monetaria",
+                                    value: selectedSaldos.valorCuotaMonetaria,
+                                    badgeClass: "bg-amber-500/10 text-amber-600",
+                                    abbreviation: "CM",
+                                  },
+                                  {
+                                    label: "Transferencia Económica",
+                                    value: selectedSaldos.valorTransferencia,
+                                    badgeClass: "bg-violet-500/10 text-violet-600",
+                                    abbreviation: "TE",
+                                  },
+                                  {
+                                    label: "Bono de Alimentación",
+                                    value: selectedSaldos.valorBonoAlimentacion,
+                                    badgeClass: "bg-rose-500/10 text-rose-600",
+                                    abbreviation: "BA",
+                                  },
+                                  {
+                                    label: "Beneficios Económicos",
+                                    value: selectedSaldos.valorBeneficiosEconomicos488,
+                                    badgeClass: "bg-cyan-500/10 text-cyan-600",
+                                    abbreviation: "BE",
+                                  },
+                                ].map((concepto) => (
+                                  <div
+                                    key={concepto.label}
+                                    className="grid grid-cols-[1fr_auto] gap-4 items-center px-4 py-3 border-b border-border last:border-b-0 hover:bg-muted/30 transition-colors"
+                                  >
+                                    <div className="flex items-center gap-3 min-w-0">
+                                      <div
+                                        className={`w-8 h-8 rounded-md flex items-center justify-center text-[10px] font-bold shrink-0 ${concepto.badgeClass}`}
+                                      >
+                                        {concepto.abbreviation}
+                                      </div>
+
+                                      <span className="text-sm text-foreground">
+                                        {concepto.label}
+                                      </span>
+                                    </div>
+
+                                    <span className="text-sm font-mono font-semibold text-right whitespace-nowrap">
+                                      {formatCurrency(concepto.value)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+
+                              <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-4 flex items-center justify-between gap-4">
+                                <div>
+                                  <p className="text-sm font-semibold text-foreground">
+                                    Saldo Total
+                                  </p>
+                                  <p className="text-xs text-muted-foreground mt-0.5">
+                                    Suma de todos los conceptos
+                                  </p>
+                                </div>
+
+                                <span className="font-bold font-mono text-xl text-primary whitespace-nowrap">
+                                  {formatCurrency(selectedSaldos.saldoTotal)}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         )}

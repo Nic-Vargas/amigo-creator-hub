@@ -13,6 +13,8 @@ export default function Importacion() {
   const [file, setFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<ImportRecobrosResponse | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [progressMessage, setProgressMessage] = useState("");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -33,6 +35,8 @@ export default function Importacion() {
 
     setFile(selectedFile);
     setResult(null);
+    setProgress(0);
+    setProgressMessage("");
   };
 
   const handleImport = async () => {
@@ -45,12 +49,49 @@ export default function Importacion() {
       return;
     }
 
+    let progressInterval: number | undefined;
+
     try {
       setImporting(true);
       setResult(null);
+      setProgress(5);
+      setProgressMessage("Preparando archivo...");
+
+      progressInterval = window.setInterval(() => {
+        setProgress((currentProgress) => {
+          if (currentProgress < 25) {
+            setProgressMessage("Cargando archivo...");
+            return Math.min(currentProgress + 5, 25);
+          }
+
+          if (currentProgress < 60) {
+            setProgressMessage("Validando beneficiarios y casos...");
+            return Math.min(currentProgress + 2, 60);
+          }
+
+          if (currentProgress < 80) {
+            setProgressMessage("Creando movimientos y conceptos...");
+            return Math.min(currentProgress + 1, 80);
+          }
+
+          if (currentProgress < 90) {
+            setProgressMessage("Actualizando saldos...");
+            return Math.min(currentProgress + 1, 90);
+          }
+
+          setProgressMessage("Finalizando importación...");
+          return currentProgress;
+        });
+      }, 300);
 
       const response = await importarRecobrosExcel(file);
 
+      if (progressInterval !== undefined) {
+        window.clearInterval(progressInterval);
+      }
+
+      setProgress(100);
+      setProgressMessage("Importación completada correctamente.");
       setResult(response);
 
       toast({
@@ -58,6 +99,13 @@ export default function Importacion() {
         description: "El archivo fue procesado correctamente.",
       });
     } catch (error) {
+      if (progressInterval !== undefined) {
+        window.clearInterval(progressInterval);
+      }
+
+      setProgress(0);
+      setProgressMessage("La importación no pudo completarse.");
+
       toast({
         title: "Error en la importación",
         description:
@@ -116,20 +164,59 @@ export default function Importacion() {
         </div>
 
         {file && (
-          <div className="rounded-lg border border-border bg-background p-4 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <FileSpreadsheet className="w-5 h-5 text-primary shrink-0" />
-              <div className="min-w-0">
-                <p className="text-sm font-medium truncate">{file.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {(file.size / 1024 / 1024).toFixed(2)} MB
-                </p>
+          <div className="rounded-lg border border-border bg-background p-4 space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <FileSpreadsheet className="w-5 h-5 text-primary shrink-0" />
+
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">
+                    {file.name}
+                  </p>
+
+                  <p className="text-xs text-muted-foreground">
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
               </div>
+
+              <Button
+                onClick={handleImport}
+                disabled={importing}
+              >
+                {importing ? "Importando..." : "Importar archivo"}
+              </Button>
             </div>
 
-            <Button onClick={handleImport} disabled={importing}>
-              {importing ? "Importando..." : "Importar archivo"}
-            </Button>
+            {(importing || progress > 0 || progressMessage) && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs text-muted-foreground">
+                    {progressMessage}
+                  </p>
+
+                  <span className="text-xs font-semibold text-foreground">
+                    {progress}%
+                  </span>
+                </div>
+
+                <div
+                  className="h-2.5 w-full overflow-hidden rounded-full bg-muted"
+                  role="progressbar"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={progress}
+                  aria-label="Progreso de importación"
+                >
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
+                    style={{
+                      width: `${progress}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -141,12 +228,13 @@ export default function Importacion() {
             <h2 className="font-semibold">Resultado de importación</h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             <ResultCard label="Filas procesadas" value={result.totalRows} />
             <ResultCard label="Beneficiarios creados" value={result.beneficiariesCreated} />
             <ResultCard label="Beneficiarios actualizados" value={result.beneficiariesUpdated} />
             <ResultCard label="Casos creados" value={result.casesCreated} />
             <ResultCard label="Movimientos creados" value={result.movementsCreated} />
+            <ResultCard label="Conceptos procesados" value={result.movementDetailsCreated} />
           </div>
 
           <div className="rounded-lg bg-background border border-border p-3 text-sm text-muted-foreground">

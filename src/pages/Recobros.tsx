@@ -102,6 +102,8 @@ type RecobroApi = {
   valorPension: string;
   valorCuotaMonetaria: string;
   valorTransferenciaEconomica: string;
+  valorBonoAlimentacion: string;
+  valorBeneficiosEconomicos488: string;
   valorTotal: string;
   estado: "ABIERTO" | "EN_GESTION" | "ACUERDO" | "EN_PAGO" | "CERRADO";
   prioridad: "ALTA" | "MEDIA" | "BAJA";
@@ -120,7 +122,9 @@ type MovementConceptApi =
   | "SALUD"
   | "PENSION"
   | "CUOTA_MONETARIA"
-  | "TRANSFERENCIA_ECONOMICA";
+  | "TRANSFERENCIA_ECONOMICA"
+  | "BONO_ALIMENTACION"
+  | "BENEFICIOS_ECONOMICOS_488";
 
 type MovementFormItem = {
   valor: string;
@@ -151,6 +155,8 @@ type NuevoCasoFormState = {
   valorPension: string;
   valorCuotaMonetaria: string;
   valorTransferencia: string;
+  valorBonoAlimentacion: string;
+  valorBeneficiosEconomicos488: string;
   prioridad: string;
   responsable: string;
   fechaPago: string;
@@ -197,6 +203,20 @@ const initialMovementForm: MovementFormState = {
     soportePagoNombre: "",
     adjustmentDirection: "",
   },
+  BONO_ALIMENTACION: {
+    valor: "",
+    tipo: "",
+    medioPago: "",
+    soportePagoNombre: "",
+    adjustmentDirection: "",
+  },
+  BENEFICIOS_ECONOMICOS_488: {
+    valor: "",
+    tipo: "",
+    medioPago: "",
+    soportePagoNombre: "",
+    adjustmentDirection: "",
+  },
 };
 
 export default function Recobros() {
@@ -232,6 +252,8 @@ export default function Recobros() {
     valorPension: "",
     valorCuotaMonetaria: "",
     valorTransferencia: "",
+    valorBonoAlimentacion: "",
+    valorBeneficiosEconomicos488: "",
     prioridad: "Media",
     responsable: usuarioActual,
     fechaPago: "",
@@ -320,6 +342,16 @@ export default function Recobros() {
       key: "TRANSFERENCIA_ECONOMICA" as const,
       label: "Transferencia Económica",
       saldo: Number(caso.valorTransferenciaEconomica),
+    },
+    {
+      key: "BONO_ALIMENTACION" as const,
+      label: "Bono de Alimentación",
+      saldo: Number(caso.valorBonoAlimentacion),
+    },
+    {
+      key: "BENEFICIOS_ECONOMICOS_488" as const,
+      label: "Beneficios Económicos 488",
+      saldo: Number(caso.valorBeneficiosEconomicos488),
     },
   ];
 
@@ -431,7 +463,9 @@ export default function Recobros() {
       | "valorSalud"
       | "valorPension"
       | "valorCuotaMonetaria"
-      | "valorTransferencia",
+      | "valorTransferencia"
+      | "valorBonoAlimentacion"
+      | "valorBeneficiosEconomicos488",
     value: string
   ) => {
     const onlyNumbers = value.replace(/[^\d]/g, "");
@@ -476,7 +510,15 @@ export default function Recobros() {
           valorSalud: Number(nuevoCasoForm.valorSalud || 0),
           valorPension: Number(nuevoCasoForm.valorPension || 0),
           valorCuotaMonetaria: Number(nuevoCasoForm.valorCuotaMonetaria || 0),
-          valorTransferenciaEconomica: Number(nuevoCasoForm.valorTransferencia || 0),
+          valorTransferenciaEconomica: Number(
+            nuevoCasoForm.valorTransferencia || 0
+          ),
+          valorBonoAlimentacion: Number(
+            nuevoCasoForm.valorBonoAlimentacion || 0
+          ),
+          valorBeneficiosEconomicos488: Number(
+            nuevoCasoForm.valorBeneficiosEconomicos488 || 0
+          ),
           prioridad: prioridadUiToApi[nuevoCasoForm.prioridad] ?? "MEDIA",
         }),
       });
@@ -494,6 +536,8 @@ export default function Recobros() {
         valorPension: "",
         valorCuotaMonetaria: "",
         valorTransferencia: "",
+        valorBonoAlimentacion: "",
+        valorBeneficiosEconomicos488: "",
         prioridad: "Media",
         responsable: usuarioActual,
         fechaPago: "",
@@ -763,6 +807,10 @@ export default function Recobros() {
         Pension: Number(caso.valorPension),
         CuotaMonetaria: Number(caso.valorCuotaMonetaria),
         TransferenciaEconomica: Number(caso.valorTransferenciaEconomica),
+        BonoAlimentacion: Number(caso.valorBonoAlimentacion),
+        BeneficiosEconomicos488: Number(
+          caso.valorBeneficiosEconomicos488
+        ),
         Total: totalCaso,
         Estado: estadoUi,
         Prioridad: prioridadUi,
@@ -884,6 +932,13 @@ export default function Recobros() {
                 Transf. Econ.
               </th>
               <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Bono Alimentación
+              </th>
+
+              <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Beneficios
+              </th>
+              <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Total
               </th>
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -939,6 +994,17 @@ export default function Recobros() {
                   <td className="p-3 text-right font-mono text-xs">
                     {Number(caso.valorTransferenciaEconomica) > 0
                       ? formatCurrency(Number(caso.valorTransferenciaEconomica))
+                      : "—"}
+                  </td>
+                  <td className="p-3 text-right font-mono text-xs">
+                    {Number(caso.valorBonoAlimentacion) > 0
+                      ? formatCurrency(Number(caso.valorBonoAlimentacion))
+                      : "—"}
+                  </td>
+
+                  <td className="p-3 text-right font-mono text-xs">
+                    {Number(caso.valorBeneficiosEconomicos488) > 0
+                      ? formatCurrency(Number(caso.valorBeneficiosEconomicos488))
                       : "—"}
                   </td>
                   <td className="p-3 text-right font-mono font-semibold">
@@ -1581,6 +1647,42 @@ export default function Recobros() {
                   onChange={(e) =>
                     updateNuevoCasoNumberField(
                       "valorTransferencia",
+                      e.target.value
+                    )
+                  }
+                  className="font-mono md:col-span-2"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+                <span className="text-sm text-muted-foreground">
+                  Bono de Alimentación
+                </span>
+
+                <Input
+                  placeholder="Ingrese valor"
+                  value={nuevoCasoForm.valorBonoAlimentacion}
+                  onChange={(e) =>
+                    updateNuevoCasoNumberField(
+                      "valorBonoAlimentacion",
+                      e.target.value
+                    )
+                  }
+                  className="font-mono md:col-span-2"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+                <span className="text-sm text-muted-foreground">
+                  Beneficios Económicos 488
+                </span>
+
+                <Input
+                  placeholder="Ingrese valor"
+                  value={nuevoCasoForm.valorBeneficiosEconomicos488}
+                  onChange={(e) =>
+                    updateNuevoCasoNumberField(
+                      "valorBeneficiosEconomicos488",
                       e.target.value
                     )
                   }

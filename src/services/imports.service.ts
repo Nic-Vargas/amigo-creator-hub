@@ -8,9 +8,10 @@ export type ImportRecobrosResponse = {
   beneficiariesUpdated: number;
   casesCreated: number;
   movementsCreated: number;
+  movementDetailsCreated: number;
 };
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://192.168.10.21:3000";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://192.168.10.28:3000";
 
 export async function importarRecobrosExcel(
   file: File
