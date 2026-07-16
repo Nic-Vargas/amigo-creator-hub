@@ -27,8 +27,11 @@ async function bootstrap() {
   ];
 
   app.enableCors({
-    origin: (origin, callback) => {
-      // Permite herramientas sin Origin, como Swagger, Postman o curl.
+    origin: (
+      origin: string | undefined,
+      callback: (error: Error | null, allow?: boolean) => void,
+    ) => {
+      // Permite solicitudes sin Origin, como Swagger, Postman o curl.
       if (!origin) {
         callback(null, true);
         return;
