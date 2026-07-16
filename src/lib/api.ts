@@ -1,24 +1,42 @@
-const API_URL = import.meta.env.VITE_API_URL ?? "http://192.168.10.28:3000";
+const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
+
+export const API_URL = (
+  configuredApiUrl || "http://192.168.10.28:3000"
+).replace(/\/+$/, "");
 
 export async function apiFetch<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
   const token = localStorage.getItem("sisrec_token");
+  const isFormData = options.body instanceof FormData;
 
-  const response = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers ?? {}),
-    },
-  });
+  const headers = new Headers(options.headers);
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => null);
-    throw new Error(error?.message ?? "Error en la petición");
+  if (!isFormData && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
   }
 
-  return response.json();
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+
+  const response = await fetch(`${API_URL}${normalizedPath}`, {
+    ...options,
+    headers,
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const message = Array.isArray(data?.message)
+      ? data.message.join(", ")
+      : data?.message ?? `Error HTTP ${response.status}`;
+
+    throw new Error(message);
+  }
+
+  return data as T;
 }
