@@ -18,7 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import isotipoNiyaraky from "@/assets/isotipo-niyaraky.png";
+import isotipoNiyaraky from "@/assets/Isotipo-Niyaraky.png";
 import logoComfaboy from "@/assets/logo-comfaboy.png";
 import isotipoComfaboy from "@/assets/isotipo-comfaboy.png";
 
