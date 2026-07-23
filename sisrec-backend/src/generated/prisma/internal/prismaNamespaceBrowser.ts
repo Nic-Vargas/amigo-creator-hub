@@ -56,7 +56,8 @@ export const ModelName = {
   Beneficiary: 'Beneficiary',
   RecobroCase: 'RecobroCase',
   Movement: 'Movement',
-  MovementDetail: 'MovementDetail'
+  MovementDetail: 'MovementDetail',
+  MovementAttachment: 'MovementAttachment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -180,6 +181,19 @@ export const MovementDetailScalarFieldEnum = {
 } as const
 
 export type MovementDetailScalarFieldEnum = (typeof MovementDetailScalarFieldEnum)[keyof typeof MovementDetailScalarFieldEnum]
+
+
+export const MovementAttachmentScalarFieldEnum = {
+  id: 'id',
+  movementId: 'movementId',
+  fileName: 'fileName',
+  storagePath: 'storagePath',
+  mimeType: 'mimeType',
+  fileSize: 'fileSize',
+  createdAt: 'createdAt'
+} as const
+
+export type MovementAttachmentScalarFieldEnum = (typeof MovementAttachmentScalarFieldEnum)[keyof typeof MovementAttachmentScalarFieldEnum]
 
 
 export const SortOrder = {

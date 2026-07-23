@@ -17,6 +17,8 @@ async function bootstrap() {
   const developmentOrigins = [
     'http://localhost:8080',
     'http://127.0.0.1:8080',
+    'https://sisrec-backend.onrender.com',
+    'https://sisrec.onrender.com',
   ];
 
   const allowedOrigins = [
@@ -27,32 +29,32 @@ async function bootstrap() {
   ];
 
   app.enableCors({
-    origin: (
-      origin: string | undefined,
-      callback: (error: Error | null, allow?: boolean) => void,
-    ) => {
-      // Permite solicitudes sin Origin, como Swagger, Postman o curl.
-      if (!origin) {
-        callback(null, true);
-        return;
-      }
+  origin: (
+    origin: string | undefined,
+    callback: (
+      error: Error | null,
+      allow?: boolean,
+    ) => void,
+  ) => {
+    // Permite solicitudes sin Origin, como Postman,
+    // curl y algunas llamadas internas.
+    if (!origin) {
+      return callback(null, true);
+    }
 
-      const normalizedOrigin = origin.replace(/\/+$/, '');
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
 
-      if (allowedOrigins.includes(normalizedOrigin)) {
-        callback(null, true);
-        return;
-      }
-
-      callback(
-        new Error(
-          `Origen no autorizado por CORS: ${normalizedOrigin}`,
-        ),
-        false,
-      );
-    },
-    credentials: true,
-  });
+    return callback(
+      new Error(
+        `Origin no autorizado por CORS: ${origin}`,
+      ),
+      false,
+    );
+  },
+  credentials: true,
+});
 
   app.useGlobalPipes(
     new ValidationPipe({

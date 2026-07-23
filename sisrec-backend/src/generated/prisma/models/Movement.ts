@@ -281,6 +281,7 @@ export type MovementWhereInput = {
   beneficiary?: Prisma.XOR<Prisma.BeneficiaryScalarRelationFilter, Prisma.BeneficiaryWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   details?: Prisma.MovementDetailListRelationFilter
+  attachments?: Prisma.MovementAttachmentListRelationFilter
 }
 
 export type MovementOrderByWithRelationInput = {
@@ -300,6 +301,7 @@ export type MovementOrderByWithRelationInput = {
   beneficiary?: Prisma.BeneficiaryOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
   details?: Prisma.MovementDetailOrderByRelationAggregateInput
+  attachments?: Prisma.MovementAttachmentOrderByRelationAggregateInput
 }
 
 export type MovementWhereUniqueInput = Prisma.AtLeast<{
@@ -322,6 +324,7 @@ export type MovementWhereUniqueInput = Prisma.AtLeast<{
   beneficiary?: Prisma.XOR<Prisma.BeneficiaryScalarRelationFilter, Prisma.BeneficiaryWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   details?: Prisma.MovementDetailListRelationFilter
+  attachments?: Prisma.MovementAttachmentListRelationFilter
 }, "id">
 
 export type MovementOrderByWithAggregationInput = {
@@ -373,6 +376,7 @@ export type MovementCreateInput = {
   beneficiary: Prisma.BeneficiaryCreateNestedOneWithoutMovementsInput
   user: Prisma.UserCreateNestedOneWithoutMovementsInput
   details?: Prisma.MovementDetailCreateNestedManyWithoutMovementInput
+  attachments?: Prisma.MovementAttachmentCreateNestedManyWithoutMovementInput
 }
 
 export type MovementUncheckedCreateInput = {
@@ -388,6 +392,7 @@ export type MovementUncheckedCreateInput = {
   beneficiaryTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   details?: Prisma.MovementDetailUncheckedCreateNestedManyWithoutMovementInput
+  attachments?: Prisma.MovementAttachmentUncheckedCreateNestedManyWithoutMovementInput
 }
 
 export type MovementUpdateInput = {
@@ -403,6 +408,7 @@ export type MovementUpdateInput = {
   beneficiary?: Prisma.BeneficiaryUpdateOneRequiredWithoutMovementsNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutMovementsNestedInput
   details?: Prisma.MovementDetailUpdateManyWithoutMovementNestedInput
+  attachments?: Prisma.MovementAttachmentUpdateManyWithoutMovementNestedInput
 }
 
 export type MovementUncheckedUpdateInput = {
@@ -418,6 +424,7 @@ export type MovementUncheckedUpdateInput = {
   beneficiaryTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   details?: Prisma.MovementDetailUncheckedUpdateManyWithoutMovementNestedInput
+  attachments?: Prisma.MovementAttachmentUncheckedUpdateManyWithoutMovementNestedInput
 }
 
 export type MovementCreateManyInput = {
@@ -711,6 +718,20 @@ export type MovementUpdateOneRequiredWithoutDetailsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MovementUpdateToOneWithWhereWithoutDetailsInput, Prisma.MovementUpdateWithoutDetailsInput>, Prisma.MovementUncheckedUpdateWithoutDetailsInput>
 }
 
+export type MovementCreateNestedOneWithoutAttachmentsInput = {
+  create?: Prisma.XOR<Prisma.MovementCreateWithoutAttachmentsInput, Prisma.MovementUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.MovementCreateOrConnectWithoutAttachmentsInput
+  connect?: Prisma.MovementWhereUniqueInput
+}
+
+export type MovementUpdateOneRequiredWithoutAttachmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.MovementCreateWithoutAttachmentsInput, Prisma.MovementUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.MovementCreateOrConnectWithoutAttachmentsInput
+  upsert?: Prisma.MovementUpsertWithoutAttachmentsInput
+  connect?: Prisma.MovementWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MovementUpdateToOneWithWhereWithoutAttachmentsInput, Prisma.MovementUpdateWithoutAttachmentsInput>, Prisma.MovementUncheckedUpdateWithoutAttachmentsInput>
+}
+
 export type MovementCreateWithoutCompanyInput = {
   id?: string
   descripcion?: string | null
@@ -723,6 +744,7 @@ export type MovementCreateWithoutCompanyInput = {
   beneficiary: Prisma.BeneficiaryCreateNestedOneWithoutMovementsInput
   user: Prisma.UserCreateNestedOneWithoutMovementsInput
   details?: Prisma.MovementDetailCreateNestedManyWithoutMovementInput
+  attachments?: Prisma.MovementAttachmentCreateNestedManyWithoutMovementInput
 }
 
 export type MovementUncheckedCreateWithoutCompanyInput = {
@@ -737,6 +759,7 @@ export type MovementUncheckedCreateWithoutCompanyInput = {
   beneficiaryTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   details?: Prisma.MovementDetailUncheckedCreateNestedManyWithoutMovementInput
+  attachments?: Prisma.MovementAttachmentUncheckedCreateNestedManyWithoutMovementInput
 }
 
 export type MovementCreateOrConnectWithoutCompanyInput = {
@@ -794,6 +817,7 @@ export type MovementCreateWithoutUserInput = {
   recobroCase: Prisma.RecobroCaseCreateNestedOneWithoutMovementsInput
   beneficiary: Prisma.BeneficiaryCreateNestedOneWithoutMovementsInput
   details?: Prisma.MovementDetailCreateNestedManyWithoutMovementInput
+  attachments?: Prisma.MovementAttachmentCreateNestedManyWithoutMovementInput
 }
 
 export type MovementUncheckedCreateWithoutUserInput = {
@@ -808,6 +832,7 @@ export type MovementUncheckedCreateWithoutUserInput = {
   beneficiaryTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   details?: Prisma.MovementDetailUncheckedCreateNestedManyWithoutMovementInput
+  attachments?: Prisma.MovementAttachmentUncheckedCreateNestedManyWithoutMovementInput
 }
 
 export type MovementCreateOrConnectWithoutUserInput = {
@@ -848,6 +873,7 @@ export type MovementCreateWithoutBeneficiaryInput = {
   recobroCase: Prisma.RecobroCaseCreateNestedOneWithoutMovementsInput
   user: Prisma.UserCreateNestedOneWithoutMovementsInput
   details?: Prisma.MovementDetailCreateNestedManyWithoutMovementInput
+  attachments?: Prisma.MovementAttachmentCreateNestedManyWithoutMovementInput
 }
 
 export type MovementUncheckedCreateWithoutBeneficiaryInput = {
@@ -862,6 +888,7 @@ export type MovementUncheckedCreateWithoutBeneficiaryInput = {
   beneficiaryTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   details?: Prisma.MovementDetailUncheckedCreateNestedManyWithoutMovementInput
+  attachments?: Prisma.MovementAttachmentUncheckedCreateNestedManyWithoutMovementInput
 }
 
 export type MovementCreateOrConnectWithoutBeneficiaryInput = {
@@ -902,6 +929,7 @@ export type MovementCreateWithoutRecobroCaseInput = {
   beneficiary: Prisma.BeneficiaryCreateNestedOneWithoutMovementsInput
   user: Prisma.UserCreateNestedOneWithoutMovementsInput
   details?: Prisma.MovementDetailCreateNestedManyWithoutMovementInput
+  attachments?: Prisma.MovementAttachmentCreateNestedManyWithoutMovementInput
 }
 
 export type MovementUncheckedCreateWithoutRecobroCaseInput = {
@@ -916,6 +944,7 @@ export type MovementUncheckedCreateWithoutRecobroCaseInput = {
   beneficiaryTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   details?: Prisma.MovementDetailUncheckedCreateNestedManyWithoutMovementInput
+  attachments?: Prisma.MovementAttachmentUncheckedCreateNestedManyWithoutMovementInput
 }
 
 export type MovementCreateOrConnectWithoutRecobroCaseInput = {
@@ -956,6 +985,7 @@ export type MovementCreateWithoutDetailsInput = {
   recobroCase: Prisma.RecobroCaseCreateNestedOneWithoutMovementsInput
   beneficiary: Prisma.BeneficiaryCreateNestedOneWithoutMovementsInput
   user: Prisma.UserCreateNestedOneWithoutMovementsInput
+  attachments?: Prisma.MovementAttachmentCreateNestedManyWithoutMovementInput
 }
 
 export type MovementUncheckedCreateWithoutDetailsInput = {
@@ -970,6 +1000,7 @@ export type MovementUncheckedCreateWithoutDetailsInput = {
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
+  attachments?: Prisma.MovementAttachmentUncheckedCreateNestedManyWithoutMovementInput
 }
 
 export type MovementCreateOrConnectWithoutDetailsInput = {
@@ -1000,6 +1031,7 @@ export type MovementUpdateWithoutDetailsInput = {
   recobroCase?: Prisma.RecobroCaseUpdateOneRequiredWithoutMovementsNestedInput
   beneficiary?: Prisma.BeneficiaryUpdateOneRequiredWithoutMovementsNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutMovementsNestedInput
+  attachments?: Prisma.MovementAttachmentUpdateManyWithoutMovementNestedInput
 }
 
 export type MovementUncheckedUpdateWithoutDetailsInput = {
@@ -1014,6 +1046,83 @@ export type MovementUncheckedUpdateWithoutDetailsInput = {
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attachments?: Prisma.MovementAttachmentUncheckedUpdateManyWithoutMovementNestedInput
+}
+
+export type MovementCreateWithoutAttachmentsInput = {
+  id?: string
+  descripcion?: string | null
+  caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
+  caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
+  beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
+  beneficiaryTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutMovementsInput
+  recobroCase: Prisma.RecobroCaseCreateNestedOneWithoutMovementsInput
+  beneficiary: Prisma.BeneficiaryCreateNestedOneWithoutMovementsInput
+  user: Prisma.UserCreateNestedOneWithoutMovementsInput
+  details?: Prisma.MovementDetailCreateNestedManyWithoutMovementInput
+}
+
+export type MovementUncheckedCreateWithoutAttachmentsInput = {
+  id?: string
+  companyId: string
+  recobroCaseId: string
+  beneficiaryId: string
+  userId: string
+  descripcion?: string | null
+  caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
+  caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
+  beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
+  beneficiaryTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  details?: Prisma.MovementDetailUncheckedCreateNestedManyWithoutMovementInput
+}
+
+export type MovementCreateOrConnectWithoutAttachmentsInput = {
+  where: Prisma.MovementWhereUniqueInput
+  create: Prisma.XOR<Prisma.MovementCreateWithoutAttachmentsInput, Prisma.MovementUncheckedCreateWithoutAttachmentsInput>
+}
+
+export type MovementUpsertWithoutAttachmentsInput = {
+  update: Prisma.XOR<Prisma.MovementUpdateWithoutAttachmentsInput, Prisma.MovementUncheckedUpdateWithoutAttachmentsInput>
+  create: Prisma.XOR<Prisma.MovementCreateWithoutAttachmentsInput, Prisma.MovementUncheckedCreateWithoutAttachmentsInput>
+  where?: Prisma.MovementWhereInput
+}
+
+export type MovementUpdateToOneWithWhereWithoutAttachmentsInput = {
+  where?: Prisma.MovementWhereInput
+  data: Prisma.XOR<Prisma.MovementUpdateWithoutAttachmentsInput, Prisma.MovementUncheckedUpdateWithoutAttachmentsInput>
+}
+
+export type MovementUpdateWithoutAttachmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  beneficiaryTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutMovementsNestedInput
+  recobroCase?: Prisma.RecobroCaseUpdateOneRequiredWithoutMovementsNestedInput
+  beneficiary?: Prisma.BeneficiaryUpdateOneRequiredWithoutMovementsNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutMovementsNestedInput
+  details?: Prisma.MovementDetailUpdateManyWithoutMovementNestedInput
+}
+
+export type MovementUncheckedUpdateWithoutAttachmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  recobroCaseId?: Prisma.StringFieldUpdateOperationsInput | string
+  beneficiaryId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  beneficiaryTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  details?: Prisma.MovementDetailUncheckedUpdateManyWithoutMovementNestedInput
 }
 
 export type MovementCreateManyCompanyInput = {
@@ -1041,6 +1150,7 @@ export type MovementUpdateWithoutCompanyInput = {
   beneficiary?: Prisma.BeneficiaryUpdateOneRequiredWithoutMovementsNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutMovementsNestedInput
   details?: Prisma.MovementDetailUpdateManyWithoutMovementNestedInput
+  attachments?: Prisma.MovementAttachmentUpdateManyWithoutMovementNestedInput
 }
 
 export type MovementUncheckedUpdateWithoutCompanyInput = {
@@ -1055,6 +1165,7 @@ export type MovementUncheckedUpdateWithoutCompanyInput = {
   beneficiaryTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   details?: Prisma.MovementDetailUncheckedUpdateManyWithoutMovementNestedInput
+  attachments?: Prisma.MovementAttachmentUncheckedUpdateManyWithoutMovementNestedInput
 }
 
 export type MovementUncheckedUpdateManyWithoutCompanyInput = {
@@ -1095,6 +1206,7 @@ export type MovementUpdateWithoutUserInput = {
   recobroCase?: Prisma.RecobroCaseUpdateOneRequiredWithoutMovementsNestedInput
   beneficiary?: Prisma.BeneficiaryUpdateOneRequiredWithoutMovementsNestedInput
   details?: Prisma.MovementDetailUpdateManyWithoutMovementNestedInput
+  attachments?: Prisma.MovementAttachmentUpdateManyWithoutMovementNestedInput
 }
 
 export type MovementUncheckedUpdateWithoutUserInput = {
@@ -1109,6 +1221,7 @@ export type MovementUncheckedUpdateWithoutUserInput = {
   beneficiaryTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   details?: Prisma.MovementDetailUncheckedUpdateManyWithoutMovementNestedInput
+  attachments?: Prisma.MovementAttachmentUncheckedUpdateManyWithoutMovementNestedInput
 }
 
 export type MovementUncheckedUpdateManyWithoutUserInput = {
@@ -1149,6 +1262,7 @@ export type MovementUpdateWithoutBeneficiaryInput = {
   recobroCase?: Prisma.RecobroCaseUpdateOneRequiredWithoutMovementsNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutMovementsNestedInput
   details?: Prisma.MovementDetailUpdateManyWithoutMovementNestedInput
+  attachments?: Prisma.MovementAttachmentUpdateManyWithoutMovementNestedInput
 }
 
 export type MovementUncheckedUpdateWithoutBeneficiaryInput = {
@@ -1163,6 +1277,7 @@ export type MovementUncheckedUpdateWithoutBeneficiaryInput = {
   beneficiaryTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   details?: Prisma.MovementDetailUncheckedUpdateManyWithoutMovementNestedInput
+  attachments?: Prisma.MovementAttachmentUncheckedUpdateManyWithoutMovementNestedInput
 }
 
 export type MovementUncheckedUpdateManyWithoutBeneficiaryInput = {
@@ -1203,6 +1318,7 @@ export type MovementUpdateWithoutRecobroCaseInput = {
   beneficiary?: Prisma.BeneficiaryUpdateOneRequiredWithoutMovementsNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutMovementsNestedInput
   details?: Prisma.MovementDetailUpdateManyWithoutMovementNestedInput
+  attachments?: Prisma.MovementAttachmentUpdateManyWithoutMovementNestedInput
 }
 
 export type MovementUncheckedUpdateWithoutRecobroCaseInput = {
@@ -1217,6 +1333,7 @@ export type MovementUncheckedUpdateWithoutRecobroCaseInput = {
   beneficiaryTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   details?: Prisma.MovementDetailUncheckedUpdateManyWithoutMovementNestedInput
+  attachments?: Prisma.MovementAttachmentUncheckedUpdateManyWithoutMovementNestedInput
 }
 
 export type MovementUncheckedUpdateManyWithoutRecobroCaseInput = {
@@ -1239,10 +1356,12 @@ export type MovementUncheckedUpdateManyWithoutRecobroCaseInput = {
 
 export type MovementCountOutputType = {
   details: number
+  attachments: number
 }
 
 export type MovementCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   details?: boolean | MovementCountOutputTypeCountDetailsArgs
+  attachments?: boolean | MovementCountOutputTypeCountAttachmentsArgs
 }
 
 /**
@@ -1260,6 +1379,13 @@ export type MovementCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
  */
 export type MovementCountOutputTypeCountDetailsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.MovementDetailWhereInput
+}
+
+/**
+ * MovementCountOutputType without action
+ */
+export type MovementCountOutputTypeCountAttachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MovementAttachmentWhereInput
 }
 
 
@@ -1280,6 +1406,7 @@ export type MovementSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   beneficiary?: boolean | Prisma.BeneficiaryDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   details?: boolean | Prisma.Movement$detailsArgs<ExtArgs>
+  attachments?: boolean | Prisma.Movement$attachmentsArgs<ExtArgs>
   _count?: boolean | Prisma.MovementCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["movement"]>
 
@@ -1340,6 +1467,7 @@ export type MovementInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   beneficiary?: boolean | Prisma.BeneficiaryDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   details?: boolean | Prisma.Movement$detailsArgs<ExtArgs>
+  attachments?: boolean | Prisma.Movement$attachmentsArgs<ExtArgs>
   _count?: boolean | Prisma.MovementCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type MovementIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1363,6 +1491,7 @@ export type $MovementPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     beneficiary: Prisma.$BeneficiaryPayload<ExtArgs>
     user: Prisma.$UserPayload<ExtArgs>
     details: Prisma.$MovementDetailPayload<ExtArgs>[]
+    attachments: Prisma.$MovementAttachmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1775,6 +1904,7 @@ export interface Prisma__MovementClient<T, Null = never, ExtArgs extends runtime
   beneficiary<T extends Prisma.BeneficiaryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BeneficiaryDefaultArgs<ExtArgs>>): Prisma.Prisma__BeneficiaryClient<runtime.Types.Result.GetResult<Prisma.$BeneficiaryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   details<T extends Prisma.Movement$detailsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Movement$detailsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MovementDetailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  attachments<T extends Prisma.Movement$attachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Movement$attachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MovementAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2237,6 +2367,30 @@ export type Movement$detailsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.MovementDetailScalarFieldEnum | Prisma.MovementDetailScalarFieldEnum[]
+}
+
+/**
+ * Movement.attachments
+ */
+export type Movement$attachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MovementAttachment
+   */
+  select?: Prisma.MovementAttachmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MovementAttachment
+   */
+  omit?: Prisma.MovementAttachmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MovementAttachmentInclude<ExtArgs> | null
+  where?: Prisma.MovementAttachmentWhereInput
+  orderBy?: Prisma.MovementAttachmentOrderByWithRelationInput | Prisma.MovementAttachmentOrderByWithRelationInput[]
+  cursor?: Prisma.MovementAttachmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MovementAttachmentScalarFieldEnum | Prisma.MovementAttachmentScalarFieldEnum[]
 }
 
 /**

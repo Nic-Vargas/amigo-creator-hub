@@ -69,3 +69,8 @@ export type Movement = Prisma.MovementModel
  * 
  */
 export type MovementDetail = Prisma.MovementDetailModel
+/**
+ * Model MovementAttachment
+ * 
+ */
+export type MovementAttachment = Prisma.MovementAttachmentModel

@@ -389,7 +389,8 @@ export const ModelName = {
   Beneficiary: 'Beneficiary',
   RecobroCase: 'RecobroCase',
   Movement: 'Movement',
-  MovementDetail: 'MovementDetail'
+  MovementDetail: 'MovementDetail',
+  MovementAttachment: 'MovementAttachment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -405,7 +406,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "company" | "user" | "beneficiary" | "recobroCase" | "movement" | "movementDetail"
+    modelProps: "company" | "user" | "beneficiary" | "recobroCase" | "movement" | "movementDetail" | "movementAttachment"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -853,6 +854,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MovementAttachment: {
+      payload: Prisma.$MovementAttachmentPayload<ExtArgs>
+      fields: Prisma.MovementAttachmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MovementAttachmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MovementAttachmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MovementAttachmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MovementAttachmentPayload>
+        }
+        findFirst: {
+          args: Prisma.MovementAttachmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MovementAttachmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MovementAttachmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MovementAttachmentPayload>
+        }
+        findMany: {
+          args: Prisma.MovementAttachmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MovementAttachmentPayload>[]
+        }
+        create: {
+          args: Prisma.MovementAttachmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MovementAttachmentPayload>
+        }
+        createMany: {
+          args: Prisma.MovementAttachmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MovementAttachmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MovementAttachmentPayload>[]
+        }
+        delete: {
+          args: Prisma.MovementAttachmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MovementAttachmentPayload>
+        }
+        update: {
+          args: Prisma.MovementAttachmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MovementAttachmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.MovementAttachmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MovementAttachmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MovementAttachmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MovementAttachmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.MovementAttachmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MovementAttachmentPayload>
+        }
+        aggregate: {
+          args: Prisma.MovementAttachmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMovementAttachment>
+        }
+        groupBy: {
+          args: Prisma.MovementAttachmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MovementAttachmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MovementAttachmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MovementAttachmentCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -997,6 +1072,19 @@ export const MovementDetailScalarFieldEnum = {
 } as const
 
 export type MovementDetailScalarFieldEnum = (typeof MovementDetailScalarFieldEnum)[keyof typeof MovementDetailScalarFieldEnum]
+
+
+export const MovementAttachmentScalarFieldEnum = {
+  id: 'id',
+  movementId: 'movementId',
+  fileName: 'fileName',
+  storagePath: 'storagePath',
+  mimeType: 'mimeType',
+  fileSize: 'fileSize',
+  createdAt: 'createdAt'
+} as const
+
+export type MovementAttachmentScalarFieldEnum = (typeof MovementAttachmentScalarFieldEnum)[keyof typeof MovementAttachmentScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1175,6 +1263,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -1276,6 +1378,7 @@ export type GlobalOmitConfig = {
   recobroCase?: Prisma.RecobroCaseOmit
   movement?: Prisma.MovementOmit
   movementDetail?: Prisma.MovementDetailOmit
+  movementAttachment?: Prisma.MovementAttachmentOmit
 }
 
 /* Types for Logging */

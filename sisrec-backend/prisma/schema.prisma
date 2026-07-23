@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
   moduleFormat = "cjs"
 }
 
@@ -51,12 +51,12 @@ enum AdjustmentDirection {
 }
 
 model Company {
-  id            String         @id @default(cuid())
-  name          String
-  slug          String         @unique
-  isActive      Boolean        @default(true)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   users         User[]
   beneficiaries Beneficiary[]
@@ -65,18 +65,18 @@ model Company {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  companyId     String
-  email         String
-  passwordHash  String
-  fullName      String
-  role          UserRole
-  isActive      Boolean        @default(true)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id           String   @id @default(cuid())
+  companyId    String
+  email        String
+  passwordHash String
+  fullName     String
+  role         UserRole
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  company       Company        @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  assignedCases RecobroCase[]  @relation("CaseResponsible")
+  company       Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  assignedCases RecobroCase[] @relation("CaseResponsible")
   movements     Movement[]
 
   @@unique([companyId, email])
@@ -84,7 +84,7 @@ model User {
 }
 
 model Beneficiary {
-  id            String         @id @default(cuid())
+  id            String   @id @default(cuid())
   companyId     String
   tipoDocumento String
   documento     String
@@ -98,13 +98,13 @@ model Beneficiary {
   municipio     String?
   departamento  String?
   estado        String?
-  saldoTotal    Decimal        @db.Decimal(18, 2) @default(0)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  saldoTotal    Decimal  @default(0) @db.Decimal(18, 2)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  company       Company        @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  recobroCases  RecobroCase[]
-  movements     Movement[]
+  company      Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  recobroCases RecobroCase[]
+  movements    Movement[]
 
   @@unique([companyId, tipoDocumento, documento])
   @@index([companyId])
@@ -112,30 +112,30 @@ model Beneficiary {
 }
 
 model RecobroCase {
-  id                            String         @id @default(cuid())
-  companyId                     String
-  beneficiaryId                 String
-  ley                           String
-  periodo                       String
-  valorSalud                    Decimal        @db.Decimal(18, 2) @default(0)
-  valorPension                  Decimal        @db.Decimal(18, 2) @default(0)
-  valorCuotaMonetaria           Decimal        @db.Decimal(18, 2) @default(0)
-  valorTransferenciaEconomica   Decimal        @db.Decimal(18, 2) @default(0)
-  valorBonoAlimentacion         Decimal         @db.Decimal(18, 2) @default(0)
-  valorBeneficiosEconomicos488  Decimal         @db.Decimal(18, 2) @default(0)
-  valorTotal                    Decimal        @db.Decimal(18, 2) @default(0)
-  estado                        CaseStatus     @default(ABIERTO)
-  prioridad                     Priority       @default(MEDIA)
-  responsableUserId             String?
-  ultimaGestionAt               DateTime?
-  fechaApertura                 DateTime
-  createdAt                     DateTime       @default(now())
-  updatedAt                     DateTime       @updatedAt
+  id                           String     @id @default(cuid())
+  companyId                    String
+  beneficiaryId                String
+  ley                          String
+  periodo                      String
+  valorSalud                   Decimal    @default(0) @db.Decimal(18, 2)
+  valorPension                 Decimal    @default(0) @db.Decimal(18, 2)
+  valorCuotaMonetaria          Decimal    @default(0) @db.Decimal(18, 2)
+  valorTransferenciaEconomica  Decimal    @default(0) @db.Decimal(18, 2)
+  valorBonoAlimentacion        Decimal    @default(0) @db.Decimal(18, 2)
+  valorBeneficiosEconomicos488 Decimal    @default(0) @db.Decimal(18, 2)
+  valorTotal                   Decimal    @default(0) @db.Decimal(18, 2)
+  estado                       CaseStatus @default(ABIERTO)
+  prioridad                    Priority   @default(MEDIA)
+  responsableUserId            String?
+  ultimaGestionAt              DateTime?
+  fechaApertura                DateTime
+  createdAt                    DateTime   @default(now())
+  updatedAt                    DateTime   @updatedAt
 
-  company                       Company        @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  beneficiary                   Beneficiary    @relation(fields: [beneficiaryId], references: [id], onDelete: Restrict)
-  responsable                   User?          @relation("CaseResponsible", fields: [responsableUserId], references: [id], onDelete: SetNull)
-  movements                     Movement[]
+  company     Company     @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  beneficiary Beneficiary @relation(fields: [beneficiaryId], references: [id], onDelete: Restrict)
+  responsable User?       @relation("CaseResponsible", fields: [responsableUserId], references: [id], onDelete: SetNull)
+  movements   Movement[]
 
   @@index([companyId])
   @@index([companyId, beneficiaryId])
@@ -144,23 +144,24 @@ model RecobroCase {
 }
 
 model Movement {
-  id                        String           @id @default(cuid())
-  companyId                 String
-  recobroCaseId             String
-  beneficiaryId             String
-  userId                    String
-  descripcion               String?
-  caseTotalAnterior         Decimal          @db.Decimal(18, 2)
-  caseTotalNuevo            Decimal          @db.Decimal(18, 2)
-  beneficiaryTotalAnterior  Decimal          @db.Decimal(18, 2)
-  beneficiaryTotalNuevo     Decimal          @db.Decimal(18, 2)
-  createdAt                 DateTime         @default(now())
+  id                       String   @id @default(cuid())
+  companyId                String
+  recobroCaseId            String
+  beneficiaryId            String
+  userId                   String
+  descripcion              String?
+  caseTotalAnterior        Decimal  @db.Decimal(18, 2)
+  caseTotalNuevo           Decimal  @db.Decimal(18, 2)
+  beneficiaryTotalAnterior Decimal  @db.Decimal(18, 2)
+  beneficiaryTotalNuevo    Decimal  @db.Decimal(18, 2)
+  createdAt                DateTime @default(now())
 
-  company                   Company          @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  recobroCase               RecobroCase      @relation(fields: [recobroCaseId], references: [id], onDelete: Restrict)
-  beneficiary               Beneficiary      @relation(fields: [beneficiaryId], references: [id], onDelete: Restrict)
-  user                      User             @relation(fields: [userId], references: [id], onDelete: Restrict)
-  details                   MovementDetail[]
+  company     Company              @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  recobroCase RecobroCase          @relation(fields: [recobroCaseId], references: [id], onDelete: Restrict)
+  beneficiary Beneficiary          @relation(fields: [beneficiaryId], references: [id], onDelete: Restrict)
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Restrict)
+  details     MovementDetail[]
+  attachments MovementAttachment[]
 
   @@index([companyId])
   @@index([companyId, recobroCaseId])
@@ -179,8 +180,23 @@ model MovementDetail {
   saldoNuevoConcepto    Decimal              @db.Decimal(18, 2)
   createdAt             DateTime             @default(now())
 
-  movement              Movement             @relation(fields: [movementId], references: [id], onDelete: Cascade)
+  movement Movement @relation(fields: [movementId], references: [id], onDelete: Cascade)
 
   @@index([movementId])
   @@index([concepto])
+}
+
+model MovementAttachment {
+  id          String   @id @default(cuid())
+  movementId  String
+  fileName    String
+  storagePath String
+  mimeType    String
+  fileSize    Int
+  createdAt   DateTime @default(now())
+
+  movement Movement @relation(fields: [movementId], references: [id], onDelete: Cascade)
+
+  @@unique([storagePath])
+  @@index([movementId])
 }
