@@ -1202,15 +1202,57 @@ export default function Recobros() {
                       />
 
                       <Select
-                        value={form.tipo}
-                        onValueChange={(value) =>
-                          updateMovementField(concepto.key, "tipo", value)
-                        }
+                        value={form.tipo || "SIN_SELECCION"}
+                        onValueChange={(value) => {
+                          if (value === "SIN_SELECCION") {
+                            setMovementForm((prev) => ({
+                              ...prev,
+                              [concepto.key]: {
+                                ...prev[concepto.key],
+                                tipo: "",
+                                valor: "",
+                                medioPago: "",
+                                soportePagoNombre: "",
+                                adjustmentDirection: "",
+                              },
+                            }));
+
+                            return;
+                          }
+
+                          setMovementForm((prev) => ({
+                            ...prev,
+                            [concepto.key]: {
+                              ...prev[concepto.key],
+                              tipo: value,
+
+                              medioPago:
+                                value === "Pago"
+                                  ? prev[concepto.key].medioPago
+                                  : "",
+
+                              soportePagoNombre:
+                                value === "Pago"
+                                  ? prev[concepto.key].soportePagoNombre
+                                  : "",
+
+                              adjustmentDirection:
+                                value === "Ajuste contable"
+                                  ? prev[concepto.key].adjustmentDirection
+                                  : "",
+                            },
+                          }));
+                        }}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Seleccione concepto" />
+                          <SelectValue placeholder="Seleccione tipo" />
                         </SelectTrigger>
+
                         <SelectContent>
+                          <SelectItem value="SIN_SELECCION">
+                            Sin seleccionar
+                          </SelectItem>
+
                           {tiposMovimiento.map((item) => (
                             <SelectItem key={item} value={item}>
                               {item}
