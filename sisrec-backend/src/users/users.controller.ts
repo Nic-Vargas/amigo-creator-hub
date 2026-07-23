@@ -15,4 +15,8 @@ export class UsersController {
 
     return this.usersService.createInitialUser();
   }
+  /*@Post('change-admin-password')
+  changeAdminPassword() {
+    return this.usersService.changeAdminPassword();
+  }*/
 }

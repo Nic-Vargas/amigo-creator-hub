@@ -40,6 +40,38 @@ export class UsersService {
       password: '123456',
     };
   }
+
+  /*async changeAdminPassword() {
+    const newPassword = 'Sisrec@2026!Admin';
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email: 'admin@sisrec.com',
+      },
+    });
+
+    if (!user) {
+      throw new Error(
+        'No se encontró el usuario admin@sisrec.com',
+      );
+    }
+
+    await this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        passwordHash,
+      },
+    });
+
+    return {
+      message: 'Contraseña actualizada correctamente',
+      email: user.email,
+      password: newPassword,
+    };
+  }*/
   async findByEmail(email: string) {
   return this.prisma.user.findFirst({
     where: {
