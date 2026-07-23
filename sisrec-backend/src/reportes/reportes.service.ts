@@ -120,7 +120,6 @@ export class ReportesService {
 
         'Valor Total Movimiento': valorTotalMovimiento,
 
-        Descripción: item.descripcion ?? '',
         Usuario: item.user.fullName,
 
         'Saldo Salud Anterior': Number(

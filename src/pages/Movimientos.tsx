@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, Filter, Download } from "lucide-react";
+import { Search, Filter, Download, Loader2, } from "lucide-react";
 import ExcelJS from "exceljs/dist/exceljs.min.js";
 import { saveAs } from "file-saver";
 
@@ -350,6 +350,10 @@ export default function Movimientos() {
 
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [isExporting, setIsExporting] = useState(false);
+
+  const [exportProgress, setExportProgress] = useState(0);
+
   const cargarMovimientos = async () => {
     try {
       setLoading(true);
@@ -520,10 +524,29 @@ export default function Movimientos() {
   };
 
   const handleExportarMovimientos = async () => {
+    if (isExporting) return;
+
+    setIsExporting(true);
+    setExportProgress(5);
+
+    let progressInterval: ReturnType<typeof setInterval> | undefined;
+
     try {
+      progressInterval = setInterval(() => {
+        setExportProgress((currentProgress) => {
+          if (currentProgress >= 90) {
+            return currentProgress;
+          }
+
+          return Math.min(currentProgress + 5, 90);
+        });
+      }, 250);
+
       const response = await fetch(
         "/templates/plantilla-exportacion-movimientos.xlsx"
       );
+
+      setExportProgress(15);
 
       if (!response.ok) {
         throw new Error(
@@ -533,9 +556,13 @@ export default function Movimientos() {
 
       const arrayBuffer = await response.arrayBuffer();
 
+      setExportProgress(25);
+
       const workbook = new ExcelJS.Workbook();
 
       await workbook.xlsx.load(arrayBuffer);
+
+      setExportProgress(35);
 
       const worksheet = workbook.worksheets[0];
 
@@ -570,21 +597,18 @@ export default function Movimientos() {
               movement.valorCuotaMonetaria,
             transferenciaEconomica:
               movement.valorTransferencia,
-
             bonoAlimentacion:
               movement.valorBonoAlimentacion,
-
             beneficiosEconomicos488:
               movement.valorBeneficiosEconomicos488,
-
-            total:
-              movement.valorTotal,
+            total: movement.valorTotal,
             usuario: movement.usuario,
             medioPago: movement.medioPago,
-            descripcion: movement.descripcion,
           };
         }
       );
+
+      setExportProgress(45);
 
       const saldoSalud = dataRows.reduce(
         (total, row) => total + row.salud,
@@ -639,6 +663,8 @@ export default function Movimientos() {
         );
       }
 
+      setExportProgress(55);
+
       for (
         let rowNumber = startRow;
         rowNumber <= endTemplateRow;
@@ -646,7 +672,7 @@ export default function Movimientos() {
       ) {
         for (
           let columnNumber = 1;
-          columnNumber <= 15;
+          columnNumber <= 14;
           columnNumber++
         ) {
           worksheet.getCell(
@@ -677,6 +703,8 @@ export default function Movimientos() {
       setAccountingCell("K5", saldoBonoAlimentacion);
       setAccountingCell("L5", saldoBeneficiosEconomicos488);
       setAccountingCell("M5", saldoTotal);
+
+      setExportProgress(65);
 
       dataRows.forEach((row, index) => {
         const rowNumber = startRow + index;
@@ -735,7 +763,7 @@ export default function Movimientos() {
           row.transferenciaEconomica === 0
             ? "-"
             : row.transferenciaEconomica;
-        
+
         foodBonusCell.value =
           row.bonoAlimentacion === 0
             ? "-"
@@ -766,12 +794,13 @@ export default function Movimientos() {
 
         worksheet.getCell(`N${rowNumber}`).value =
           row.usuario;
-
-        worksheet.getCell(`O${rowNumber}`).value =
-          row.descripcion;
       });
 
+      setExportProgress(80);
+
       const buffer = await workbook.xlsx.writeBuffer();
+
+      setExportProgress(95);
 
       const fechaExportacion = new Date()
         .toISOString()
@@ -783,6 +812,17 @@ export default function Movimientos() {
         }),
 
         `movimientos_plantilla_${dataRows.length}_registros_${fechaExportacion}.xlsx`
+      );
+
+      setExportProgress(100);
+
+      toast({
+        title: "Exportación completada",
+        description: `Se exportaron ${dataRows.length} movimientos correctamente.`,
+      });
+
+      await new Promise((resolve) =>
+        setTimeout(resolve, 500)
       );
     } catch (error) {
       console.error(
@@ -800,6 +840,15 @@ export default function Movimientos() {
 
         variant: "destructive",
       });
+    } finally {
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
+
+      setTimeout(() => {
+        setIsExporting(false);
+        setExportProgress(0);
+      }, 300);
     }
   };
 
@@ -813,26 +862,67 @@ export default function Movimientos() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            Movimientos
-          </h1>
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">
+              Movimientos
+            </h1>
 
-          <p className="text-sm text-muted-foreground mt-1">
-            Registro de saldos iniciales, incrementos,
-            reintegros y ajustes
-          </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Registro de saldos iniciales, incrementos,
+              reintegros y ajustes
+            </p>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportarMovimientos}
+            disabled={isExporting || filtered.length === 0}
+          >
+            {isExporting ? (
+              <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4 mr-1.5" />
+            )}
+
+            {isExporting
+              ? "Exportando..."
+              : "Exportar Movimientos"}
+          </Button>
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleExportarMovimientos}
-        >
-          <Download className="w-4 h-4 mr-1.5" />
-          Exportar Movimientos
-        </Button>
+        {isExporting && (
+          <div className="rounded-lg border border-border bg-card p-4">
+            <div className="mb-2 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+
+                <span className="text-sm font-medium text-foreground">
+                  Generando archivo de movimientos...
+                </span>
+              </div>
+
+              <span className="text-sm font-semibold text-primary">
+                {exportProgress}%
+              </span>
+            </div>
+
+            <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
+                style={{
+                  width: `${exportProgress}%`,
+                }}
+              />
+            </div>
+
+            <p className="mt-2 text-xs text-muted-foreground">
+              No cierres esta ventana mientras se prepara el archivo.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="flex gap-3">
