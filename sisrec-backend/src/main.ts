@@ -16,6 +16,8 @@ async function bootstrap() {
 
   const developmentOrigins = [
     'http://localhost:8080',
+    'http://127.0.0.1:3000',
+    'http://localhost:3000',
     'http://127.0.0.1:8080',
     'https://sisrec-backend.onrender.com',
     'https://sisrec.onrender.com',
