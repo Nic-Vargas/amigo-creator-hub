@@ -9,9 +9,9 @@ datasource db {
 }
 
 enum UserRole {
+  OWNER
   ADMIN
-  CARTERA
-  AUDITOR
+  USER
 }
 
 enum CaseStatus {

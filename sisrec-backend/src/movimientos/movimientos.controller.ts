@@ -10,6 +10,18 @@ import {
 } from '@nestjs/common';
 
 import {
+  UserRole,
+} from '../generated/prisma/enums.js';
+
+import {
+  Roles,
+} from '../auth/decorators/roles.decorator';
+
+import {
+  RolesGuard,
+} from '../auth/guards/roles.guard';
+
+import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
@@ -21,6 +33,7 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import type { Express } from 'express';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 import type { CurrentUserPayload } from '../common/interfaces/current-user.interface';
@@ -31,13 +44,21 @@ import { CreateMovementDto } from './dto/create-movement.dto';
 @ApiTags('Movimientos')
 @ApiBearerAuth()
 @Controller('movimientos')
-@UseGuards(JwtAuthGuard)
+@UseGuards(
+  JwtAuthGuard,
+  RolesGuard,
+)
 export class MovimientosController {
   constructor(
     private readonly movimientosService: MovimientosService,
   ) {}
 
   @Get()
+  @Roles(
+    UserRole.OWNER,
+    UserRole.ADMIN,
+    UserRole.USER,
+  )
   @ApiOperation({
     summary: 'Consultar movimientos',
     description:
@@ -51,6 +72,11 @@ export class MovimientosController {
     status: 401,
     description: 'Token inválido, vencido o no enviado.',
   })
+  @ApiResponse({
+    status: 403,
+    description: 'El usuario autenticado no tiene permisos para esta operación.',
+  })
+  
   findAll(
     @CurrentUser() user: CurrentUserPayload,
   ) {
@@ -58,6 +84,10 @@ export class MovimientosController {
   }
 
   @Post()
+  @Roles(
+    UserRole.OWNER,
+    UserRole.ADMIN,
+  )
   @UseInterceptors(
     FilesInterceptor('files', 6, {
       limits: {

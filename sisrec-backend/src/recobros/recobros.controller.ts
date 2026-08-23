@@ -22,11 +22,17 @@ import { RecobrosService } from './recobros.service';
 import { CreateRecobroDto } from './dto/create-recobro.dto';
 import { UpdateRecobroDto } from './dto/update-recobro.dto';
 import { UpdateRecobroStatusDto } from './dto/update-recobro-status.dto';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '../generated/prisma/enums.js';
 
 @ApiTags('Recobros')
 @ApiBearerAuth()
 @Controller('recobros')
-@UseGuards(JwtAuthGuard)
+@UseGuards(
+  JwtAuthGuard,
+  RolesGuard,
+)
 export class RecobrosController {
   constructor(private readonly recobrosService: RecobrosService) {}
 
@@ -73,8 +79,28 @@ export class RecobrosController {
   ) {
     return this.recobrosService.findOne(id, user);
   }
+  @Roles(
+    UserRole.OWNER,
+    UserRole.ADMIN,
+    UserRole.USER,
+  )
+  @ApiOperation({
+    summary: 'Consultar casos de recobro',
+    description:
+      'Retorna los casos de recobro asociados a la empresa del usuario autenticado.',
+  })
 
   @Post()
+  @ApiOperation({
+    summary: 'Crear caso de recobro',
+    description:
+      'Crea un caso de recobro para un beneficiario. El backend calcula automáticamente el valorTotal.',
+  })
+  @Post()
+  @Roles(
+    UserRole.OWNER,
+    UserRole.ADMIN,
+  )
   @ApiOperation({
     summary: 'Crear caso de recobro',
     description:
@@ -120,12 +146,43 @@ export class RecobrosController {
   ) {
     return this.recobrosService.create(dto, user);
   }
+  @Get(':id')
+  @Roles(
+    UserRole.OWNER,
+    UserRole.ADMIN,
+    UserRole.USER,
+  )
+  @ApiOperation({
+    summary: 'Consultar caso de recobro por ID',
+    description:
+      'Retorna un caso de recobro específico con beneficiario y movimientos asociados.',
+  })
 
   @Patch(':id')
   @ApiOperation({
     summary: 'Actualizar datos básicos del caso',
     description:
       'Actualiza campos no financieros del caso, como ley, periodo o prioridad. No modifica saldos.',
+  })
+  @Patch(':id')
+  @Roles(
+    UserRole.OWNER,
+    UserRole.ADMIN,
+  )
+  @ApiOperation({
+    summary: 'Actualizar datos básicos del caso',
+    description:
+      'Actualiza campos no financieros del caso, como ley, periodo o prioridad. No modifica saldos.',
+  })
+  @Patch(':id/estado')
+  @Roles(
+    UserRole.OWNER,
+    UserRole.ADMIN,
+  )
+  @ApiOperation({
+    summary: 'Cambiar estado del caso de recobro',
+    description:
+      'Actualiza el estado del caso validando las transiciones permitidas.',
   })
   @ApiParam({
     name: 'id',
@@ -202,6 +259,11 @@ export class RecobrosController {
   @ApiResponse({
     status: 404,
     description: 'Caso de recobro no encontrado.',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'El usuario autenticado no tiene permisos para realizar esta operación.',
   })
   updateStatus(
     @Param('id') id: string,

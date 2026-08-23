@@ -21,11 +21,16 @@ import { CreateBeneficiaryDto } from './dto/create-beneficiary.dto';
 import { UpdateBeneficiaryDto } from './dto/update-beneficiary.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '../generated/prisma/enums.js';
 @ApiTags('Beneficiarios')
 @ApiBearerAuth()
 @Controller('beneficiaries')
-@UseGuards(JwtAuthGuard)
+@UseGuards(
+  JwtAuthGuard,
+  RolesGuard,
+)
 export class BeneficiariesController {
   constructor(private readonly beneficiariesService: BeneficiariesService) {}
 
@@ -34,6 +39,12 @@ export class BeneficiariesController {
     summary: 'Consultar beneficiarios',
     description: 'Retorna el listado de beneficiarios asociados a la empresa del usuario autenticado.',
   })
+  @Get(':id')
+  @Roles(
+    UserRole.OWNER,
+    UserRole.ADMIN,
+    UserRole.USER,
+  )
   @ApiResponse({
     status: 200,
     description: 'Listado de beneficiarios obtenido correctamente.',
@@ -76,6 +87,16 @@ export class BeneficiariesController {
     summary: 'Crear beneficiario',
     description: 'Crea un nuevo beneficiario dentro de la empresa del usuario autenticado.',
   })
+  @Post()
+  @Roles(
+    UserRole.OWNER,
+    UserRole.ADMIN,
+  )
+  @ApiResponse({
+    status: 403,
+    description:
+      'El usuario autenticado no tiene permisos para realizar esta operación.',
+  })
   @ApiBody({
     type: CreateBeneficiaryDto,
     examples: {
@@ -113,6 +134,16 @@ export class BeneficiariesController {
     summary: 'Actualizar beneficiario',
     description: 'Actualiza los datos básicos de un beneficiario existente.',
   })
+  @Patch(':id')
+  @Roles(
+    UserRole.OWNER,
+    UserRole.ADMIN,
+  )
+  @ApiResponse({
+    status: 403,
+    description:
+      'El usuario autenticado no tiene permisos para realizar esta operación.',
+  })  
   @ApiParam({
     name: 'id',
     description: 'ID del beneficiario',
