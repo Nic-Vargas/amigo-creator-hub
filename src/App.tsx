@@ -41,7 +41,14 @@ const App = () => (
                         <Route path="/beneficiarios" element={<Beneficiarios />} />
                         <Route path="/movimientos" element={<Movimientos />} />
                         <Route path="/recobros" element={<Recobros />} />
-                        <Route path="/importacion" element={<Importacion />} />
+                        <Route
+                          path="/importacion"
+                          element={
+                            <ProtectedRoute allowedRoles={["OWNER"]}>
+                              <Importacion />
+                            </ProtectedRoute>
+                          }
+                        />
                         <Route path="/reportes" element={<Reportes />} />
                         <Route path="/configuracion" element={<Configuracion />} />
                         <Route path="*" element={<NotFound />} />

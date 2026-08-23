@@ -36,8 +36,19 @@ const navItems = [
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, logout, canImport } = useAuth();
+  const roleLabel: Record<string, string> = {
+    OWNER: "Propietario",
+    ADMIN: "Administrador",
+    USER: "Consulta",
+  };
+    const visibleNavItems = navItems.filter((item) => {
+      if (item.path === "/importacion") {
+        return canImport;
+      }
 
+      return true;
+    });
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
@@ -75,8 +86,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         {/* Navigation */}
         <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const isActive = location.pathname === item.path;
+            const visibleNavItems = navItems.filter((item) => {
+              if (item.path === "/importacion") {
+                return canImport;
+              }
+
+              return true;
+            });
             return (
               <Link
                 key={item.path}
@@ -129,7 +147,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-accent" />
             <span className="text-xs font-medium text-muted-foreground">
-              {user?.role ?? "Usuario"}
+              {user?.role
+                ? roleLabel[user.role] ?? user.role
+                : "Usuario"}
             </span>
             <Badge variant="outline" className="text-[10px] ml-1 border-accent/30 text-accent">
               {user?.companyName ?? "Empresa"}

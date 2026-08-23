@@ -10,6 +10,7 @@ import {
   Mail,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 import { apiFetch } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -112,6 +113,7 @@ export default function Beneficiarios() {
 const [casos, setCasos] = useState<RecobroApi[]>([]);
 const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { canWrite } = useAuth();
     const cargarDatos = async () => {
     try {
       setLoading(true);
@@ -338,6 +340,16 @@ const getBeneficiarioSaldos = (beneficiarioId: string) => {
   };
 
   const handleCrearNuevoBeneficiario = async () => {
+    if (!canWrite) {
+      toast({
+        title: "Acceso restringido",
+        description:
+          "Tu perfil es únicamente de consulta y no puede crear beneficiarios.",
+        variant: "destructive",
+      });
+
+      return;
+    }
     if (
       !nuevoBeneficiarioForm.documento.trim() ||
       !nuevoBeneficiarioForm.nombres.trim() ||
@@ -428,12 +440,14 @@ const getBeneficiarioSaldos = (beneficiarioId: string) => {
           >
             <Download className="w-4 h-4 mr-1.5" /> Exportar
           </Button>
+          {canWrite && (
           <Button
             size="sm"
             onClick={() => setNewBeneficiaryDialogOpen(true)}
           >
             <Plus className="w-4 h-4 mr-1.5" /> Nuevo Beneficiario
           </Button>
+          )}
         </div>
       </div>
 
@@ -817,7 +831,7 @@ const getBeneficiarioSaldos = (beneficiarioId: string) => {
           </div>
         </DialogContent>
       </Dialog>
-
+      {canWrite && (
       <Dialog
         open={newBeneficiaryDialogOpen}
         onOpenChange={setNewBeneficiaryDialogOpen}
@@ -1015,6 +1029,7 @@ const getBeneficiarioSaldos = (beneficiarioId: string) => {
           </div>
         </DialogContent>
       </Dialog>
+      )}
     </div>
   );
 }

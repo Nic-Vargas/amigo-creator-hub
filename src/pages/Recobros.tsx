@@ -220,7 +220,7 @@ const initialMovementForm: MovementFormState = {
 };
 
 export default function Recobros() {
-  const { user } = useAuth();
+  const { user, canWrite } = useAuth();
   const { toast } = useToast();
 
   const [beneficiarios, setBeneficiarios] = useState<BeneficiarioApi[]>([]);
@@ -500,6 +500,17 @@ export default function Recobros() {
       return;
     }
 
+    if (!canWrite) {
+      toast({
+        title: "Acceso restringido",
+        description:
+          "Tu perfil es únicamente de consulta y no puede crear casos.",
+        variant: "destructive",
+      });
+
+      return;
+    }
+
     try {
       await apiFetch<RecobroApi>("/recobros", {
         method: "POST",
@@ -557,6 +568,18 @@ export default function Recobros() {
   };
 
   const handleActualizarEstadoCaso = async (caseId: string, estadoUi: string) => {
+
+    if (!canWrite) {
+      toast({
+        title: "Acceso restringido",
+        description:
+          "Tu perfil no tiene permisos para modificar el estado de los casos.",
+        variant: "destructive",
+      });
+
+      return;
+    }
+
     try {
       await apiFetch<RecobroApi>(`/recobros/${caseId}/estado`, {
         method: "PATCH",
@@ -582,6 +605,9 @@ export default function Recobros() {
   };
 
   const handleOpenMovimiento = (caseId: string) => {
+    if (!canWrite) {
+      return;
+    }
     const caso = casos.find((c) => c.id === caseId);
 
     if (!caso) return;
@@ -594,6 +620,18 @@ export default function Recobros() {
   };
 
   const handleGuardarMovimiento = async () => {
+
+    if (!canWrite) {
+      toast({
+        title: "Acceso restringido",
+        description:
+          "Tu perfil no tiene permisos para registrar movimientos.",
+        variant: "destructive",
+      });
+
+      return;
+    }
+
     if (!selectedCase) {
       toast({
         title: "Caso no seleccionado",
@@ -857,10 +895,15 @@ export default function Recobros() {
           <Button variant="outline" size="sm" onClick={handleExportarRecobros}>
             <Download className="w-4 h-4 mr-1.5" /> Exportar
           </Button>
-
-          <Button size="sm" onClick={() => setNewCaseDialogOpen(true)}>
-            <Plus className="w-4 h-4 mr-1.5" /> Nuevo Caso
-          </Button>
+          {canWrite && (
+            <Button
+              size="sm"
+              onClick={() => setNewCaseDialogOpen(true)}
+            >
+              <Plus className="w-4 h-4 mr-1.5" />
+              Nuevo Caso
+            </Button>
+          )}
         </div>
       </div>
 
@@ -950,9 +993,11 @@ export default function Recobros() {
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Responsable
               </th>
+              {canWrite && (
               <th className="text-center p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Acción
               </th>
+              )}
             </tr>
           </thead>
 
@@ -1011,25 +1056,35 @@ export default function Recobros() {
                     {formatCurrency(totalCaso)}
                   </td>
                   <td className="p-3">
-                    <Select
-                      value={estadoUi}
-                      onValueChange={(value) =>
-                        handleActualizarEstadoCaso(caso.id, value)
-                      }
-                    >
-                      <SelectTrigger
-                        className={`h-7 min-w-[130px] px-2 py-0 border rounded-full text-[10px] font-semibold ${estadoColors[estadoUi]}`}
+                    {canWrite ? (
+                      <Select
+                        value={estadoUi}
+                        onValueChange={(value) =>
+                          handleActualizarEstadoCaso(caso.id, value)
+                        }
                       >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {estadosCaso.map((estado) => (
-                          <SelectItem key={estado} value={estado}>
-                            {estado}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                        <SelectTrigger
+                          className={`h-7 min-w-[130px] px-2 py-0 border rounded-full text-[10px] font-semibold ${estadoColors[estadoUi]}`}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          {estadosCaso.map((estado) => (
+                            <SelectItem key={estado} value={estado}>
+                              {estado}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Badge
+                        variant="outline"
+                        className={`text-[10px] font-semibold ${estadoColors[estadoUi]}`}
+                      >
+                        {estadoUi}
+                      </Badge>
+                    )}
                   </td>
                   <td className="p-3">
                     <Badge
@@ -1042,6 +1097,7 @@ export default function Recobros() {
                   <td className="p-3 text-muted-foreground text-xs">
                     {caso.responsable?.fullName ?? usuarioActual}
                   </td>
+                  {canWrite && (
                   <td className="p-3 text-center">
                     <Button
                       variant="outline"
@@ -1052,6 +1108,7 @@ export default function Recobros() {
                       Grabar Mov.
                     </Button>
                   </td>
+                  )}
                 </tr>
               );
             })}
@@ -1123,6 +1180,7 @@ export default function Recobros() {
         </div>
       </div>
 
+      {canWrite && (
       <Dialog open={movementDialogOpen} onOpenChange={setMovementDialogOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
@@ -1364,6 +1422,7 @@ export default function Recobros() {
           )}
         </DialogContent>
       </Dialog>
+      )}
 
       <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
         <DialogContent className="max-w-2xl">
@@ -1504,7 +1563,7 @@ export default function Recobros() {
           </div>
         </DialogContent>
       </Dialog>
-
+      {canWrite && (
       <Dialog open={newCaseDialogOpen} onOpenChange={setNewCaseDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -1745,6 +1804,7 @@ export default function Recobros() {
           </div>
         </DialogContent>
       </Dialog>
+      )}
     </div>
   );
 }

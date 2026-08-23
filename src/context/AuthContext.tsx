@@ -7,11 +7,13 @@ import {
 } from "react";
 import { apiFetch } from "@/lib/api";
 
-type AuthUser = {
+export type UserRole = "OWNER" | "ADMIN" | "USER";
+
+export type AuthUser = {
   id: string;
   email: string;
   fullName: string;
-  role: string;
+  role: UserRole;
   companyId: string;
   companyName: string;
 };
@@ -25,6 +27,13 @@ type AuthContextValue = {
   user: AuthUser | null;
   token: string | null;
   loading: boolean;
+
+  isOwner: boolean;
+  isAdmin: boolean;
+  isUser: boolean;
+  canWrite: boolean;
+  canImport: boolean;
+
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 };
@@ -37,6 +46,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.getItem("sisrec_token")
   );
   const [loading, setLoading] = useState(true);
+  const isOwner = user?.role === "OWNER";
+  const isAdmin = user?.role === "ADMIN";
+  const isUser = user?.role === "USER";
+
+  const canWrite = isOwner || isAdmin;
+  const canImport = isOwner;
 
   useEffect(() => {
     async function loadUser() {
@@ -79,7 +94,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        loading,
+
+        isOwner,
+        isAdmin,
+        isUser,
+        canWrite,
+        canImport,
+
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
