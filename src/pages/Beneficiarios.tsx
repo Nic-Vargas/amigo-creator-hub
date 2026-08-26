@@ -493,9 +493,9 @@ const getBeneficiarioSaldos = (beneficiarioId: string) => {
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Estado
               </th>
-              <th className="text-center p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              {/*<th className="text-center p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 VER DETALLE
-              </th>
+              </th>*/}
             </tr>
           </thead>
           <tbody>
@@ -531,7 +531,7 @@ const getBeneficiarioSaldos = (beneficiarioId: string) => {
                     </span>
                   </td>
                   <td className="p-3 text-center">
-                    <Dialog>
+                    {/*<Dialog>
                       <DialogTrigger asChild>
                         <Button
                           variant="ghost"
@@ -687,7 +687,7 @@ const getBeneficiarioSaldos = (beneficiarioId: string) => {
                           </div>
                         )}
                       </DialogContent>
-                    </Dialog>
+                    </Dialog>*/}
                   </td>
                 </tr>
               );

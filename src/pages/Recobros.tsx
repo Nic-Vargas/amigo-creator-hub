@@ -962,7 +962,7 @@ export default function Recobros() {
               <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Beneficiario
               </th>
-              <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              {/*<th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Salud
               </th>
               <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -980,7 +980,7 @@ export default function Recobros() {
 
               <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Beneficios
-              </th>
+              </th>*/}
               <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Total
               </th>
@@ -1021,7 +1021,7 @@ export default function Recobros() {
                   <td className="p-3 text-xs">{ley?.nombre || caso.ley}</td>
                   <td className="p-3 font-mono text-xs">{caso.periodo}</td>
                   <td className="p-3 font-medium">{getNombreBeneficiario(caso)}</td>
-                  <td className="p-3 text-right font-mono text-xs">
+                  {/*<td className="p-3 text-right font-mono text-xs">
                     {Number(caso.valorSalud) > 0
                       ? formatCurrency(Number(caso.valorSalud))
                       : "—"}
@@ -1051,7 +1051,7 @@ export default function Recobros() {
                     {Number(caso.valorBeneficiosEconomicos488) > 0
                       ? formatCurrency(Number(caso.valorBeneficiosEconomicos488))
                       : "—"}
-                  </td>
+                  </td>*/}
                   <td className="p-3 text-right font-mono font-semibold">
                     {formatCurrency(totalCaso)}
                   </td>

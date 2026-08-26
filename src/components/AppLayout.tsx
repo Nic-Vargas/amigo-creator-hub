@@ -19,8 +19,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import isotipoNiyaraky from "@/assets/Isotipo-Niyaraky.png";
-import logoComfaboy from "@/assets/Logo-Comfaboy.png";
-import isotipoComfaboy from "@/assets/Isotipo-Comfaboy.png";
+import logoComfaboy from "@/assets/Logo Antioquia.png";
+import isotipoComfaboy from "@/assets/Isotipo_Antioquia.png";
 
 
 const navItems = [

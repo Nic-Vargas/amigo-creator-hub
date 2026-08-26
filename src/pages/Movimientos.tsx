@@ -983,7 +983,7 @@ export default function Movimientos() {
                 Tipo
               </th>
 
-              <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              {/*<th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Salud
               </th>
 
@@ -1005,7 +1005,7 @@ export default function Movimientos() {
 
               <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Beneficios
-              </th>
+              </th>*/}
 
               <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Total
@@ -1082,7 +1082,7 @@ export default function Movimientos() {
                       </span>
                     </td>
 
-                    <td className="p-3 text-right font-mono text-xs">
+                    {/*<td className="p-3 text-right font-mono text-xs">
                       {movement.valorSalud !== 0
                         ? formatCurrency(
                             movement.valorSalud
@@ -1128,7 +1128,7 @@ export default function Movimientos() {
                             movement.valorBeneficiosEconomicos488
                           )
                         : "—"}
-                    </td>
+                    </td>*/}
 
                     <td className="p-3 text-right font-mono font-semibold">
                       {formatCurrency(
