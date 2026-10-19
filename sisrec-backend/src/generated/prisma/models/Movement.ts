@@ -47,6 +47,8 @@ export type MovementMinAggregateOutputType = {
   beneficiaryId: string | null
   userId: string | null
   descripcion: string | null
+  idempotencyKey: string | null
+  requestHash: string | null
   caseTotalAnterior: runtime.Decimal | null
   caseTotalNuevo: runtime.Decimal | null
   beneficiaryTotalAnterior: runtime.Decimal | null
@@ -61,6 +63,8 @@ export type MovementMaxAggregateOutputType = {
   beneficiaryId: string | null
   userId: string | null
   descripcion: string | null
+  idempotencyKey: string | null
+  requestHash: string | null
   caseTotalAnterior: runtime.Decimal | null
   caseTotalNuevo: runtime.Decimal | null
   beneficiaryTotalAnterior: runtime.Decimal | null
@@ -75,6 +79,8 @@ export type MovementCountAggregateOutputType = {
   beneficiaryId: number
   userId: number
   descripcion: number
+  idempotencyKey: number
+  requestHash: number
   caseTotalAnterior: number
   caseTotalNuevo: number
   beneficiaryTotalAnterior: number
@@ -105,6 +111,8 @@ export type MovementMinAggregateInputType = {
   beneficiaryId?: true
   userId?: true
   descripcion?: true
+  idempotencyKey?: true
+  requestHash?: true
   caseTotalAnterior?: true
   caseTotalNuevo?: true
   beneficiaryTotalAnterior?: true
@@ -119,6 +127,8 @@ export type MovementMaxAggregateInputType = {
   beneficiaryId?: true
   userId?: true
   descripcion?: true
+  idempotencyKey?: true
+  requestHash?: true
   caseTotalAnterior?: true
   caseTotalNuevo?: true
   beneficiaryTotalAnterior?: true
@@ -133,6 +143,8 @@ export type MovementCountAggregateInputType = {
   beneficiaryId?: true
   userId?: true
   descripcion?: true
+  idempotencyKey?: true
+  requestHash?: true
   caseTotalAnterior?: true
   caseTotalNuevo?: true
   beneficiaryTotalAnterior?: true
@@ -234,6 +246,8 @@ export type MovementGroupByOutputType = {
   beneficiaryId: string
   userId: string
   descripcion: string | null
+  idempotencyKey: string | null
+  requestHash: string | null
   caseTotalAnterior: runtime.Decimal
   caseTotalNuevo: runtime.Decimal
   beneficiaryTotalAnterior: runtime.Decimal
@@ -271,6 +285,8 @@ export type MovementWhereInput = {
   beneficiaryId?: Prisma.StringFilter<"Movement"> | string
   userId?: Prisma.StringFilter<"Movement"> | string
   descripcion?: Prisma.StringNullableFilter<"Movement"> | string | null
+  idempotencyKey?: Prisma.StringNullableFilter<"Movement"> | string | null
+  requestHash?: Prisma.StringNullableFilter<"Movement"> | string | null
   caseTotalAnterior?: Prisma.DecimalFilter<"Movement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFilter<"Movement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFilter<"Movement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -291,6 +307,8 @@ export type MovementOrderByWithRelationInput = {
   beneficiaryId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   descripcion?: Prisma.SortOrderInput | Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestHash?: Prisma.SortOrderInput | Prisma.SortOrder
   caseTotalAnterior?: Prisma.SortOrder
   caseTotalNuevo?: Prisma.SortOrder
   beneficiaryTotalAnterior?: Prisma.SortOrder
@@ -306,6 +324,7 @@ export type MovementOrderByWithRelationInput = {
 
 export type MovementWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  companyId_idempotencyKey?: Prisma.MovementCompanyIdIdempotencyKeyCompoundUniqueInput
   AND?: Prisma.MovementWhereInput | Prisma.MovementWhereInput[]
   OR?: Prisma.MovementWhereInput[]
   NOT?: Prisma.MovementWhereInput | Prisma.MovementWhereInput[]
@@ -314,6 +333,8 @@ export type MovementWhereUniqueInput = Prisma.AtLeast<{
   beneficiaryId?: Prisma.StringFilter<"Movement"> | string
   userId?: Prisma.StringFilter<"Movement"> | string
   descripcion?: Prisma.StringNullableFilter<"Movement"> | string | null
+  idempotencyKey?: Prisma.StringNullableFilter<"Movement"> | string | null
+  requestHash?: Prisma.StringNullableFilter<"Movement"> | string | null
   caseTotalAnterior?: Prisma.DecimalFilter<"Movement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFilter<"Movement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFilter<"Movement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -325,7 +346,7 @@ export type MovementWhereUniqueInput = Prisma.AtLeast<{
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   details?: Prisma.MovementDetailListRelationFilter
   attachments?: Prisma.MovementAttachmentListRelationFilter
-}, "id">
+}, "id" | "companyId_idempotencyKey">
 
 export type MovementOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -334,6 +355,8 @@ export type MovementOrderByWithAggregationInput = {
   beneficiaryId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   descripcion?: Prisma.SortOrderInput | Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestHash?: Prisma.SortOrderInput | Prisma.SortOrder
   caseTotalAnterior?: Prisma.SortOrder
   caseTotalNuevo?: Prisma.SortOrder
   beneficiaryTotalAnterior?: Prisma.SortOrder
@@ -356,6 +379,8 @@ export type MovementScalarWhereWithAggregatesInput = {
   beneficiaryId?: Prisma.StringWithAggregatesFilter<"Movement"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Movement"> | string
   descripcion?: Prisma.StringNullableWithAggregatesFilter<"Movement"> | string | null
+  idempotencyKey?: Prisma.StringNullableWithAggregatesFilter<"Movement"> | string | null
+  requestHash?: Prisma.StringNullableWithAggregatesFilter<"Movement"> | string | null
   caseTotalAnterior?: Prisma.DecimalWithAggregatesFilter<"Movement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalWithAggregatesFilter<"Movement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalWithAggregatesFilter<"Movement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -366,6 +391,8 @@ export type MovementScalarWhereWithAggregatesInput = {
 export type MovementCreateInput = {
   id?: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -386,6 +413,8 @@ export type MovementUncheckedCreateInput = {
   beneficiaryId: string
   userId: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -398,6 +427,8 @@ export type MovementUncheckedCreateInput = {
 export type MovementUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -418,6 +449,8 @@ export type MovementUncheckedUpdateInput = {
   beneficiaryId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -434,6 +467,8 @@ export type MovementCreateManyInput = {
   beneficiaryId: string
   userId: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -444,6 +479,8 @@ export type MovementCreateManyInput = {
 export type MovementUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -458,6 +495,8 @@ export type MovementUncheckedUpdateManyInput = {
   beneficiaryId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -475,6 +514,11 @@ export type MovementOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type MovementCompanyIdIdempotencyKeyCompoundUniqueInput = {
+  companyId: string
+  idempotencyKey: string
+}
+
 export type MovementCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
@@ -482,6 +526,8 @@ export type MovementCountOrderByAggregateInput = {
   beneficiaryId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   descripcion?: Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
+  requestHash?: Prisma.SortOrder
   caseTotalAnterior?: Prisma.SortOrder
   caseTotalNuevo?: Prisma.SortOrder
   beneficiaryTotalAnterior?: Prisma.SortOrder
@@ -503,6 +549,8 @@ export type MovementMaxOrderByAggregateInput = {
   beneficiaryId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   descripcion?: Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
+  requestHash?: Prisma.SortOrder
   caseTotalAnterior?: Prisma.SortOrder
   caseTotalNuevo?: Prisma.SortOrder
   beneficiaryTotalAnterior?: Prisma.SortOrder
@@ -517,6 +565,8 @@ export type MovementMinOrderByAggregateInput = {
   beneficiaryId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   descripcion?: Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
+  requestHash?: Prisma.SortOrder
   caseTotalAnterior?: Prisma.SortOrder
   caseTotalNuevo?: Prisma.SortOrder
   beneficiaryTotalAnterior?: Prisma.SortOrder
@@ -735,6 +785,8 @@ export type MovementUpdateOneRequiredWithoutAttachmentsNestedInput = {
 export type MovementCreateWithoutCompanyInput = {
   id?: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -753,6 +805,8 @@ export type MovementUncheckedCreateWithoutCompanyInput = {
   beneficiaryId: string
   userId: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -798,6 +852,8 @@ export type MovementScalarWhereInput = {
   beneficiaryId?: Prisma.StringFilter<"Movement"> | string
   userId?: Prisma.StringFilter<"Movement"> | string
   descripcion?: Prisma.StringNullableFilter<"Movement"> | string | null
+  idempotencyKey?: Prisma.StringNullableFilter<"Movement"> | string | null
+  requestHash?: Prisma.StringNullableFilter<"Movement"> | string | null
   caseTotalAnterior?: Prisma.DecimalFilter<"Movement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFilter<"Movement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFilter<"Movement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -808,6 +864,8 @@ export type MovementScalarWhereInput = {
 export type MovementCreateWithoutUserInput = {
   id?: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -826,6 +884,8 @@ export type MovementUncheckedCreateWithoutUserInput = {
   recobroCaseId: string
   beneficiaryId: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -864,6 +924,8 @@ export type MovementUpdateManyWithWhereWithoutUserInput = {
 export type MovementCreateWithoutBeneficiaryInput = {
   id?: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -882,6 +944,8 @@ export type MovementUncheckedCreateWithoutBeneficiaryInput = {
   recobroCaseId: string
   userId: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -920,6 +984,8 @@ export type MovementUpdateManyWithWhereWithoutBeneficiaryInput = {
 export type MovementCreateWithoutRecobroCaseInput = {
   id?: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -938,6 +1004,8 @@ export type MovementUncheckedCreateWithoutRecobroCaseInput = {
   beneficiaryId: string
   userId: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -976,6 +1044,8 @@ export type MovementUpdateManyWithWhereWithoutRecobroCaseInput = {
 export type MovementCreateWithoutDetailsInput = {
   id?: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -995,6 +1065,8 @@ export type MovementUncheckedCreateWithoutDetailsInput = {
   beneficiaryId: string
   userId: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1022,6 +1094,8 @@ export type MovementUpdateToOneWithWhereWithoutDetailsInput = {
 export type MovementUpdateWithoutDetailsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1041,6 +1115,8 @@ export type MovementUncheckedUpdateWithoutDetailsInput = {
   beneficiaryId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1052,6 +1128,8 @@ export type MovementUncheckedUpdateWithoutDetailsInput = {
 export type MovementCreateWithoutAttachmentsInput = {
   id?: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1071,6 +1149,8 @@ export type MovementUncheckedCreateWithoutAttachmentsInput = {
   beneficiaryId: string
   userId: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1098,6 +1178,8 @@ export type MovementUpdateToOneWithWhereWithoutAttachmentsInput = {
 export type MovementUpdateWithoutAttachmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1117,6 +1199,8 @@ export type MovementUncheckedUpdateWithoutAttachmentsInput = {
   beneficiaryId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1131,6 +1215,8 @@ export type MovementCreateManyCompanyInput = {
   beneficiaryId: string
   userId: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1141,6 +1227,8 @@ export type MovementCreateManyCompanyInput = {
 export type MovementUpdateWithoutCompanyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1159,6 +1247,8 @@ export type MovementUncheckedUpdateWithoutCompanyInput = {
   beneficiaryId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1174,6 +1264,8 @@ export type MovementUncheckedUpdateManyWithoutCompanyInput = {
   beneficiaryId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1187,6 +1279,8 @@ export type MovementCreateManyUserInput = {
   recobroCaseId: string
   beneficiaryId: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1197,6 +1291,8 @@ export type MovementCreateManyUserInput = {
 export type MovementUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1215,6 +1311,8 @@ export type MovementUncheckedUpdateWithoutUserInput = {
   recobroCaseId?: Prisma.StringFieldUpdateOperationsInput | string
   beneficiaryId?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1230,6 +1328,8 @@ export type MovementUncheckedUpdateManyWithoutUserInput = {
   recobroCaseId?: Prisma.StringFieldUpdateOperationsInput | string
   beneficiaryId?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1243,6 +1343,8 @@ export type MovementCreateManyBeneficiaryInput = {
   recobroCaseId: string
   userId: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1253,6 +1355,8 @@ export type MovementCreateManyBeneficiaryInput = {
 export type MovementUpdateWithoutBeneficiaryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1271,6 +1375,8 @@ export type MovementUncheckedUpdateWithoutBeneficiaryInput = {
   recobroCaseId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1286,6 +1392,8 @@ export type MovementUncheckedUpdateManyWithoutBeneficiaryInput = {
   recobroCaseId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1299,6 +1407,8 @@ export type MovementCreateManyRecobroCaseInput = {
   beneficiaryId: string
   userId: string
   descripcion?: string | null
+  idempotencyKey?: string | null
+  requestHash?: string | null
   caseTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo: runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1309,6 +1419,8 @@ export type MovementCreateManyRecobroCaseInput = {
 export type MovementUpdateWithoutRecobroCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1327,6 +1439,8 @@ export type MovementUncheckedUpdateWithoutRecobroCaseInput = {
   beneficiaryId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1342,6 +1456,8 @@ export type MovementUncheckedUpdateManyWithoutRecobroCaseInput = {
   beneficiaryId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   caseTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   caseTotalNuevo?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   beneficiaryTotalAnterior?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1396,6 +1512,8 @@ export type MovementSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   beneficiaryId?: boolean
   userId?: boolean
   descripcion?: boolean
+  idempotencyKey?: boolean
+  requestHash?: boolean
   caseTotalAnterior?: boolean
   caseTotalNuevo?: boolean
   beneficiaryTotalAnterior?: boolean
@@ -1417,6 +1535,8 @@ export type MovementSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   beneficiaryId?: boolean
   userId?: boolean
   descripcion?: boolean
+  idempotencyKey?: boolean
+  requestHash?: boolean
   caseTotalAnterior?: boolean
   caseTotalNuevo?: boolean
   beneficiaryTotalAnterior?: boolean
@@ -1435,6 +1555,8 @@ export type MovementSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   beneficiaryId?: boolean
   userId?: boolean
   descripcion?: boolean
+  idempotencyKey?: boolean
+  requestHash?: boolean
   caseTotalAnterior?: boolean
   caseTotalNuevo?: boolean
   beneficiaryTotalAnterior?: boolean
@@ -1453,6 +1575,8 @@ export type MovementSelectScalar = {
   beneficiaryId?: boolean
   userId?: boolean
   descripcion?: boolean
+  idempotencyKey?: boolean
+  requestHash?: boolean
   caseTotalAnterior?: boolean
   caseTotalNuevo?: boolean
   beneficiaryTotalAnterior?: boolean
@@ -1460,7 +1584,7 @@ export type MovementSelectScalar = {
   createdAt?: boolean
 }
 
-export type MovementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "recobroCaseId" | "beneficiaryId" | "userId" | "descripcion" | "caseTotalAnterior" | "caseTotalNuevo" | "beneficiaryTotalAnterior" | "beneficiaryTotalNuevo" | "createdAt", ExtArgs["result"]["movement"]>
+export type MovementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "recobroCaseId" | "beneficiaryId" | "userId" | "descripcion" | "idempotencyKey" | "requestHash" | "caseTotalAnterior" | "caseTotalNuevo" | "beneficiaryTotalAnterior" | "beneficiaryTotalNuevo" | "createdAt", ExtArgs["result"]["movement"]>
 export type MovementInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   recobroCase?: boolean | Prisma.RecobroCaseDefaultArgs<ExtArgs>
@@ -1500,6 +1624,8 @@ export type $MovementPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     beneficiaryId: string
     userId: string
     descripcion: string | null
+    idempotencyKey: string | null
+    requestHash: string | null
     caseTotalAnterior: runtime.Decimal
     caseTotalNuevo: runtime.Decimal
     beneficiaryTotalAnterior: runtime.Decimal
@@ -1940,6 +2066,8 @@ export interface MovementFieldRefs {
   readonly beneficiaryId: Prisma.FieldRef<"Movement", 'String'>
   readonly userId: Prisma.FieldRef<"Movement", 'String'>
   readonly descripcion: Prisma.FieldRef<"Movement", 'String'>
+  readonly idempotencyKey: Prisma.FieldRef<"Movement", 'String'>
+  readonly requestHash: Prisma.FieldRef<"Movement", 'String'>
   readonly caseTotalAnterior: Prisma.FieldRef<"Movement", 'Decimal'>
   readonly caseTotalNuevo: Prisma.FieldRef<"Movement", 'Decimal'>
   readonly beneficiaryTotalAnterior: Prisma.FieldRef<"Movement", 'Decimal'>

@@ -57,7 +57,7 @@ export class BeneficiariesController {
     return this.beneficiariesService.findAll(user);
   }
 
-  @Get(':id')
+
   @ApiOperation({
     summary: 'Consultar beneficiario por ID',
     description: 'Retorna un beneficiario específico siempre que pertenezca a la empresa del usuario autenticado.',
@@ -87,7 +87,7 @@ export class BeneficiariesController {
     summary: 'Crear beneficiario',
     description: 'Crea un nuevo beneficiario dentro de la empresa del usuario autenticado.',
   })
-  @Post()
+
   @Roles(
     UserRole.OWNER,
     UserRole.ADMIN,

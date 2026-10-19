@@ -109,6 +109,7 @@ export class BeneficiariesService {
     return this.prisma.beneficiary.update({
       where: {
         id,
+        companyId: user.companyId,
       },
       data: {
         tipoDocumento: dto.tipoDocumento,

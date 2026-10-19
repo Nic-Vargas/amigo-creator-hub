@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Search, Plus, Filter, Download } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Search, Plus, Filter, Download, Loader2 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { LEYES } from "@/lib/mock-data";
 import { apiFetch } from "@/lib/api";
@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { v4 as uuidv4 } from "uuid";
 import {
   Dialog,
   DialogContent,
@@ -219,6 +220,10 @@ const initialMovementForm: MovementFormState = {
   },
 };
 
+const generateMovementUUID = (): string => {
+  return uuidv4();
+};
+
 export default function Recobros() {
   const { user, canWrite } = useAuth();
   const { toast } = useToast();
@@ -241,6 +246,13 @@ export default function Recobros() {
   const [movementPeriodo, setMovementPeriodo] = useState("");
   const [movementFechaPago, setMovementFechaPago] = useState("");
   const [movementForm, setMovementForm] = useState<MovementFormState>(initialMovementForm);
+  const [isSavingMovement, setIsSavingMovement] = useState(false);
+  const savingMovementRef = useRef(false);
+  const movementIdempotencyKeyRef = useRef<string | null>(null);
+  const pendingMovementRequestRef = useRef<{
+    key: string;
+    body: string;
+  } | null>(null);
 
   const usuarioActual = user?.fullName ?? "Usuario";
 
@@ -617,9 +629,22 @@ export default function Recobros() {
     setMovementFechaPago(new Date().toISOString().slice(0, 10));
     setMovementForm(initialMovementForm);
     setMovementDialogOpen(true);
+
+    if (pendingMovementRequestRef.current) {
+      toast({
+        title: "Movimiento pendiente",
+        description:
+          "Existe una operación anterior sin confirmar. " +
+          "Verifica su registro antes de iniciar otra.",
+        variant: "destructive",
+      });
+      return;
+    }
   };
 
   const handleGuardarMovimiento = async () => {
+
+    if (savingMovementRef.current) return;
 
     if (!canWrite) {
       toast({
@@ -746,6 +771,9 @@ export default function Recobros() {
       }
     }
 
+    savingMovementRef.current = true;
+    setIsSavingMovement(true);
+
     try {
       const tiposDescripcion = Array.from(
         new Set(movimientos.map((movimiento) => movimiento.tipoUi))
@@ -767,49 +795,74 @@ export default function Recobros() {
         )
         .join(", ");
 
-      await apiFetch("/movimientos", {
-        method: "POST",
-        body: JSON.stringify({
-          recobroCaseId: selectedCase.id,
+     const requestBody = JSON.stringify({
+      recobroCaseId: selectedCase.id,
 
-          detalles: movimientos.map((movimiento) => ({
-            tipo: movimiento.tipoApi,
-            concepto: movimiento.concepto,
-            valor:
-              movimiento.tipoApi === "NO_PROCEDE"
-                ? 0
-                : movimiento.valor,
+      detalles: movimientos.map((movimiento) => ({
+        tipo: movimiento.tipoApi,
+        concepto: movimiento.concepto,
+        valor:
+          movimiento.tipoApi === "NO_PROCEDE"
+            ? 0
+            : movimiento.valor,
+        adjustmentDirection:
+          movimiento.tipoApi === "AJUSTE"
+            ? movimiento.adjustmentDirection
+            : undefined,
+      })),
 
-            adjustmentDirection:
-              movimiento.tipoApi === "AJUSTE"
-                ? movimiento.adjustmentDirection
-                : undefined,
-          })),
+      descripcion: [
+        `${tiposDescripcion} registrado desde Recobros`,
+        movementPeriodo ? `Periodo: ${movementPeriodo}` : null,
+        movementFechaPago ? `Fecha pago: ${movementFechaPago}` : null,
+        mediosDescripcion ? `Medio: ${mediosDescripcion}` : null,
+        soportesDescripcion ? `Soporte: ${soportesDescripcion}` : null,
+      ]
+        .filter(Boolean)
+        .join(" | "),
+    });
 
-          descripcion: [
-            `${tiposDescripcion} registrado desde Recobros`,
-            movementPeriodo
-              ? `Periodo: ${movementPeriodo}`
-              : null,
-            movementFechaPago
-              ? `Fecha pago: ${movementFechaPago}`
-              : null,
-            mediosDescripcion
-              ? `Medio: ${mediosDescripcion}`
-              : null,
-            soportesDescripcion
-              ? `Soporte: ${soportesDescripcion}`
-              : null,
-          ]
-            .filter(Boolean)
-            .join(" | "),
-        }),
+    const pendingRequest = pendingMovementRequestRef.current;
+
+    if (pendingRequest && pendingRequest.body !== requestBody) {
+      toast({
+        title: "Operación pendiente de verificación",
+        description:
+          "Existe un intento anterior cuyo resultado no se ha confirmado. " +
+          "Restablece los datos originales para reintentarlo o verifica " +
+          "primero si el movimiento quedó registrado.",
+        variant: "destructive",
       });
+      return;
+    }
+
+    const idempotencyKey =
+      pendingRequest?.key ??
+      movementIdempotencyKeyRef.current ??
+      generateMovementUUID();
+
+    movementIdempotencyKeyRef.current = idempotencyKey;
+
+    pendingMovementRequestRef.current = {
+      key: idempotencyKey,
+      body: requestBody,
+    };
+
+    await apiFetch("/movimientos", {
+      method: "POST",
+      headers: {
+        "idempotency-key": idempotencyKey,
+      },
+      body: requestBody,
+    });
 
       toast({
         title: "Movimiento registrado",
         description: "Los saldos fueron actualizados correctamente.",
       });
+
+      movementIdempotencyKeyRef.current = null;
+      pendingMovementRequestRef.current = null;
 
       setMovementDialogOpen(false);
       setSelectedCaseId(null);
@@ -822,9 +875,14 @@ export default function Recobros() {
       toast({
         title: "No fue posible registrar el movimiento",
         description:
-          error instanceof Error ? error.message : "Ocurrió un error inesperado.",
+          error instanceof Error
+            ? error.message
+            : "Ocurrió un error inesperado.",
         variant: "destructive",
       });
+    } finally {
+      savingMovementRef.current = false;
+      setIsSavingMovement(false);
     }
   };
 
@@ -1181,7 +1239,25 @@ export default function Recobros() {
       </div>
 
       {canWrite && (
-      <Dialog open={movementDialogOpen} onOpenChange={setMovementDialogOpen}>
+      <Dialog
+        open={movementDialogOpen}
+        onOpenChange={(open) => {
+          if (savingMovementRef.current) return;
+
+          if (!open && pendingMovementRequestRef.current) {
+            toast({
+              title: "Operación pendiente",
+              description:
+                "No puedes cerrar este formulario mientras exista " +
+                "un intento sin confirmar. Verifica primero el movimiento.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          setMovementDialogOpen(open);
+        }}
+      >
         <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>Estado de cuenta</DialogTitle>
@@ -1407,7 +1483,18 @@ export default function Recobros() {
               <div className="flex justify-end gap-2 pt-2 border-t border-border">
                 <Button
                   variant="outline"
+                  disabled={isSavingMovement}
                   onClick={() => {
+
+                    if (pendingMovementRequestRef.current) {
+                      toast({
+                        title: "Operación pendiente",
+                        description:
+                          "Verifica si el movimiento fue registrado antes de cancelar.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
                     setMovementDialogOpen(false);
                     setSelectedCaseId(null);
                     setMovementForm(initialMovementForm);
@@ -1416,7 +1503,19 @@ export default function Recobros() {
                   Cancelar
                 </Button>
 
-                <Button onClick={handleGuardarMovimiento}>Guardar</Button>
+                <Button
+                  onClick={handleGuardarMovimiento}
+                  disabled={isSavingMovement}
+                >
+                  {isSavingMovement ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Guardando...
+                    </>
+                  ) : (
+                    "Guardar"
+                  )}
+                </Button>
               </div>
             </div>
           )}

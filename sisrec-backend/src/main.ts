@@ -21,6 +21,7 @@ async function bootstrap() {
     'http://127.0.0.1:8080',
     'https://sisrec-backend.onrender.com',
     'https://sisrec.onrender.com',
+    'http://192.168.10.16:8080'
   ];
 
   const allowedOrigins = [

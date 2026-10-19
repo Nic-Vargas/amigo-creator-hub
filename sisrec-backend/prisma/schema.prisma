@@ -150,6 +150,8 @@ model Movement {
   beneficiaryId            String
   userId                   String
   descripcion              String?
+  idempotencyKey           String?
+  requestHash              String?
   caseTotalAnterior        Decimal  @db.Decimal(18, 2)
   caseTotalNuevo           Decimal  @db.Decimal(18, 2)
   beneficiaryTotalAnterior Decimal  @db.Decimal(18, 2)
@@ -163,6 +165,7 @@ model Movement {
   details     MovementDetail[]
   attachments MovementAttachment[]
 
+  @@unique([companyId, idempotencyKey])
   @@index([companyId])
   @@index([companyId, recobroCaseId])
   @@index([companyId, beneficiaryId])

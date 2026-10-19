@@ -158,6 +158,8 @@ export const MovementScalarFieldEnum = {
   beneficiaryId: 'beneficiaryId',
   userId: 'userId',
   descripcion: 'descripcion',
+  idempotencyKey: 'idempotencyKey',
+  requestHash: 'requestHash',
   caseTotalAnterior: 'caseTotalAnterior',
   caseTotalNuevo: 'caseTotalNuevo',
   beneficiaryTotalAnterior: 'beneficiaryTotalAnterior',

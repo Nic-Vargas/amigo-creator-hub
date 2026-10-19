@@ -2,7 +2,10 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
+
+import { createHash } from 'node:crypto';
 
 import {
   AdjustmentDirection,
@@ -33,6 +36,35 @@ export class MovimientosService {
     private readonly storageService:
       SupabaseStorageService,
   ) {}
+
+  private calculateRequestHash(
+    dto: CreateMovementDto,
+    user: CurrentUserPayload,
+  ): string {
+    const normalizedDetails = dto.detalles
+      .map((detail) => ({
+        tipo: detail.tipo,
+        concepto: detail.concepto,
+        valor: Number(detail.valor).toFixed(2),
+        adjustmentDirection:
+          detail.adjustmentDirection ?? null,
+      }))
+      .sort((a, b) =>
+        a.concepto.localeCompare(b.concepto),
+      );
+
+    const normalizedRequest = {
+      companyId: user.companyId,
+      userId: user.id,
+      recobroCaseId: dto.recobroCaseId,
+      detalles: normalizedDetails,
+      descripcion: dto.descripcion ?? null,
+    };
+
+    return createHash('sha256')
+      .update(JSON.stringify(normalizedRequest))
+      .digest('hex');
+  }
 
   async findAll(
     user: CurrentUserPayload,
@@ -86,12 +118,19 @@ export class MovimientosService {
     dto: CreateMovementDto,
     user: CurrentUserPayload,
     files: Express.Multer.File[] = [],
+    idempotencyKey: string,
   ) {
     this.validateDetails(dto);
     this.validateFiles(files);
 
+    const requestHash = this.calculateRequestHash(
+      dto,
+      user,
+    );
+
     const uploadedAttachments:
       UploadedAttachment[] = [];
+    let transactionCommitted = false;
 
     try {
       for (const file of files) {
@@ -117,6 +156,56 @@ export class MovimientosService {
       const result =
         await this.prisma.$transaction(
           async (tx) => {
+
+            const caseForLock = await tx.recobroCase.findFirst({
+              where: {
+                id: dto.recobroCaseId,
+                companyId: user.companyId,
+              },
+              select: {
+                beneficiaryId: true,
+              },
+            });
+
+            if (!caseForLock) {
+              throw new NotFoundException(
+                'Caso de recobro no encontrado.',
+              );
+            }
+
+            await tx.$executeRaw`
+              SELECT pg_advisory_xact_lock(
+                hashtext(${user.companyId}),
+                hashtext(${caseForLock.beneficiaryId})
+              )
+            `;
+
+            const existingMovement = await tx.movement.findUnique({
+              where: {
+                companyId_idempotencyKey: {
+                  companyId: user.companyId,
+                  idempotencyKey,
+                },
+              },
+              select: {
+                id: true,
+                recobroCaseId: true,
+                requestHash: true,
+              },
+            });
+
+            if (existingMovement) {
+              if (existingMovement.requestHash !== requestHash) {
+                throw new ConflictException(
+                  'La clave de idempotencia ya fue utilizada con datos diferentes.',
+                );
+              }
+
+              return {
+                existingMovementId: existingMovement.id,
+              };
+            }
+
             const recobro =
               await tx.recobroCase.findFirst({
                 where: {
@@ -289,6 +378,9 @@ export class MovimientosService {
                   companyId:
                     user.companyId,
 
+                  idempotencyKey,
+                  requestHash,
+
                   recobroCaseId:
                     recobro.id,
 
@@ -352,7 +444,52 @@ export class MovimientosService {
                 updatedBeneficiary,
             };
           },
+          {
+            maxWait: 10000,
+            timeout: 20000,
+          },
         );
+        transactionCommitted = true;
+
+        if ('existingMovementId' in result) {
+        const original = await this.prisma.movement.findFirst({
+          where: {
+            id: result.existingMovementId,
+            companyId: user.companyId,
+          },
+          include: {
+            details: true,
+            attachments: {
+              orderBy: {
+                createdAt: 'asc',
+              },
+            },
+            recobroCase: true,
+            beneficiary: true,
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
+          },
+        });
+
+        if (!original) {
+          throw new NotFoundException(
+            'No fue posible recuperar el movimiento original.',
+          );
+        }
+
+        return {
+          movement: await this.addSignedUrlsToMovement(original),
+          recobroCase: original.recobroCase,
+          beneficiary: original.beneficiary,
+        };
+      }
+
+      
 
       const movementWithUrls =
         await this.addSignedUrlsToMovement(
@@ -370,7 +507,7 @@ export class MovimientosService {
             attachment.storagePath,
         );
 
-      if (uploadedPaths.length > 0) {
+      if (!transactionCommitted && uploadedPaths.length > 0) {
         try {
           await this.storageService.removeFiles(
             uploadedPaths,

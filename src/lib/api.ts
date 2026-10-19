@@ -23,10 +23,24 @@ export async function apiFetch<T>(
 
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
-  const response = await fetch(`${API_URL}${normalizedPath}`, {
-    ...options,
-    headers,
-  });
+    let response: Response;
+
+  try {
+    response = await fetch(`${API_URL}${normalizedPath}`, {
+      ...options,
+      headers,
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw error;
+    }
+
+    throw new Error(
+      "No fue posible confirmar la operación con el servidor. " +
+      "Si estabas registrando un movimiento, no lo ingreses nuevamente " +
+      "sin verificar primero si quedó guardado."
+    );
+  }
 
   const data = await response.json().catch(() => null);
 
