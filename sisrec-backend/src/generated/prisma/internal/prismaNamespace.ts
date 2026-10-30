@@ -390,7 +390,8 @@ export const ModelName = {
   RecobroCase: 'RecobroCase',
   Movement: 'Movement',
   MovementDetail: 'MovementDetail',
-  MovementAttachment: 'MovementAttachment'
+  MovementAttachment: 'MovementAttachment',
+  CaseConceptExclusion: 'CaseConceptExclusion'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -406,7 +407,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "company" | "user" | "beneficiary" | "recobroCase" | "movement" | "movementDetail" | "movementAttachment"
+    modelProps: "company" | "user" | "beneficiary" | "recobroCase" | "movement" | "movementDetail" | "movementAttachment" | "caseConceptExclusion"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -928,6 +929,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CaseConceptExclusion: {
+      payload: Prisma.$CaseConceptExclusionPayload<ExtArgs>
+      fields: Prisma.CaseConceptExclusionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CaseConceptExclusionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseConceptExclusionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CaseConceptExclusionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseConceptExclusionPayload>
+        }
+        findFirst: {
+          args: Prisma.CaseConceptExclusionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseConceptExclusionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CaseConceptExclusionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseConceptExclusionPayload>
+        }
+        findMany: {
+          args: Prisma.CaseConceptExclusionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseConceptExclusionPayload>[]
+        }
+        create: {
+          args: Prisma.CaseConceptExclusionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseConceptExclusionPayload>
+        }
+        createMany: {
+          args: Prisma.CaseConceptExclusionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CaseConceptExclusionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseConceptExclusionPayload>[]
+        }
+        delete: {
+          args: Prisma.CaseConceptExclusionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseConceptExclusionPayload>
+        }
+        update: {
+          args: Prisma.CaseConceptExclusionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseConceptExclusionPayload>
+        }
+        deleteMany: {
+          args: Prisma.CaseConceptExclusionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CaseConceptExclusionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CaseConceptExclusionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseConceptExclusionPayload>[]
+        }
+        upsert: {
+          args: Prisma.CaseConceptExclusionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseConceptExclusionPayload>
+        }
+        aggregate: {
+          args: Prisma.CaseConceptExclusionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCaseConceptExclusion>
+        }
+        groupBy: {
+          args: Prisma.CaseConceptExclusionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseConceptExclusionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CaseConceptExclusionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseConceptExclusionCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1030,6 +1105,12 @@ export const RecobroCaseScalarFieldEnum = {
   valorBonoAlimentacion: 'valorBonoAlimentacion',
   valorBeneficiosEconomicos488: 'valorBeneficiosEconomicos488',
   valorTotal: 'valorTotal',
+  originalRecobroSalud: 'originalRecobroSalud',
+  originalRecobroPension: 'originalRecobroPension',
+  originalRecobroCuotaMonetaria: 'originalRecobroCuotaMonetaria',
+  originalRecobroTransferenciaEconomica: 'originalRecobroTransferenciaEconomica',
+  originalRecobroBonoAlimentacion: 'originalRecobroBonoAlimentacion',
+  originalRecobroBeneficiosEconomicos488: 'originalRecobroBeneficiosEconomicos488',
   estado: 'estado',
   prioridad: 'prioridad',
   responsableUserId: 'responsableUserId',
@@ -1065,6 +1146,7 @@ export const MovementDetailScalarFieldEnum = {
   id: 'id',
   movementId: 'movementId',
   tipo: 'tipo',
+  motivo: 'motivo',
   concepto: 'concepto',
   adjustmentDirection: 'adjustmentDirection',
   valor: 'valor',
@@ -1087,6 +1169,24 @@ export const MovementAttachmentScalarFieldEnum = {
 } as const
 
 export type MovementAttachmentScalarFieldEnum = (typeof MovementAttachmentScalarFieldEnum)[keyof typeof MovementAttachmentScalarFieldEnum]
+
+
+export const CaseConceptExclusionScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  recobroCaseId: 'recobroCaseId',
+  concepto: 'concepto',
+  motivo: 'motivo',
+  movementDetailId: 'movementDetailId',
+  montoOriginal: 'montoOriginal',
+  saldoInicialImportado: 'saldoInicialImportado',
+  saldoAntes: 'saldoAntes',
+  valorExcluido: 'valorExcluido',
+  saldoDespues: 'saldoDespues',
+  fechaExclusion: 'fechaExclusion'
+} as const
+
+export type CaseConceptExclusionScalarFieldEnum = (typeof CaseConceptExclusionScalarFieldEnum)[keyof typeof CaseConceptExclusionScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1221,6 +1321,20 @@ export type EnumMovementTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'MovementType[]'
  */
 export type ListEnumMovementTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MovementType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'MovementReason'
+ */
+export type EnumMovementReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MovementReason'>
+    
+
+
+/**
+ * Reference to a field of type 'MovementReason[]'
+ */
+export type ListEnumMovementReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MovementReason[]'>
     
 
 
@@ -1381,6 +1495,7 @@ export type GlobalOmitConfig = {
   movement?: Prisma.MovementOmit
   movementDetail?: Prisma.MovementDetailOmit
   movementAttachment?: Prisma.MovementAttachmentOmit
+  caseConceptExclusion?: Prisma.CaseConceptExclusionOmit
 }
 
 /* Types for Logging */

@@ -30,6 +30,27 @@ enum MovementType {
   AJUSTE
 }
 
+enum MovementReason {
+  PAGO_TOTAL
+  PAGO_PARCIAL
+  PAGO_ADMIN_PENSION
+  PAGO_ADMIN_SALUD
+  PAGO_TOTAL_ADMINISTRADORAS
+
+  NO_PROCEDE_SALDO_NEGATIVO
+  NO_PROCEDE_TRANSFERENCIA_NI_SS
+  NO_PROCEDE_CANCELACION_BENEFICIO
+  NO_PROCEDE_80_CESANTE
+  NO_PROCEDE_CERO_DIAS_APORTES
+  NO_PROCEDE_GIRO_NO_EFECTUADO
+
+  AJUSTE_CONTABLE
+
+  NUEVO_DESEMBOLSO
+  PROCEDE_PAGO_SS
+  PROCEDE_TRANSFERENCIA_ECONOMICA
+}
+
 enum MovementConcept {
   SALUD
   PENSION
@@ -58,10 +79,11 @@ model Company {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users         User[]
-  beneficiaries Beneficiary[]
-  recobroCases  RecobroCase[]
-  movements     Movement[]
+  users             User[]
+  beneficiaries     Beneficiary[]
+  recobroCases      RecobroCase[]
+  movements         Movement[]
+  conceptExclusions CaseConceptExclusion[]
 }
 
 model User {
@@ -112,30 +134,37 @@ model Beneficiary {
 }
 
 model RecobroCase {
-  id                           String     @id @default(cuid())
-  companyId                    String
-  beneficiaryId                String
-  ley                          String
-  periodo                      String
-  valorSalud                   Decimal    @default(0) @db.Decimal(18, 2)
-  valorPension                 Decimal    @default(0) @db.Decimal(18, 2)
-  valorCuotaMonetaria          Decimal    @default(0) @db.Decimal(18, 2)
-  valorTransferenciaEconomica  Decimal    @default(0) @db.Decimal(18, 2)
-  valorBonoAlimentacion        Decimal    @default(0) @db.Decimal(18, 2)
-  valorBeneficiosEconomicos488 Decimal    @default(0) @db.Decimal(18, 2)
-  valorTotal                   Decimal    @default(0) @db.Decimal(18, 2)
-  estado                       CaseStatus @default(ABIERTO)
-  prioridad                    Priority   @default(MEDIA)
-  responsableUserId            String?
-  ultimaGestionAt              DateTime?
-  fechaApertura                DateTime
-  createdAt                    DateTime   @default(now())
-  updatedAt                    DateTime   @updatedAt
+  id                                     String     @id @default(cuid())
+  companyId                              String
+  beneficiaryId                          String
+  ley                                    String
+  periodo                                String
+  valorSalud                             Decimal    @default(0) @db.Decimal(18, 2)
+  valorPension                           Decimal    @default(0) @db.Decimal(18, 2)
+  valorCuotaMonetaria                    Decimal    @default(0) @db.Decimal(18, 2)
+  valorTransferenciaEconomica            Decimal    @default(0) @db.Decimal(18, 2)
+  valorBonoAlimentacion                  Decimal    @default(0) @db.Decimal(18, 2)
+  valorBeneficiosEconomicos488           Decimal    @default(0) @db.Decimal(18, 2)
+  valorTotal                             Decimal    @default(0) @db.Decimal(18, 2)
+  originalRecobroSalud                   Decimal?   @db.Decimal(18, 2)
+  originalRecobroPension                 Decimal?   @db.Decimal(18, 2)
+  originalRecobroCuotaMonetaria          Decimal?   @db.Decimal(18, 2)
+  originalRecobroTransferenciaEconomica  Decimal?   @db.Decimal(18, 2)
+  originalRecobroBonoAlimentacion        Decimal?   @db.Decimal(18, 2)
+  originalRecobroBeneficiosEconomicos488 Decimal?   @db.Decimal(18, 2)
+  estado                                 CaseStatus @default(ABIERTO)
+  prioridad                              Priority   @default(MEDIA)
+  responsableUserId                      String?
+  ultimaGestionAt                        DateTime?
+  fechaApertura                          DateTime
+  createdAt                              DateTime   @default(now())
+  updatedAt                              DateTime   @updatedAt
 
-  company     Company     @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  beneficiary Beneficiary @relation(fields: [beneficiaryId], references: [id], onDelete: Restrict)
-  responsable User?       @relation("CaseResponsible", fields: [responsableUserId], references: [id], onDelete: SetNull)
-  movements   Movement[]
+  company           Company                @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  beneficiary       Beneficiary            @relation(fields: [beneficiaryId], references: [id], onDelete: Restrict)
+  responsable       User?                  @relation("CaseResponsible", fields: [responsableUserId], references: [id], onDelete: SetNull)
+  movements         Movement[]
+  conceptExclusions CaseConceptExclusion[]
 
   @@index([companyId])
   @@index([companyId, beneficiaryId])
@@ -176,6 +205,7 @@ model MovementDetail {
   id                    String               @id @default(cuid())
   movementId            String
   tipo                  MovementType
+  motivo                MovementReason?
   concepto              MovementConcept
   adjustmentDirection   AdjustmentDirection?
   valor                 Decimal              @db.Decimal(18, 2)
@@ -183,7 +213,8 @@ model MovementDetail {
   saldoNuevoConcepto    Decimal              @db.Decimal(18, 2)
   createdAt             DateTime             @default(now())
 
-  movement Movement @relation(fields: [movementId], references: [id], onDelete: Cascade)
+  movement  Movement              @relation(fields: [movementId], references: [id], onDelete: Cascade)
+  exclusion CaseConceptExclusion?
 
   @@index([movementId])
   @@index([concepto])
@@ -202,4 +233,42 @@ model MovementAttachment {
 
   @@unique([storagePath])
   @@index([movementId])
+}
+
+model CaseConceptExclusion {
+  id String @id @default(cuid())
+
+  companyId     String
+  recobroCaseId String
+
+  concepto MovementConcept
+  motivo   MovementReason
+
+  // Referencia al detalle financiero que originó la exclusión.
+  movementDetailId String @unique
+
+  // Valor original establecido para recobrar.
+  // Puede ser desconocido en registros históricos.
+  montoOriginal Decimal? @db.Decimal(18, 2)
+
+  // Saldo pendiente al momento de importar la cartera.
+  saldoInicialImportado Decimal? @db.Decimal(18, 2)
+
+  // Valores financieros al momento de la exclusión.
+  saldoAntes    Decimal @db.Decimal(18, 2)
+  valorExcluido Decimal @db.Decimal(18, 2)
+
+  // La exclusión deja el saldo cobrable en cero.
+  saldoDespues Decimal @default(0) @db.Decimal(18, 2)
+
+  fechaExclusion DateTime @default(now())
+
+  company     Company        @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  recobroCase RecobroCase    @relation(fields: [recobroCaseId], references: [id], onDelete: Restrict)
+  detail      MovementDetail @relation(fields: [movementDetailId], references: [id], onDelete: Restrict)
+
+  // Un concepto solamente puede tener una exclusión activa por caso.
+  @@unique([recobroCaseId, concepto])
+  @@index([companyId, fechaExclusion])
+  @@index([companyId, recobroCaseId])
 }

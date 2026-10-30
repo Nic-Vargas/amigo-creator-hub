@@ -57,7 +57,8 @@ export const ModelName = {
   RecobroCase: 'RecobroCase',
   Movement: 'Movement',
   MovementDetail: 'MovementDetail',
-  MovementAttachment: 'MovementAttachment'
+  MovementAttachment: 'MovementAttachment',
+  CaseConceptExclusion: 'CaseConceptExclusion'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -139,6 +140,12 @@ export const RecobroCaseScalarFieldEnum = {
   valorBonoAlimentacion: 'valorBonoAlimentacion',
   valorBeneficiosEconomicos488: 'valorBeneficiosEconomicos488',
   valorTotal: 'valorTotal',
+  originalRecobroSalud: 'originalRecobroSalud',
+  originalRecobroPension: 'originalRecobroPension',
+  originalRecobroCuotaMonetaria: 'originalRecobroCuotaMonetaria',
+  originalRecobroTransferenciaEconomica: 'originalRecobroTransferenciaEconomica',
+  originalRecobroBonoAlimentacion: 'originalRecobroBonoAlimentacion',
+  originalRecobroBeneficiosEconomicos488: 'originalRecobroBeneficiosEconomicos488',
   estado: 'estado',
   prioridad: 'prioridad',
   responsableUserId: 'responsableUserId',
@@ -174,6 +181,7 @@ export const MovementDetailScalarFieldEnum = {
   id: 'id',
   movementId: 'movementId',
   tipo: 'tipo',
+  motivo: 'motivo',
   concepto: 'concepto',
   adjustmentDirection: 'adjustmentDirection',
   valor: 'valor',
@@ -196,6 +204,24 @@ export const MovementAttachmentScalarFieldEnum = {
 } as const
 
 export type MovementAttachmentScalarFieldEnum = (typeof MovementAttachmentScalarFieldEnum)[keyof typeof MovementAttachmentScalarFieldEnum]
+
+
+export const CaseConceptExclusionScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  recobroCaseId: 'recobroCaseId',
+  concepto: 'concepto',
+  motivo: 'motivo',
+  movementDetailId: 'movementDetailId',
+  montoOriginal: 'montoOriginal',
+  saldoInicialImportado: 'saldoInicialImportado',
+  saldoAntes: 'saldoAntes',
+  valorExcluido: 'valorExcluido',
+  saldoDespues: 'saldoDespues',
+  fechaExclusion: 'fechaExclusion'
+} as const
+
+export type CaseConceptExclusionScalarFieldEnum = (typeof CaseConceptExclusionScalarFieldEnum)[keyof typeof CaseConceptExclusionScalarFieldEnum]
 
 
 export const SortOrder = {

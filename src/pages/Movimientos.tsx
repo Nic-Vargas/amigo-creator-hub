@@ -66,6 +66,7 @@ type MovimientoDetailApi = {
   id: string;
   movementId: string;
   tipo: MovementType;
+  motivo?: string | null;
   concepto: MovementConcept;
   adjustmentDirection?: AdjustmentDirection | null;
   valor: string;
@@ -100,6 +101,7 @@ type MovimientoRow = {
   periodo: string;
   beneficiario: string;
   tipos: MovementType[];
+  motivos: string[];  
   tipoLabel: string;
   tipoPrincipal: MovementType;
   valorSalud: number;
@@ -166,6 +168,29 @@ const tipoStyles: Record<
   },
 };
 
+const motivoLabels: Record<string, string> = {
+  PAGO_TOTAL: "Total",
+  PAGO_PARCIAL: "Parcial",
+  PAGO_ADMIN_PENSION: "Administradora Pensión",
+  PAGO_ADMIN_SALUD: "Administradora Salud",
+  PAGO_TOTAL_ADMINISTRADORAS: "Total Administradora (Eps - Afp)",
+
+  NO_PROCEDE_SALDO_NEGATIVO: "Saldo Negativo",
+  NO_PROCEDE_TRANSFERENCIA_NI_SS: "Tranferencia Ni SS",
+  NO_PROCEDE_CANCELACION_BENEFICIO:
+    "Cancelación Beneficio en Tiempo Establecido",
+  NO_PROCEDE_80_CESANTE: "80% Cesante",
+  NO_PROCEDE_CERO_DIAS_APORTES: "Cero días de Aportes",
+  NO_PROCEDE_GIRO_NO_EFECTUADO: "Giro no efectuado",
+
+  AJUSTE_CONTABLE: "Ajuste Contable",
+
+  NUEVO_DESEMBOLSO: "Nuevo Desembolso",
+  PROCEDE_PAGO_SS: "Procede pago SS",
+  PROCEDE_TRANSFERENCIA_ECONOMICA:
+    "Procede Transferencia Económica",
+};
+
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-CO", {
     style: "currency",
@@ -222,20 +247,43 @@ function getTipoLabel(details: MovimientoDetailApi[]) {
   }
 
   const labels = details.map((detail) => {
-    if (
-      detail.tipo === "AJUSTE" &&
-      detail.adjustmentDirection
-    ) {
-      return `Ajuste ${
-        detail.adjustmentDirection === "SUMA" ? "Suma" : "Resta"
-      }`;
-    }
+      // Priorizar el motivo específico registrado.
+      if (detail.motivo) {
+        const motivoLabel =
+          motivoLabels[detail.motivo] ?? detail.motivo;
 
-    return tipoStyles[detail.tipo]?.label ?? detail.tipo;
-  });
+        if (
+          detail.tipo === "AJUSTE" &&
+          detail.adjustmentDirection
+        ) {
+          const direccion =
+            detail.adjustmentDirection === "SUMA"
+              ? "Suma"
+              : "Resta";
 
-  return Array.from(new Set(labels)).join(", ");
-}
+          return `${motivoLabel} (${direccion})`;
+        }
+
+        return motivoLabel;
+      }
+
+      // Compatibilidad con movimientos históricos sin motivo.
+      if (
+        detail.tipo === "AJUSTE" &&
+        detail.adjustmentDirection
+      ) {
+        return `Ajuste ${
+          detail.adjustmentDirection === "SUMA"
+            ? "Suma"
+            : "Resta"
+        }`;
+      }
+
+      return tipoStyles[detail.tipo]?.label ?? detail.tipo;
+    });
+
+    return Array.from(new Set(labels)).join(", ");
+  }
 
 function mapMovimientoToRow(movement: MovimientoApi): MovimientoRow {
   const details = movement.details ?? [];
@@ -298,6 +346,10 @@ function mapMovimientoToRow(movement: MovimientoApi): MovimientoRow {
       : "Sin beneficiario",
 
     tipos: getUniqueTypes(details),
+
+    motivos: details
+    .map((detail) => detail.motivo)
+    .filter((motivo): motivo is string => Boolean(motivo)),
 
     tipoLabel: getTipoLabel(details),
 
@@ -440,13 +492,11 @@ export default function Movimientos() {
 
         const matchesTipo =
           filters.tipo === "all" ||
-          movement.tipos.includes(
-            filters.tipo as MovementType
-          ) ||
-          movement.tipoLabel
-            .toLowerCase()
-            .includes(filters.tipo.toLowerCase());
-
+          movement.motivos.includes(filters.tipo) ||
+          (
+            movement.motivos.length === 0 &&
+            movement.tipos.includes(filters.tipo as MovementType)
+          );
         const matchesUsuario =
           filters.usuario.trim() === "" ||
           movement.usuario
@@ -1389,6 +1439,12 @@ export default function Movimientos() {
                   <SelectItem value="all">
                     Todos
                   </SelectItem>
+
+                  {Object.entries(motivoLabels).map(([codigo, nombre]) => (
+                    <SelectItem key={codigo} value={codigo}>
+                      {nombre}
+                    </SelectItem>
+                  ))}
 
                   <SelectItem value="SALDO_INICIAL">
                     Saldo Inicial

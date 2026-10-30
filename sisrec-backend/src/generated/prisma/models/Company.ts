@@ -194,6 +194,7 @@ export type CompanyWhereInput = {
   beneficiaries?: Prisma.BeneficiaryListRelationFilter
   recobroCases?: Prisma.RecobroCaseListRelationFilter
   movements?: Prisma.MovementListRelationFilter
+  conceptExclusions?: Prisma.CaseConceptExclusionListRelationFilter
 }
 
 export type CompanyOrderByWithRelationInput = {
@@ -207,6 +208,7 @@ export type CompanyOrderByWithRelationInput = {
   beneficiaries?: Prisma.BeneficiaryOrderByRelationAggregateInput
   recobroCases?: Prisma.RecobroCaseOrderByRelationAggregateInput
   movements?: Prisma.MovementOrderByRelationAggregateInput
+  conceptExclusions?: Prisma.CaseConceptExclusionOrderByRelationAggregateInput
 }
 
 export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -223,6 +225,7 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   beneficiaries?: Prisma.BeneficiaryListRelationFilter
   recobroCases?: Prisma.RecobroCaseListRelationFilter
   movements?: Prisma.MovementListRelationFilter
+  conceptExclusions?: Prisma.CaseConceptExclusionListRelationFilter
 }, "id" | "slug">
 
 export type CompanyOrderByWithAggregationInput = {
@@ -260,6 +263,7 @@ export type CompanyCreateInput = {
   beneficiaries?: Prisma.BeneficiaryCreateNestedManyWithoutCompanyInput
   recobroCases?: Prisma.RecobroCaseCreateNestedManyWithoutCompanyInput
   movements?: Prisma.MovementCreateNestedManyWithoutCompanyInput
+  conceptExclusions?: Prisma.CaseConceptExclusionCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateInput = {
@@ -273,6 +277,7 @@ export type CompanyUncheckedCreateInput = {
   beneficiaries?: Prisma.BeneficiaryUncheckedCreateNestedManyWithoutCompanyInput
   recobroCases?: Prisma.RecobroCaseUncheckedCreateNestedManyWithoutCompanyInput
   movements?: Prisma.MovementUncheckedCreateNestedManyWithoutCompanyInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUpdateInput = {
@@ -286,6 +291,7 @@ export type CompanyUpdateInput = {
   beneficiaries?: Prisma.BeneficiaryUpdateManyWithoutCompanyNestedInput
   recobroCases?: Prisma.RecobroCaseUpdateManyWithoutCompanyNestedInput
   movements?: Prisma.MovementUpdateManyWithoutCompanyNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateInput = {
@@ -299,6 +305,7 @@ export type CompanyUncheckedUpdateInput = {
   beneficiaries?: Prisma.BeneficiaryUncheckedUpdateManyWithoutCompanyNestedInput
   recobroCases?: Prisma.RecobroCaseUncheckedUpdateManyWithoutCompanyNestedInput
   movements?: Prisma.MovementUncheckedUpdateManyWithoutCompanyNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateManyInput = {
@@ -428,6 +435,20 @@ export type CompanyUpdateOneRequiredWithoutMovementsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutMovementsInput, Prisma.CompanyUpdateWithoutMovementsInput>, Prisma.CompanyUncheckedUpdateWithoutMovementsInput>
 }
 
+export type CompanyCreateNestedOneWithoutConceptExclusionsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutConceptExclusionsInput, Prisma.CompanyUncheckedCreateWithoutConceptExclusionsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutConceptExclusionsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutConceptExclusionsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutConceptExclusionsInput, Prisma.CompanyUncheckedCreateWithoutConceptExclusionsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutConceptExclusionsInput
+  upsert?: Prisma.CompanyUpsertWithoutConceptExclusionsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutConceptExclusionsInput, Prisma.CompanyUpdateWithoutConceptExclusionsInput>, Prisma.CompanyUncheckedUpdateWithoutConceptExclusionsInput>
+}
+
 export type CompanyCreateWithoutUsersInput = {
   id?: string
   name: string
@@ -438,6 +459,7 @@ export type CompanyCreateWithoutUsersInput = {
   beneficiaries?: Prisma.BeneficiaryCreateNestedManyWithoutCompanyInput
   recobroCases?: Prisma.RecobroCaseCreateNestedManyWithoutCompanyInput
   movements?: Prisma.MovementCreateNestedManyWithoutCompanyInput
+  conceptExclusions?: Prisma.CaseConceptExclusionCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutUsersInput = {
@@ -450,6 +472,7 @@ export type CompanyUncheckedCreateWithoutUsersInput = {
   beneficiaries?: Prisma.BeneficiaryUncheckedCreateNestedManyWithoutCompanyInput
   recobroCases?: Prisma.RecobroCaseUncheckedCreateNestedManyWithoutCompanyInput
   movements?: Prisma.MovementUncheckedCreateNestedManyWithoutCompanyInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutUsersInput = {
@@ -478,6 +501,7 @@ export type CompanyUpdateWithoutUsersInput = {
   beneficiaries?: Prisma.BeneficiaryUpdateManyWithoutCompanyNestedInput
   recobroCases?: Prisma.RecobroCaseUpdateManyWithoutCompanyNestedInput
   movements?: Prisma.MovementUpdateManyWithoutCompanyNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutUsersInput = {
@@ -490,6 +514,7 @@ export type CompanyUncheckedUpdateWithoutUsersInput = {
   beneficiaries?: Prisma.BeneficiaryUncheckedUpdateManyWithoutCompanyNestedInput
   recobroCases?: Prisma.RecobroCaseUncheckedUpdateManyWithoutCompanyNestedInput
   movements?: Prisma.MovementUncheckedUpdateManyWithoutCompanyNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutBeneficiariesInput = {
@@ -502,6 +527,7 @@ export type CompanyCreateWithoutBeneficiariesInput = {
   users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   recobroCases?: Prisma.RecobroCaseCreateNestedManyWithoutCompanyInput
   movements?: Prisma.MovementCreateNestedManyWithoutCompanyInput
+  conceptExclusions?: Prisma.CaseConceptExclusionCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutBeneficiariesInput = {
@@ -514,6 +540,7 @@ export type CompanyUncheckedCreateWithoutBeneficiariesInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   recobroCases?: Prisma.RecobroCaseUncheckedCreateNestedManyWithoutCompanyInput
   movements?: Prisma.MovementUncheckedCreateNestedManyWithoutCompanyInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutBeneficiariesInput = {
@@ -542,6 +569,7 @@ export type CompanyUpdateWithoutBeneficiariesInput = {
   users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   recobroCases?: Prisma.RecobroCaseUpdateManyWithoutCompanyNestedInput
   movements?: Prisma.MovementUpdateManyWithoutCompanyNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutBeneficiariesInput = {
@@ -554,6 +582,7 @@ export type CompanyUncheckedUpdateWithoutBeneficiariesInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
   recobroCases?: Prisma.RecobroCaseUncheckedUpdateManyWithoutCompanyNestedInput
   movements?: Prisma.MovementUncheckedUpdateManyWithoutCompanyNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutRecobroCasesInput = {
@@ -566,6 +595,7 @@ export type CompanyCreateWithoutRecobroCasesInput = {
   users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   beneficiaries?: Prisma.BeneficiaryCreateNestedManyWithoutCompanyInput
   movements?: Prisma.MovementCreateNestedManyWithoutCompanyInput
+  conceptExclusions?: Prisma.CaseConceptExclusionCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutRecobroCasesInput = {
@@ -578,6 +608,7 @@ export type CompanyUncheckedCreateWithoutRecobroCasesInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   beneficiaries?: Prisma.BeneficiaryUncheckedCreateNestedManyWithoutCompanyInput
   movements?: Prisma.MovementUncheckedCreateNestedManyWithoutCompanyInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutRecobroCasesInput = {
@@ -606,6 +637,7 @@ export type CompanyUpdateWithoutRecobroCasesInput = {
   users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   beneficiaries?: Prisma.BeneficiaryUpdateManyWithoutCompanyNestedInput
   movements?: Prisma.MovementUpdateManyWithoutCompanyNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutRecobroCasesInput = {
@@ -618,6 +650,7 @@ export type CompanyUncheckedUpdateWithoutRecobroCasesInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
   beneficiaries?: Prisma.BeneficiaryUncheckedUpdateManyWithoutCompanyNestedInput
   movements?: Prisma.MovementUncheckedUpdateManyWithoutCompanyNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutMovementsInput = {
@@ -630,6 +663,7 @@ export type CompanyCreateWithoutMovementsInput = {
   users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   beneficiaries?: Prisma.BeneficiaryCreateNestedManyWithoutCompanyInput
   recobroCases?: Prisma.RecobroCaseCreateNestedManyWithoutCompanyInput
+  conceptExclusions?: Prisma.CaseConceptExclusionCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutMovementsInput = {
@@ -642,6 +676,7 @@ export type CompanyUncheckedCreateWithoutMovementsInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   beneficiaries?: Prisma.BeneficiaryUncheckedCreateNestedManyWithoutCompanyInput
   recobroCases?: Prisma.RecobroCaseUncheckedCreateNestedManyWithoutCompanyInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutMovementsInput = {
@@ -670,6 +705,7 @@ export type CompanyUpdateWithoutMovementsInput = {
   users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   beneficiaries?: Prisma.BeneficiaryUpdateManyWithoutCompanyNestedInput
   recobroCases?: Prisma.RecobroCaseUpdateManyWithoutCompanyNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutMovementsInput = {
@@ -682,6 +718,75 @@ export type CompanyUncheckedUpdateWithoutMovementsInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
   beneficiaries?: Prisma.BeneficiaryUncheckedUpdateManyWithoutCompanyNestedInput
   recobroCases?: Prisma.RecobroCaseUncheckedUpdateManyWithoutCompanyNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutConceptExclusionsInput = {
+  id?: string
+  name: string
+  slug: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  beneficiaries?: Prisma.BeneficiaryCreateNestedManyWithoutCompanyInput
+  recobroCases?: Prisma.RecobroCaseCreateNestedManyWithoutCompanyInput
+  movements?: Prisma.MovementCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutConceptExclusionsInput = {
+  id?: string
+  name: string
+  slug: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  beneficiaries?: Prisma.BeneficiaryUncheckedCreateNestedManyWithoutCompanyInput
+  recobroCases?: Prisma.RecobroCaseUncheckedCreateNestedManyWithoutCompanyInput
+  movements?: Prisma.MovementUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutConceptExclusionsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutConceptExclusionsInput, Prisma.CompanyUncheckedCreateWithoutConceptExclusionsInput>
+}
+
+export type CompanyUpsertWithoutConceptExclusionsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutConceptExclusionsInput, Prisma.CompanyUncheckedUpdateWithoutConceptExclusionsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutConceptExclusionsInput, Prisma.CompanyUncheckedCreateWithoutConceptExclusionsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutConceptExclusionsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutConceptExclusionsInput, Prisma.CompanyUncheckedUpdateWithoutConceptExclusionsInput>
+}
+
+export type CompanyUpdateWithoutConceptExclusionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  beneficiaries?: Prisma.BeneficiaryUpdateManyWithoutCompanyNestedInput
+  recobroCases?: Prisma.RecobroCaseUpdateManyWithoutCompanyNestedInput
+  movements?: Prisma.MovementUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutConceptExclusionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  beneficiaries?: Prisma.BeneficiaryUncheckedUpdateManyWithoutCompanyNestedInput
+  recobroCases?: Prisma.RecobroCaseUncheckedUpdateManyWithoutCompanyNestedInput
+  movements?: Prisma.MovementUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 
@@ -694,6 +799,7 @@ export type CompanyCountOutputType = {
   beneficiaries: number
   recobroCases: number
   movements: number
+  conceptExclusions: number
 }
 
 export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -701,6 +807,7 @@ export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   beneficiaries?: boolean | CompanyCountOutputTypeCountBeneficiariesArgs
   recobroCases?: boolean | CompanyCountOutputTypeCountRecobroCasesArgs
   movements?: boolean | CompanyCountOutputTypeCountMovementsArgs
+  conceptExclusions?: boolean | CompanyCountOutputTypeCountConceptExclusionsArgs
 }
 
 /**
@@ -741,6 +848,13 @@ export type CompanyCountOutputTypeCountMovementsArgs<ExtArgs extends runtime.Typ
   where?: Prisma.MovementWhereInput
 }
 
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountConceptExclusionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseConceptExclusionWhereInput
+}
+
 
 export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -753,6 +867,7 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   beneficiaries?: boolean | Prisma.Company$beneficiariesArgs<ExtArgs>
   recobroCases?: boolean | Prisma.Company$recobroCasesArgs<ExtArgs>
   movements?: boolean | Prisma.Company$movementsArgs<ExtArgs>
+  conceptExclusions?: boolean | Prisma.Company$conceptExclusionsArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["company"]>
 
@@ -789,6 +904,7 @@ export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   beneficiaries?: boolean | Prisma.Company$beneficiariesArgs<ExtArgs>
   recobroCases?: boolean | Prisma.Company$recobroCasesArgs<ExtArgs>
   movements?: boolean | Prisma.Company$movementsArgs<ExtArgs>
+  conceptExclusions?: boolean | Prisma.Company$conceptExclusionsArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CompanyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -801,6 +917,7 @@ export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     beneficiaries: Prisma.$BeneficiaryPayload<ExtArgs>[]
     recobroCases: Prisma.$RecobroCasePayload<ExtArgs>[]
     movements: Prisma.$MovementPayload<ExtArgs>[]
+    conceptExclusions: Prisma.$CaseConceptExclusionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1207,6 +1324,7 @@ export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.
   beneficiaries<T extends Prisma.Company$beneficiariesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$beneficiariesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BeneficiaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   recobroCases<T extends Prisma.Company$recobroCasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$recobroCasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecobroCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   movements<T extends Prisma.Company$movementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$movementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  conceptExclusions<T extends Prisma.Company$conceptExclusionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$conceptExclusionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseConceptExclusionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1728,6 +1846,30 @@ export type Company$movementsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.MovementScalarFieldEnum | Prisma.MovementScalarFieldEnum[]
+}
+
+/**
+ * Company.conceptExclusions
+ */
+export type Company$conceptExclusionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseConceptExclusion
+   */
+  select?: Prisma.CaseConceptExclusionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseConceptExclusion
+   */
+  omit?: Prisma.CaseConceptExclusionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseConceptExclusionInclude<ExtArgs> | null
+  where?: Prisma.CaseConceptExclusionWhereInput
+  orderBy?: Prisma.CaseConceptExclusionOrderByWithRelationInput | Prisma.CaseConceptExclusionOrderByWithRelationInput[]
+  cursor?: Prisma.CaseConceptExclusionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseConceptExclusionScalarFieldEnum | Prisma.CaseConceptExclusionScalarFieldEnum[]
 }
 
 /**

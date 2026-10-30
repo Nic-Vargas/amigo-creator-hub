@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { CurrentUserPayload } from '../common/interfaces/current-user.interface';
 import { QueryReporteCarteraDto } from './dto/query-reporte-cartera.dto';
 import { QueryReporteMovimientosDto } from './dto/query-reporte-movimientos.dto';
-import { MovementConcept } from '../generated/prisma/enums.js';
+import { MovementConcept, MovementReason } from '../generated/prisma/enums.js';
 import * as XLSX from 'xlsx';
 
 @Injectable()
@@ -38,6 +38,10 @@ export class ReportesService {
         item.valorBeneficiosEconomicos488,
       ),
       'Valor Total': Number(item.valorTotal),
+      'Conceptos Excluidos': item.conceptExclusions.map((exclusion) => exclusion.concepto).join(', '),
+      'Valor Excluido Histórico': item.conceptExclusions.reduce(
+        (sum, exclusion) => sum + Number(exclusion.valorExcluido), 0
+      ),
       Responsable: item.responsable?.fullName ?? '',
       'Fecha Apertura': item.fechaApertura,
       'Última Gestión': item.ultimaGestionAt,
@@ -224,6 +228,7 @@ export class ReportesService {
 
       include: {
         beneficiary: true,
+        conceptExclusions: true,
 
         responsable: {
           select: {
@@ -372,6 +377,81 @@ export class ReportesService {
 
       data: movimientos,
     };
+  }
+
+  // Consulta histórica por fecha de exclusión; no modifica saldos de cartera.
+  async exclusiones(
+    user: CurrentUserPayload,
+    filtros: {
+      desde?: string;
+      hasta?: string;
+      concepto?: MovementConcept;
+      motivo?: MovementReason;
+    } = {},
+  ) {
+    const desde = filtros.desde ? new Date(`${filtros.desde}T00:00:00.000Z`) : undefined;
+    const hasta = filtros.hasta ? new Date(`${filtros.hasta}T23:59:59.999Z`) : undefined;
+    if ((desde && Number.isNaN(desde.getTime())) ||
+        (hasta && Number.isNaN(hasta.getTime()))) {
+      throw new Error('Rango de fechas inválido');
+    }
+
+    const data = await this.prisma.caseConceptExclusion.findMany({
+      where: {
+        companyId: user.companyId,
+        concepto: filtros.concepto,
+        motivo: filtros.motivo,
+        fechaExclusion: desde || hasta ? { gte: desde, lte: hasta } : undefined,
+      },
+      include: {
+        recobroCase: {
+          include: {
+            beneficiary: {
+              select: {
+                documento: true,
+                tipoDocumento: true,
+                nombres: true,
+                apellidos: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { fechaExclusion: 'desc' },
+    });
+
+    return {
+      filtros,
+      resumen: {
+        totalExclusiones: data.length,
+        valorTotalExcluido: data.reduce((sum, item) => sum + Number(item.valorExcluido), 0),
+      },
+      data,
+    };
+  }
+
+  async exportExclusionesExcel(
+    user: CurrentUserPayload,
+    filtros: { desde?: string; hasta?: string; concepto?: MovementConcept; motivo?: MovementReason } = {},
+  ) {
+    const reporte = await this.exclusiones(user, filtros);
+    const rows = reporte.data.map((item) => ({
+      'Fecha Exclusión': item.fechaExclusion,
+      'Caso': item.recobroCaseId,
+      'Tipo Documento': item.recobroCase.beneficiary.tipoDocumento,
+      'Documento': item.recobroCase.beneficiary.documento,
+      'Beneficiario': `${item.recobroCase.beneficiary.nombres} ${item.recobroCase.beneficiary.apellidos}`.trim(),
+      'Ley': item.recobroCase.ley,
+      'Periodo': item.recobroCase.periodo,
+      'Concepto': item.concepto,
+      'Motivo': item.motivo,
+      'Total Recobro Original': item.montoOriginal === null ? null : Number(item.montoOriginal),
+      'Saldo Inicial Importado': item.saldoInicialImportado === null ? null : Number(item.saldoInicialImportado),
+      'Saldo Antes': Number(item.saldoAntes),
+      'Valor Excluido': Number(item.valorExcluido),
+      'Saldo Después': Number(item.saldoDespues),
+    }));
+    return this.buildExcelBuffer(rows, 'Exclusiones');
   }
 
   private findDetailByConcept<

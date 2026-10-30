@@ -164,6 +164,25 @@ export class ImportsService {
         const ley = String(row['Tipo Recobro']).trim();
         const periodo = this.normalizePeriodo(row['Periodos Doble Aporte']);
 
+        // Valor originalmente establecido para recobrar, distinto del saldo importado.
+        // Ausencia de columna o celda vacía => null (nunca inventar un importe).
+        const originalMoney = (column: string): number | null => {
+          const raw = this.getColumn(row, column);
+          if (raw === null || raw === undefined || String(raw).trim() === '') {
+            return null;
+          }
+          const parsed = this.parseMoney(raw);
+          if (parsed < 0) {
+            throw new BadRequestException(
+              `Fila ${rowNumber}: ${column} no puede ser negativo.`,
+            );
+          }
+          return parsed;
+        };
+
+        const originalRecobroSalud = originalMoney('Total Recobro Eps');
+        const originalRecobroPension = originalMoney('Total Recobro Afp');
+
         const valorSalud = Math.max(
           0,
           this.parseMoney(this.getColumn(row, 'Saldo Eps')),
@@ -307,6 +326,10 @@ export class ImportsService {
             valorBonoAlimentacion,
             valorBeneficiosEconomicos488,
             valorTotal,
+            originalRecobroSalud,
+            originalRecobroPension,
+            // Para los otros conceptos no existe una columna Total Recobro
+            // inequívoca en el formato actual: se conservan como null.
             estado,
             prioridad,
             fechaApertura: new Date(),

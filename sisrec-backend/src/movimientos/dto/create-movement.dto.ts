@@ -14,6 +14,7 @@ import {
 import {
   AdjustmentDirection,
   MovementConcept,
+  MovementReason,
   MovementType,
 } from '../../generated/prisma/enums.js';
 
@@ -25,6 +26,16 @@ export class CreateMovementDetailDto {
   })
   @IsEnum(MovementType)
   tipo!: MovementType;
+  
+  @ApiPropertyOptional({
+    example: 'PAGO_ADMIN_SALUD',
+    description:
+      'Motivo específico del movimiento para su trazabilidad.',
+    enum: MovementReason,
+  })
+  @IsOptional()
+  @IsEnum(MovementReason)
+  motivo?: MovementReason;
 
   @ApiProperty({
     example: 'SALUD',

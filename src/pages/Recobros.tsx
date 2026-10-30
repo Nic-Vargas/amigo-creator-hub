@@ -41,11 +41,24 @@ const estadoColors: Record<string, string> = {
 const estadosCaso = ["Abierto", "En gestión", "Acuerdo", "En pago", "Cerrado"] as const;
 
 const tiposMovimiento = [
-  "Pago",
-  "Nuevo Desembolso",
-  "No procede",
-  "Ajuste contable",
-  "No procede - Giro no efectuado",
+  { label: "Total", motivo: "PAGO_TOTAL", tipo: "REINTEGRO" },
+  { label: "Parcial", motivo: "PAGO_PARCIAL", tipo: "REINTEGRO" },
+  { label: "Administradora Pensión", motivo: "PAGO_ADMIN_PENSION", tipo: "REINTEGRO" },
+  { label: "Administradora Salud", motivo: "PAGO_ADMIN_SALUD", tipo: "REINTEGRO" },
+  { label: "Total Administradora (Eps - Afp)", motivo: "PAGO_TOTAL_ADMINISTRADORAS", tipo: "REINTEGRO" },
+
+  { label: "Saldo Negativo", motivo: "NO_PROCEDE_SALDO_NEGATIVO", tipo: "NO_PROCEDE" },
+  { label: "Tranferencia Ni SS", motivo: "NO_PROCEDE_TRANSFERENCIA_NI_SS", tipo: "NO_PROCEDE" },
+  { label: "Cancelación Beneficio en Tiempo Establecido", motivo: "NO_PROCEDE_CANCELACION_BENEFICIO", tipo: "NO_PROCEDE" },
+  { label: "80% Cesante", motivo: "NO_PROCEDE_80_CESANTE", tipo: "NO_PROCEDE" },
+  { label: "Cero días de Aportes", motivo: "NO_PROCEDE_CERO_DIAS_APORTES", tipo: "NO_PROCEDE" },
+  { label: "Giro no efectuado", motivo: "NO_PROCEDE_GIRO_NO_EFECTUADO", tipo: "NO_PROCEDE" },
+
+  { label: "Ajuste Contable", motivo: "AJUSTE_CONTABLE", tipo: "AJUSTE" },
+
+  { label: "Nuevo Desembolso", motivo: "NUEVO_DESEMBOLSO", tipo: "INCREMENTO" },
+  { label: "Procede pago SS", motivo: "PROCEDE_PAGO_SS", tipo: "INCREMENTO" },
+  { label: "Procede Transferencia Económica", motivo: "PROCEDE_TRANSFERENCIA_ECONOMICA", tipo: "INCREMENTO" },
 ] as const;
 
 const mediosPago = ["Nequi", "NU Bank", "Bancolombia", "AV Villas", "BBVA", "Bre-B"] as const;
@@ -78,13 +91,15 @@ const prioridadUiToApi: Record<string, string> = {
   Baja: "BAJA",
 };
 
-const tipoMovimientoUiToApi: Record<string, string> = {
-  Pago: "REINTEGRO",
-  "Nuevo Desembolso": "INCREMENTO",
-  "No procede": "NO_PROCEDE",
-  "Ajuste contable": "AJUSTE",
-  "No procede - Giro no efectuado": "NO_PROCEDE",
-};
+const tipoMovimientoUiToApi: Record<string, string> =
+  Object.fromEntries(
+    tiposMovimiento.map((item) => [item.motivo, item.tipo])
+  );
+
+const motivoMovimientoToLabel: Record<string, string> =
+  Object.fromEntries(
+    tiposMovimiento.map((item) => [item.motivo, item.label])
+  );
 
 type BeneficiarioApi = {
   id: string;
@@ -117,6 +132,16 @@ type RecobroApi = {
   fechaApertura: string;
   ultimaGestionAt: string | null;
   createdAt: string;
+  conceptExclusions?: Array<{
+    concepto: MovementConceptApi;
+    motivo: string;
+    fechaExclusion: string;
+    montoOriginal: string | number | null;
+    saldoInicialImportado: string | number | null;
+    saldoAntes: string | number;
+    valorExcluido: string | number;
+    saldoDespues: string | number;
+  }>;
 };
 
 type MovementConceptApi =
@@ -333,6 +358,9 @@ export default function Recobros() {
       ? `${beneficiario.nombres} ${beneficiario.apellidos}`
       : "Sin beneficiario";
   };
+
+  const conceptoExcluido = (caso: RecobroApi, concepto: MovementConceptApi) =>
+    caso.conceptExclusions?.find((exclusion) => exclusion.concepto === concepto);
 
   const getConceptosCaso = (caso: RecobroApi) => [
     {
@@ -678,6 +706,7 @@ export default function Recobros() {
           saldo: concepto.saldo,
           tipoUi: form.tipo,
           tipoApi: tipoMovimientoUiToApi[form.tipo],
+          motivoApi: form.tipo,
           valor: Number(form.valor || 0),
           medioPago: form.medioPago,
           soportePagoNombre: form.soportePagoNombre,
@@ -696,6 +725,15 @@ export default function Recobros() {
     }
 
     for (const movimiento of movimientos) {
+      if (conceptoExcluido(selectedCase, movimiento.concepto)) {
+        toast({
+          title: "Concepto excluido",
+          description: `El concepto ${movimiento.label} está excluido del cobro.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
       const requiereValor =
         movimiento.tipoApi === "REINTEGRO" ||
         movimiento.tipoApi === "INCREMENTO" ||
@@ -776,7 +814,13 @@ export default function Recobros() {
 
     try {
       const tiposDescripcion = Array.from(
-        new Set(movimientos.map((movimiento) => movimiento.tipoUi))
+        new Set(
+          movimientos.map(
+            (movimiento) =>
+              motivoMovimientoToLabel[movimiento.tipoUi] ??
+              movimiento.tipoUi
+          )
+        )
       ).join(", ");
 
       const mediosDescripcion = movimientos
@@ -800,6 +844,7 @@ export default function Recobros() {
 
       detalles: movimientos.map((movimiento) => ({
         tipo: movimiento.tipoApi,
+        motivo: movimiento.motivoApi,
         concepto: movimiento.concepto,
         valor:
           movimiento.tipoApi === "NO_PROCEDE"
@@ -908,6 +953,12 @@ export default function Recobros() {
           caso.valorBeneficiosEconomicos488
         ),
         Total: totalCaso,
+        'Conceptos Excluidos': (caso.conceptExclusions ?? [])
+          .map((exclusion) => exclusion.concepto)
+          .join(', '),
+        'Valor Excluido': (caso.conceptExclusions ?? []).reduce(
+          (sum, exclusion) => sum + Number(exclusion.valorExcluido), 0
+        ),
         Estado: estadoUi,
         Prioridad: prioridadUi,
         Responsable: caso.responsable?.fullName ?? "Sin responsable",
@@ -1080,32 +1131,50 @@ export default function Recobros() {
                   <td className="p-3 font-mono text-xs">{caso.periodo}</td>
                   <td className="p-3 font-medium">{getNombreBeneficiario(caso)}</td>
                   <td className="p-3 text-right font-mono text-xs">
+                    {conceptoExcluido(caso, "SALUD") && (
+                      <Badge variant="outline" className="mb-1 block text-[10px]">Excluido</Badge>
+                    )}
                     {Number(caso.valorSalud) > 0
                       ? formatCurrency(Number(caso.valorSalud))
                       : "—"}
                   </td>
                   <td className="p-3 text-right font-mono text-xs">
+                    {conceptoExcluido(caso, "PENSION") && (
+                      <Badge variant="outline" className="mb-1 block text-[10px]">Excluido</Badge>
+                    )}
                     {Number(caso.valorPension) > 0
                       ? formatCurrency(Number(caso.valorPension))
                       : "—"}
                   </td>
                   <td className="p-3 text-right font-mono text-xs">
+                    {conceptoExcluido(caso, "CUOTA_MONETARIA") && (
+                      <Badge variant="outline" className="mb-1 block text-[10px]">Excluido</Badge>
+                    )}
                     {Number(caso.valorCuotaMonetaria) > 0
                       ? formatCurrency(Number(caso.valorCuotaMonetaria))
                       : "—"}
                   </td>
                   <td className="p-3 text-right font-mono text-xs">
+                    {conceptoExcluido(caso, "TRANSFERENCIA_ECONOMICA") && (
+                      <Badge variant="outline" className="mb-1 block text-[10px]">Excluido</Badge>
+                    )}
                     {Number(caso.valorTransferenciaEconomica) > 0
                       ? formatCurrency(Number(caso.valorTransferenciaEconomica))
                       : "—"}
                   </td>
                   <td className="p-3 text-right font-mono text-xs">
+                    {conceptoExcluido(caso, "BONO_ALIMENTACION") && (
+                      <Badge variant="outline" className="mb-1 block text-[10px]">Excluido</Badge>
+                    )}
                     {Number(caso.valorBonoAlimentacion) > 0
                       ? formatCurrency(Number(caso.valorBonoAlimentacion))
                       : "—"}
                   </td>
 
                   <td className="p-3 text-right font-mono text-xs">
+                    {conceptoExcluido(caso, "BENEFICIOS_ECONOMICOS_488") && (
+                      <Badge variant="outline" className="mb-1 block text-[10px]">Excluido</Badge>
+                    )}
                     {Number(caso.valorBeneficiosEconomicos488) > 0
                       ? formatCurrency(Number(caso.valorBeneficiosEconomicos488))
                       : "—"}
@@ -1310,8 +1379,11 @@ export default function Recobros() {
               <div className="space-y-2">
                 {getConceptosCaso(selectedCase).map((concepto) => {
                   const form = movementForm[concepto.key];
-                  const requierePago = form.tipo === "Pago";
-                  const esAjuste = form.tipo === "Ajuste contable";
+                  const tipoFinanciero = tipoMovimientoUiToApi[form.tipo];
+                  const exclusion = conceptoExcluido(selectedCase, concepto.key);
+
+                  const requierePago = tipoFinanciero === "REINTEGRO";
+                  const esAjuste = tipoFinanciero === "AJUSTE";
 
                   return (
                     <div
@@ -1323,10 +1395,16 @@ export default function Recobros() {
                         <p className="text-xs text-muted-foreground">
                           Saldo actual: {formatCurrency(concepto.saldo)}
                         </p>
+                        {exclusion && (
+                          <Badge variant="outline" className="mt-1 text-[10px]">
+                            Excluido · {motivoMovimientoToLabel[exclusion.motivo] ?? exclusion.motivo}
+                          </Badge>
+                        )}
                       </div>
 
                       <Input
-                        placeholder="Ingrese valor"
+                        placeholder={exclusion ? "Concepto excluido" : "Ingrese valor"}
+                        disabled={Boolean(exclusion)}
                         value={form.valor}
                         onChange={(e) => {
                           const onlyNumbers = e.target.value.replace(/[^\d]/g, "");
@@ -1337,6 +1415,7 @@ export default function Recobros() {
 
                       <Select
                         value={form.tipo || "SIN_SELECCION"}
+                        disabled={Boolean(exclusion)}
                         onValueChange={(value) => {
                           if (value === "SIN_SELECCION") {
                             setMovementForm((prev) => ({
@@ -1361,17 +1440,17 @@ export default function Recobros() {
                               tipo: value,
 
                               medioPago:
-                                value === "Pago"
+                                tipoMovimientoUiToApi[value] === "REINTEGRO"
                                   ? prev[concepto.key].medioPago
                                   : "",
 
                               soportePagoNombre:
-                                value === "Pago"
+                                tipoMovimientoUiToApi[value] === "REINTEGRO"
                                   ? prev[concepto.key].soportePagoNombre
                                   : "",
 
                               adjustmentDirection:
-                                value === "Ajuste contable"
+                                tipoMovimientoUiToApi[value] === "AJUSTE"
                                   ? prev[concepto.key].adjustmentDirection
                                   : "",
                             },
@@ -1388,8 +1467,8 @@ export default function Recobros() {
                           </SelectItem>
 
                           {tiposMovimiento.map((item) => (
-                            <SelectItem key={item} value={item}>
-                              {item}
+                            <SelectItem key={item.motivo} value={item.motivo}>
+                              {item.label}
                             </SelectItem>
                           ))}
                         </SelectContent>

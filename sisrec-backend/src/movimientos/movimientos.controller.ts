@@ -142,6 +142,7 @@ export class MovimientosController {
             detalles: [
               {
                 tipo: 'REINTEGRO',
+                motivo: 'PAGO_ADMIN_SALUD',
                 concepto: 'SALUD',
                 valor: 50000,
               },

@@ -34,6 +34,12 @@ export type RecobroCaseAvgAggregateOutputType = {
   valorBonoAlimentacion: runtime.Decimal | null
   valorBeneficiosEconomicos488: runtime.Decimal | null
   valorTotal: runtime.Decimal | null
+  originalRecobroSalud: runtime.Decimal | null
+  originalRecobroPension: runtime.Decimal | null
+  originalRecobroCuotaMonetaria: runtime.Decimal | null
+  originalRecobroTransferenciaEconomica: runtime.Decimal | null
+  originalRecobroBonoAlimentacion: runtime.Decimal | null
+  originalRecobroBeneficiosEconomicos488: runtime.Decimal | null
 }
 
 export type RecobroCaseSumAggregateOutputType = {
@@ -44,6 +50,12 @@ export type RecobroCaseSumAggregateOutputType = {
   valorBonoAlimentacion: runtime.Decimal | null
   valorBeneficiosEconomicos488: runtime.Decimal | null
   valorTotal: runtime.Decimal | null
+  originalRecobroSalud: runtime.Decimal | null
+  originalRecobroPension: runtime.Decimal | null
+  originalRecobroCuotaMonetaria: runtime.Decimal | null
+  originalRecobroTransferenciaEconomica: runtime.Decimal | null
+  originalRecobroBonoAlimentacion: runtime.Decimal | null
+  originalRecobroBeneficiosEconomicos488: runtime.Decimal | null
 }
 
 export type RecobroCaseMinAggregateOutputType = {
@@ -59,6 +71,12 @@ export type RecobroCaseMinAggregateOutputType = {
   valorBonoAlimentacion: runtime.Decimal | null
   valorBeneficiosEconomicos488: runtime.Decimal | null
   valorTotal: runtime.Decimal | null
+  originalRecobroSalud: runtime.Decimal | null
+  originalRecobroPension: runtime.Decimal | null
+  originalRecobroCuotaMonetaria: runtime.Decimal | null
+  originalRecobroTransferenciaEconomica: runtime.Decimal | null
+  originalRecobroBonoAlimentacion: runtime.Decimal | null
+  originalRecobroBeneficiosEconomicos488: runtime.Decimal | null
   estado: $Enums.CaseStatus | null
   prioridad: $Enums.Priority | null
   responsableUserId: string | null
@@ -81,6 +99,12 @@ export type RecobroCaseMaxAggregateOutputType = {
   valorBonoAlimentacion: runtime.Decimal | null
   valorBeneficiosEconomicos488: runtime.Decimal | null
   valorTotal: runtime.Decimal | null
+  originalRecobroSalud: runtime.Decimal | null
+  originalRecobroPension: runtime.Decimal | null
+  originalRecobroCuotaMonetaria: runtime.Decimal | null
+  originalRecobroTransferenciaEconomica: runtime.Decimal | null
+  originalRecobroBonoAlimentacion: runtime.Decimal | null
+  originalRecobroBeneficiosEconomicos488: runtime.Decimal | null
   estado: $Enums.CaseStatus | null
   prioridad: $Enums.Priority | null
   responsableUserId: string | null
@@ -103,6 +127,12 @@ export type RecobroCaseCountAggregateOutputType = {
   valorBonoAlimentacion: number
   valorBeneficiosEconomicos488: number
   valorTotal: number
+  originalRecobroSalud: number
+  originalRecobroPension: number
+  originalRecobroCuotaMonetaria: number
+  originalRecobroTransferenciaEconomica: number
+  originalRecobroBonoAlimentacion: number
+  originalRecobroBeneficiosEconomicos488: number
   estado: number
   prioridad: number
   responsableUserId: number
@@ -122,6 +152,12 @@ export type RecobroCaseAvgAggregateInputType = {
   valorBonoAlimentacion?: true
   valorBeneficiosEconomicos488?: true
   valorTotal?: true
+  originalRecobroSalud?: true
+  originalRecobroPension?: true
+  originalRecobroCuotaMonetaria?: true
+  originalRecobroTransferenciaEconomica?: true
+  originalRecobroBonoAlimentacion?: true
+  originalRecobroBeneficiosEconomicos488?: true
 }
 
 export type RecobroCaseSumAggregateInputType = {
@@ -132,6 +168,12 @@ export type RecobroCaseSumAggregateInputType = {
   valorBonoAlimentacion?: true
   valorBeneficiosEconomicos488?: true
   valorTotal?: true
+  originalRecobroSalud?: true
+  originalRecobroPension?: true
+  originalRecobroCuotaMonetaria?: true
+  originalRecobroTransferenciaEconomica?: true
+  originalRecobroBonoAlimentacion?: true
+  originalRecobroBeneficiosEconomicos488?: true
 }
 
 export type RecobroCaseMinAggregateInputType = {
@@ -147,6 +189,12 @@ export type RecobroCaseMinAggregateInputType = {
   valorBonoAlimentacion?: true
   valorBeneficiosEconomicos488?: true
   valorTotal?: true
+  originalRecobroSalud?: true
+  originalRecobroPension?: true
+  originalRecobroCuotaMonetaria?: true
+  originalRecobroTransferenciaEconomica?: true
+  originalRecobroBonoAlimentacion?: true
+  originalRecobroBeneficiosEconomicos488?: true
   estado?: true
   prioridad?: true
   responsableUserId?: true
@@ -169,6 +217,12 @@ export type RecobroCaseMaxAggregateInputType = {
   valorBonoAlimentacion?: true
   valorBeneficiosEconomicos488?: true
   valorTotal?: true
+  originalRecobroSalud?: true
+  originalRecobroPension?: true
+  originalRecobroCuotaMonetaria?: true
+  originalRecobroTransferenciaEconomica?: true
+  originalRecobroBonoAlimentacion?: true
+  originalRecobroBeneficiosEconomicos488?: true
   estado?: true
   prioridad?: true
   responsableUserId?: true
@@ -191,6 +245,12 @@ export type RecobroCaseCountAggregateInputType = {
   valorBonoAlimentacion?: true
   valorBeneficiosEconomicos488?: true
   valorTotal?: true
+  originalRecobroSalud?: true
+  originalRecobroPension?: true
+  originalRecobroCuotaMonetaria?: true
+  originalRecobroTransferenciaEconomica?: true
+  originalRecobroBonoAlimentacion?: true
+  originalRecobroBeneficiosEconomicos488?: true
   estado?: true
   prioridad?: true
   responsableUserId?: true
@@ -300,6 +360,12 @@ export type RecobroCaseGroupByOutputType = {
   valorBonoAlimentacion: runtime.Decimal
   valorBeneficiosEconomicos488: runtime.Decimal
   valorTotal: runtime.Decimal
+  originalRecobroSalud: runtime.Decimal | null
+  originalRecobroPension: runtime.Decimal | null
+  originalRecobroCuotaMonetaria: runtime.Decimal | null
+  originalRecobroTransferenciaEconomica: runtime.Decimal | null
+  originalRecobroBonoAlimentacion: runtime.Decimal | null
+  originalRecobroBeneficiosEconomicos488: runtime.Decimal | null
   estado: $Enums.CaseStatus
   prioridad: $Enums.Priority
   responsableUserId: string | null
@@ -345,6 +411,12 @@ export type RecobroCaseWhereInput = {
   valorBonoAlimentacion?: Prisma.DecimalFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFilter<"RecobroCase"> | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFilter<"RecobroCase"> | $Enums.Priority
   responsableUserId?: Prisma.StringNullableFilter<"RecobroCase"> | string | null
@@ -356,6 +428,7 @@ export type RecobroCaseWhereInput = {
   beneficiary?: Prisma.XOR<Prisma.BeneficiaryScalarRelationFilter, Prisma.BeneficiaryWhereInput>
   responsable?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   movements?: Prisma.MovementListRelationFilter
+  conceptExclusions?: Prisma.CaseConceptExclusionListRelationFilter
 }
 
 export type RecobroCaseOrderByWithRelationInput = {
@@ -371,6 +444,12 @@ export type RecobroCaseOrderByWithRelationInput = {
   valorBonoAlimentacion?: Prisma.SortOrder
   valorBeneficiosEconomicos488?: Prisma.SortOrder
   valorTotal?: Prisma.SortOrder
+  originalRecobroSalud?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalRecobroPension?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalRecobroCuotaMonetaria?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalRecobroTransferenciaEconomica?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalRecobroBonoAlimentacion?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalRecobroBeneficiosEconomicos488?: Prisma.SortOrderInput | Prisma.SortOrder
   estado?: Prisma.SortOrder
   prioridad?: Prisma.SortOrder
   responsableUserId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -382,6 +461,7 @@ export type RecobroCaseOrderByWithRelationInput = {
   beneficiary?: Prisma.BeneficiaryOrderByWithRelationInput
   responsable?: Prisma.UserOrderByWithRelationInput
   movements?: Prisma.MovementOrderByRelationAggregateInput
+  conceptExclusions?: Prisma.CaseConceptExclusionOrderByRelationAggregateInput
 }
 
 export type RecobroCaseWhereUniqueInput = Prisma.AtLeast<{
@@ -400,6 +480,12 @@ export type RecobroCaseWhereUniqueInput = Prisma.AtLeast<{
   valorBonoAlimentacion?: Prisma.DecimalFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFilter<"RecobroCase"> | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFilter<"RecobroCase"> | $Enums.Priority
   responsableUserId?: Prisma.StringNullableFilter<"RecobroCase"> | string | null
@@ -411,6 +497,7 @@ export type RecobroCaseWhereUniqueInput = Prisma.AtLeast<{
   beneficiary?: Prisma.XOR<Prisma.BeneficiaryScalarRelationFilter, Prisma.BeneficiaryWhereInput>
   responsable?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   movements?: Prisma.MovementListRelationFilter
+  conceptExclusions?: Prisma.CaseConceptExclusionListRelationFilter
 }, "id">
 
 export type RecobroCaseOrderByWithAggregationInput = {
@@ -426,6 +513,12 @@ export type RecobroCaseOrderByWithAggregationInput = {
   valorBonoAlimentacion?: Prisma.SortOrder
   valorBeneficiosEconomicos488?: Prisma.SortOrder
   valorTotal?: Prisma.SortOrder
+  originalRecobroSalud?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalRecobroPension?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalRecobroCuotaMonetaria?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalRecobroTransferenciaEconomica?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalRecobroBonoAlimentacion?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalRecobroBeneficiosEconomicos488?: Prisma.SortOrderInput | Prisma.SortOrder
   estado?: Prisma.SortOrder
   prioridad?: Prisma.SortOrder
   responsableUserId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -456,6 +549,12 @@ export type RecobroCaseScalarWhereWithAggregatesInput = {
   valorBonoAlimentacion?: Prisma.DecimalWithAggregatesFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalWithAggregatesFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalWithAggregatesFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.DecimalNullableWithAggregatesFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.DecimalNullableWithAggregatesFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.DecimalNullableWithAggregatesFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.DecimalNullableWithAggregatesFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.DecimalNullableWithAggregatesFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.DecimalNullableWithAggregatesFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusWithAggregatesFilter<"RecobroCase"> | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityWithAggregatesFilter<"RecobroCase"> | $Enums.Priority
   responsableUserId?: Prisma.StringNullableWithAggregatesFilter<"RecobroCase"> | string | null
@@ -476,6 +575,12 @@ export type RecobroCaseCreateInput = {
   valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: $Enums.CaseStatus
   prioridad?: $Enums.Priority
   ultimaGestionAt?: Date | string | null
@@ -486,6 +591,7 @@ export type RecobroCaseCreateInput = {
   beneficiary: Prisma.BeneficiaryCreateNestedOneWithoutRecobroCasesInput
   responsable?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   movements?: Prisma.MovementCreateNestedManyWithoutRecobroCaseInput
+  conceptExclusions?: Prisma.CaseConceptExclusionCreateNestedManyWithoutRecobroCaseInput
 }
 
 export type RecobroCaseUncheckedCreateInput = {
@@ -501,6 +607,12 @@ export type RecobroCaseUncheckedCreateInput = {
   valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: $Enums.CaseStatus
   prioridad?: $Enums.Priority
   responsableUserId?: string | null
@@ -509,6 +621,7 @@ export type RecobroCaseUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   movements?: Prisma.MovementUncheckedCreateNestedManyWithoutRecobroCaseInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedCreateNestedManyWithoutRecobroCaseInput
 }
 
 export type RecobroCaseUpdateInput = {
@@ -522,6 +635,12 @@ export type RecobroCaseUpdateInput = {
   valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
   ultimaGestionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -532,6 +651,7 @@ export type RecobroCaseUpdateInput = {
   beneficiary?: Prisma.BeneficiaryUpdateOneRequiredWithoutRecobroCasesNestedInput
   responsable?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   movements?: Prisma.MovementUpdateManyWithoutRecobroCaseNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUpdateManyWithoutRecobroCaseNestedInput
 }
 
 export type RecobroCaseUncheckedUpdateInput = {
@@ -547,6 +667,12 @@ export type RecobroCaseUncheckedUpdateInput = {
   valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
   responsableUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -555,6 +681,7 @@ export type RecobroCaseUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movements?: Prisma.MovementUncheckedUpdateManyWithoutRecobroCaseNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedUpdateManyWithoutRecobroCaseNestedInput
 }
 
 export type RecobroCaseCreateManyInput = {
@@ -570,6 +697,12 @@ export type RecobroCaseCreateManyInput = {
   valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: $Enums.CaseStatus
   prioridad?: $Enums.Priority
   responsableUserId?: string | null
@@ -590,6 +723,12 @@ export type RecobroCaseUpdateManyMutationInput = {
   valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
   ultimaGestionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -611,6 +750,12 @@ export type RecobroCaseUncheckedUpdateManyInput = {
   valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
   responsableUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -643,6 +788,12 @@ export type RecobroCaseCountOrderByAggregateInput = {
   valorBonoAlimentacion?: Prisma.SortOrder
   valorBeneficiosEconomicos488?: Prisma.SortOrder
   valorTotal?: Prisma.SortOrder
+  originalRecobroSalud?: Prisma.SortOrder
+  originalRecobroPension?: Prisma.SortOrder
+  originalRecobroCuotaMonetaria?: Prisma.SortOrder
+  originalRecobroTransferenciaEconomica?: Prisma.SortOrder
+  originalRecobroBonoAlimentacion?: Prisma.SortOrder
+  originalRecobroBeneficiosEconomicos488?: Prisma.SortOrder
   estado?: Prisma.SortOrder
   prioridad?: Prisma.SortOrder
   responsableUserId?: Prisma.SortOrder
@@ -660,6 +811,12 @@ export type RecobroCaseAvgOrderByAggregateInput = {
   valorBonoAlimentacion?: Prisma.SortOrder
   valorBeneficiosEconomicos488?: Prisma.SortOrder
   valorTotal?: Prisma.SortOrder
+  originalRecobroSalud?: Prisma.SortOrder
+  originalRecobroPension?: Prisma.SortOrder
+  originalRecobroCuotaMonetaria?: Prisma.SortOrder
+  originalRecobroTransferenciaEconomica?: Prisma.SortOrder
+  originalRecobroBonoAlimentacion?: Prisma.SortOrder
+  originalRecobroBeneficiosEconomicos488?: Prisma.SortOrder
 }
 
 export type RecobroCaseMaxOrderByAggregateInput = {
@@ -675,6 +832,12 @@ export type RecobroCaseMaxOrderByAggregateInput = {
   valorBonoAlimentacion?: Prisma.SortOrder
   valorBeneficiosEconomicos488?: Prisma.SortOrder
   valorTotal?: Prisma.SortOrder
+  originalRecobroSalud?: Prisma.SortOrder
+  originalRecobroPension?: Prisma.SortOrder
+  originalRecobroCuotaMonetaria?: Prisma.SortOrder
+  originalRecobroTransferenciaEconomica?: Prisma.SortOrder
+  originalRecobroBonoAlimentacion?: Prisma.SortOrder
+  originalRecobroBeneficiosEconomicos488?: Prisma.SortOrder
   estado?: Prisma.SortOrder
   prioridad?: Prisma.SortOrder
   responsableUserId?: Prisma.SortOrder
@@ -697,6 +860,12 @@ export type RecobroCaseMinOrderByAggregateInput = {
   valorBonoAlimentacion?: Prisma.SortOrder
   valorBeneficiosEconomicos488?: Prisma.SortOrder
   valorTotal?: Prisma.SortOrder
+  originalRecobroSalud?: Prisma.SortOrder
+  originalRecobroPension?: Prisma.SortOrder
+  originalRecobroCuotaMonetaria?: Prisma.SortOrder
+  originalRecobroTransferenciaEconomica?: Prisma.SortOrder
+  originalRecobroBonoAlimentacion?: Prisma.SortOrder
+  originalRecobroBeneficiosEconomicos488?: Prisma.SortOrder
   estado?: Prisma.SortOrder
   prioridad?: Prisma.SortOrder
   responsableUserId?: Prisma.SortOrder
@@ -714,6 +883,12 @@ export type RecobroCaseSumOrderByAggregateInput = {
   valorBonoAlimentacion?: Prisma.SortOrder
   valorBeneficiosEconomicos488?: Prisma.SortOrder
   valorTotal?: Prisma.SortOrder
+  originalRecobroSalud?: Prisma.SortOrder
+  originalRecobroPension?: Prisma.SortOrder
+  originalRecobroCuotaMonetaria?: Prisma.SortOrder
+  originalRecobroTransferenciaEconomica?: Prisma.SortOrder
+  originalRecobroBonoAlimentacion?: Prisma.SortOrder
+  originalRecobroBeneficiosEconomicos488?: Prisma.SortOrder
 }
 
 export type RecobroCaseScalarRelationFilter = {
@@ -847,6 +1022,14 @@ export type RecobroCaseUncheckedUpdateManyWithoutBeneficiaryNestedInput = {
   deleteMany?: Prisma.RecobroCaseScalarWhereInput | Prisma.RecobroCaseScalarWhereInput[]
 }
 
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
 export type EnumCaseStatusFieldUpdateOperationsInput = {
   set?: $Enums.CaseStatus
 }
@@ -873,6 +1056,20 @@ export type RecobroCaseUpdateOneRequiredWithoutMovementsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RecobroCaseUpdateToOneWithWhereWithoutMovementsInput, Prisma.RecobroCaseUpdateWithoutMovementsInput>, Prisma.RecobroCaseUncheckedUpdateWithoutMovementsInput>
 }
 
+export type RecobroCaseCreateNestedOneWithoutConceptExclusionsInput = {
+  create?: Prisma.XOR<Prisma.RecobroCaseCreateWithoutConceptExclusionsInput, Prisma.RecobroCaseUncheckedCreateWithoutConceptExclusionsInput>
+  connectOrCreate?: Prisma.RecobroCaseCreateOrConnectWithoutConceptExclusionsInput
+  connect?: Prisma.RecobroCaseWhereUniqueInput
+}
+
+export type RecobroCaseUpdateOneRequiredWithoutConceptExclusionsNestedInput = {
+  create?: Prisma.XOR<Prisma.RecobroCaseCreateWithoutConceptExclusionsInput, Prisma.RecobroCaseUncheckedCreateWithoutConceptExclusionsInput>
+  connectOrCreate?: Prisma.RecobroCaseCreateOrConnectWithoutConceptExclusionsInput
+  upsert?: Prisma.RecobroCaseUpsertWithoutConceptExclusionsInput
+  connect?: Prisma.RecobroCaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RecobroCaseUpdateToOneWithWhereWithoutConceptExclusionsInput, Prisma.RecobroCaseUpdateWithoutConceptExclusionsInput>, Prisma.RecobroCaseUncheckedUpdateWithoutConceptExclusionsInput>
+}
+
 export type RecobroCaseCreateWithoutCompanyInput = {
   id?: string
   ley: string
@@ -884,6 +1081,12 @@ export type RecobroCaseCreateWithoutCompanyInput = {
   valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: $Enums.CaseStatus
   prioridad?: $Enums.Priority
   ultimaGestionAt?: Date | string | null
@@ -893,6 +1096,7 @@ export type RecobroCaseCreateWithoutCompanyInput = {
   beneficiary: Prisma.BeneficiaryCreateNestedOneWithoutRecobroCasesInput
   responsable?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   movements?: Prisma.MovementCreateNestedManyWithoutRecobroCaseInput
+  conceptExclusions?: Prisma.CaseConceptExclusionCreateNestedManyWithoutRecobroCaseInput
 }
 
 export type RecobroCaseUncheckedCreateWithoutCompanyInput = {
@@ -907,6 +1111,12 @@ export type RecobroCaseUncheckedCreateWithoutCompanyInput = {
   valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: $Enums.CaseStatus
   prioridad?: $Enums.Priority
   responsableUserId?: string | null
@@ -915,6 +1125,7 @@ export type RecobroCaseUncheckedCreateWithoutCompanyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   movements?: Prisma.MovementUncheckedCreateNestedManyWithoutRecobroCaseInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedCreateNestedManyWithoutRecobroCaseInput
 }
 
 export type RecobroCaseCreateOrConnectWithoutCompanyInput = {
@@ -959,6 +1170,12 @@ export type RecobroCaseScalarWhereInput = {
   valorBonoAlimentacion?: Prisma.DecimalFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.DecimalNullableFilter<"RecobroCase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFilter<"RecobroCase"> | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFilter<"RecobroCase"> | $Enums.Priority
   responsableUserId?: Prisma.StringNullableFilter<"RecobroCase"> | string | null
@@ -979,6 +1196,12 @@ export type RecobroCaseCreateWithoutResponsableInput = {
   valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: $Enums.CaseStatus
   prioridad?: $Enums.Priority
   ultimaGestionAt?: Date | string | null
@@ -988,6 +1211,7 @@ export type RecobroCaseCreateWithoutResponsableInput = {
   company: Prisma.CompanyCreateNestedOneWithoutRecobroCasesInput
   beneficiary: Prisma.BeneficiaryCreateNestedOneWithoutRecobroCasesInput
   movements?: Prisma.MovementCreateNestedManyWithoutRecobroCaseInput
+  conceptExclusions?: Prisma.CaseConceptExclusionCreateNestedManyWithoutRecobroCaseInput
 }
 
 export type RecobroCaseUncheckedCreateWithoutResponsableInput = {
@@ -1003,6 +1227,12 @@ export type RecobroCaseUncheckedCreateWithoutResponsableInput = {
   valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: $Enums.CaseStatus
   prioridad?: $Enums.Priority
   ultimaGestionAt?: Date | string | null
@@ -1010,6 +1240,7 @@ export type RecobroCaseUncheckedCreateWithoutResponsableInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   movements?: Prisma.MovementUncheckedCreateNestedManyWithoutRecobroCaseInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedCreateNestedManyWithoutRecobroCaseInput
 }
 
 export type RecobroCaseCreateOrConnectWithoutResponsableInput = {
@@ -1049,6 +1280,12 @@ export type RecobroCaseCreateWithoutBeneficiaryInput = {
   valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: $Enums.CaseStatus
   prioridad?: $Enums.Priority
   ultimaGestionAt?: Date | string | null
@@ -1058,6 +1295,7 @@ export type RecobroCaseCreateWithoutBeneficiaryInput = {
   company: Prisma.CompanyCreateNestedOneWithoutRecobroCasesInput
   responsable?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   movements?: Prisma.MovementCreateNestedManyWithoutRecobroCaseInput
+  conceptExclusions?: Prisma.CaseConceptExclusionCreateNestedManyWithoutRecobroCaseInput
 }
 
 export type RecobroCaseUncheckedCreateWithoutBeneficiaryInput = {
@@ -1072,6 +1310,12 @@ export type RecobroCaseUncheckedCreateWithoutBeneficiaryInput = {
   valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: $Enums.CaseStatus
   prioridad?: $Enums.Priority
   responsableUserId?: string | null
@@ -1080,6 +1324,7 @@ export type RecobroCaseUncheckedCreateWithoutBeneficiaryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   movements?: Prisma.MovementUncheckedCreateNestedManyWithoutRecobroCaseInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedCreateNestedManyWithoutRecobroCaseInput
 }
 
 export type RecobroCaseCreateOrConnectWithoutBeneficiaryInput = {
@@ -1119,6 +1364,12 @@ export type RecobroCaseCreateWithoutMovementsInput = {
   valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: $Enums.CaseStatus
   prioridad?: $Enums.Priority
   ultimaGestionAt?: Date | string | null
@@ -1128,6 +1379,7 @@ export type RecobroCaseCreateWithoutMovementsInput = {
   company: Prisma.CompanyCreateNestedOneWithoutRecobroCasesInput
   beneficiary: Prisma.BeneficiaryCreateNestedOneWithoutRecobroCasesInput
   responsable?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
+  conceptExclusions?: Prisma.CaseConceptExclusionCreateNestedManyWithoutRecobroCaseInput
 }
 
 export type RecobroCaseUncheckedCreateWithoutMovementsInput = {
@@ -1143,6 +1395,12 @@ export type RecobroCaseUncheckedCreateWithoutMovementsInput = {
   valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: $Enums.CaseStatus
   prioridad?: $Enums.Priority
   responsableUserId?: string | null
@@ -1150,6 +1408,7 @@ export type RecobroCaseUncheckedCreateWithoutMovementsInput = {
   fechaApertura: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedCreateNestedManyWithoutRecobroCaseInput
 }
 
 export type RecobroCaseCreateOrConnectWithoutMovementsInput = {
@@ -1179,6 +1438,12 @@ export type RecobroCaseUpdateWithoutMovementsInput = {
   valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
   ultimaGestionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1188,6 +1453,7 @@ export type RecobroCaseUpdateWithoutMovementsInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutRecobroCasesNestedInput
   beneficiary?: Prisma.BeneficiaryUpdateOneRequiredWithoutRecobroCasesNestedInput
   responsable?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUpdateManyWithoutRecobroCaseNestedInput
 }
 
 export type RecobroCaseUncheckedUpdateWithoutMovementsInput = {
@@ -1203,6 +1469,12 @@ export type RecobroCaseUncheckedUpdateWithoutMovementsInput = {
   valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
   responsableUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1210,6 +1482,139 @@ export type RecobroCaseUncheckedUpdateWithoutMovementsInput = {
   fechaApertura?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedUpdateManyWithoutRecobroCaseNestedInput
+}
+
+export type RecobroCaseCreateWithoutConceptExclusionsInput = {
+  id?: string
+  ley: string
+  periodo: string
+  valorSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorPension?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  estado?: $Enums.CaseStatus
+  prioridad?: $Enums.Priority
+  ultimaGestionAt?: Date | string | null
+  fechaApertura: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutRecobroCasesInput
+  beneficiary: Prisma.BeneficiaryCreateNestedOneWithoutRecobroCasesInput
+  responsable?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
+  movements?: Prisma.MovementCreateNestedManyWithoutRecobroCaseInput
+}
+
+export type RecobroCaseUncheckedCreateWithoutConceptExclusionsInput = {
+  id?: string
+  companyId: string
+  beneficiaryId: string
+  ley: string
+  periodo: string
+  valorSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorPension?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  estado?: $Enums.CaseStatus
+  prioridad?: $Enums.Priority
+  responsableUserId?: string | null
+  ultimaGestionAt?: Date | string | null
+  fechaApertura: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  movements?: Prisma.MovementUncheckedCreateNestedManyWithoutRecobroCaseInput
+}
+
+export type RecobroCaseCreateOrConnectWithoutConceptExclusionsInput = {
+  where: Prisma.RecobroCaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.RecobroCaseCreateWithoutConceptExclusionsInput, Prisma.RecobroCaseUncheckedCreateWithoutConceptExclusionsInput>
+}
+
+export type RecobroCaseUpsertWithoutConceptExclusionsInput = {
+  update: Prisma.XOR<Prisma.RecobroCaseUpdateWithoutConceptExclusionsInput, Prisma.RecobroCaseUncheckedUpdateWithoutConceptExclusionsInput>
+  create: Prisma.XOR<Prisma.RecobroCaseCreateWithoutConceptExclusionsInput, Prisma.RecobroCaseUncheckedCreateWithoutConceptExclusionsInput>
+  where?: Prisma.RecobroCaseWhereInput
+}
+
+export type RecobroCaseUpdateToOneWithWhereWithoutConceptExclusionsInput = {
+  where?: Prisma.RecobroCaseWhereInput
+  data: Prisma.XOR<Prisma.RecobroCaseUpdateWithoutConceptExclusionsInput, Prisma.RecobroCaseUncheckedUpdateWithoutConceptExclusionsInput>
+}
+
+export type RecobroCaseUpdateWithoutConceptExclusionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ley?: Prisma.StringFieldUpdateOperationsInput | string
+  periodo?: Prisma.StringFieldUpdateOperationsInput | string
+  valorSalud?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorPension?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorCuotaMonetaria?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorTransferenciaEconomica?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
+  ultimaGestionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaApertura?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutRecobroCasesNestedInput
+  beneficiary?: Prisma.BeneficiaryUpdateOneRequiredWithoutRecobroCasesNestedInput
+  responsable?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
+  movements?: Prisma.MovementUpdateManyWithoutRecobroCaseNestedInput
+}
+
+export type RecobroCaseUncheckedUpdateWithoutConceptExclusionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  beneficiaryId?: Prisma.StringFieldUpdateOperationsInput | string
+  ley?: Prisma.StringFieldUpdateOperationsInput | string
+  periodo?: Prisma.StringFieldUpdateOperationsInput | string
+  valorSalud?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorPension?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorCuotaMonetaria?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorTransferenciaEconomica?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
+  responsableUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ultimaGestionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaApertura?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  movements?: Prisma.MovementUncheckedUpdateManyWithoutRecobroCaseNestedInput
 }
 
 export type RecobroCaseCreateManyCompanyInput = {
@@ -1224,6 +1629,12 @@ export type RecobroCaseCreateManyCompanyInput = {
   valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: $Enums.CaseStatus
   prioridad?: $Enums.Priority
   responsableUserId?: string | null
@@ -1244,6 +1655,12 @@ export type RecobroCaseUpdateWithoutCompanyInput = {
   valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
   ultimaGestionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1253,6 +1670,7 @@ export type RecobroCaseUpdateWithoutCompanyInput = {
   beneficiary?: Prisma.BeneficiaryUpdateOneRequiredWithoutRecobroCasesNestedInput
   responsable?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   movements?: Prisma.MovementUpdateManyWithoutRecobroCaseNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUpdateManyWithoutRecobroCaseNestedInput
 }
 
 export type RecobroCaseUncheckedUpdateWithoutCompanyInput = {
@@ -1267,6 +1685,12 @@ export type RecobroCaseUncheckedUpdateWithoutCompanyInput = {
   valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
   responsableUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1275,6 +1699,7 @@ export type RecobroCaseUncheckedUpdateWithoutCompanyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movements?: Prisma.MovementUncheckedUpdateManyWithoutRecobroCaseNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedUpdateManyWithoutRecobroCaseNestedInput
 }
 
 export type RecobroCaseUncheckedUpdateManyWithoutCompanyInput = {
@@ -1289,6 +1714,12 @@ export type RecobroCaseUncheckedUpdateManyWithoutCompanyInput = {
   valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
   responsableUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1311,6 +1742,12 @@ export type RecobroCaseCreateManyResponsableInput = {
   valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: $Enums.CaseStatus
   prioridad?: $Enums.Priority
   ultimaGestionAt?: Date | string | null
@@ -1330,6 +1767,12 @@ export type RecobroCaseUpdateWithoutResponsableInput = {
   valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
   ultimaGestionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1339,6 +1782,7 @@ export type RecobroCaseUpdateWithoutResponsableInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutRecobroCasesNestedInput
   beneficiary?: Prisma.BeneficiaryUpdateOneRequiredWithoutRecobroCasesNestedInput
   movements?: Prisma.MovementUpdateManyWithoutRecobroCaseNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUpdateManyWithoutRecobroCaseNestedInput
 }
 
 export type RecobroCaseUncheckedUpdateWithoutResponsableInput = {
@@ -1354,6 +1798,12 @@ export type RecobroCaseUncheckedUpdateWithoutResponsableInput = {
   valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
   ultimaGestionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1361,6 +1811,7 @@ export type RecobroCaseUncheckedUpdateWithoutResponsableInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movements?: Prisma.MovementUncheckedUpdateManyWithoutRecobroCaseNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedUpdateManyWithoutRecobroCaseNestedInput
 }
 
 export type RecobroCaseUncheckedUpdateManyWithoutResponsableInput = {
@@ -1376,6 +1827,12 @@ export type RecobroCaseUncheckedUpdateManyWithoutResponsableInput = {
   valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
   ultimaGestionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1396,6 +1853,12 @@ export type RecobroCaseCreateManyBeneficiaryInput = {
   valorBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: $Enums.CaseStatus
   prioridad?: $Enums.Priority
   responsableUserId?: string | null
@@ -1416,6 +1879,12 @@ export type RecobroCaseUpdateWithoutBeneficiaryInput = {
   valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
   ultimaGestionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1425,6 +1894,7 @@ export type RecobroCaseUpdateWithoutBeneficiaryInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutRecobroCasesNestedInput
   responsable?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   movements?: Prisma.MovementUpdateManyWithoutRecobroCaseNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUpdateManyWithoutRecobroCaseNestedInput
 }
 
 export type RecobroCaseUncheckedUpdateWithoutBeneficiaryInput = {
@@ -1439,6 +1909,12 @@ export type RecobroCaseUncheckedUpdateWithoutBeneficiaryInput = {
   valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
   responsableUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1447,6 +1923,7 @@ export type RecobroCaseUncheckedUpdateWithoutBeneficiaryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movements?: Prisma.MovementUncheckedUpdateManyWithoutRecobroCaseNestedInput
+  conceptExclusions?: Prisma.CaseConceptExclusionUncheckedUpdateManyWithoutRecobroCaseNestedInput
 }
 
 export type RecobroCaseUncheckedUpdateManyWithoutBeneficiaryInput = {
@@ -1461,6 +1938,12 @@ export type RecobroCaseUncheckedUpdateManyWithoutBeneficiaryInput = {
   valorBonoAlimentacion?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorBeneficiosEconomicos488?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   valorTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalRecobroSalud?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroPension?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroCuotaMonetaria?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroTransferenciaEconomica?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBonoAlimentacion?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalRecobroBeneficiosEconomicos488?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   estado?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
   prioridad?: Prisma.EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
   responsableUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1477,10 +1960,12 @@ export type RecobroCaseUncheckedUpdateManyWithoutBeneficiaryInput = {
 
 export type RecobroCaseCountOutputType = {
   movements: number
+  conceptExclusions: number
 }
 
 export type RecobroCaseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   movements?: boolean | RecobroCaseCountOutputTypeCountMovementsArgs
+  conceptExclusions?: boolean | RecobroCaseCountOutputTypeCountConceptExclusionsArgs
 }
 
 /**
@@ -1500,6 +1985,13 @@ export type RecobroCaseCountOutputTypeCountMovementsArgs<ExtArgs extends runtime
   where?: Prisma.MovementWhereInput
 }
 
+/**
+ * RecobroCaseCountOutputType without action
+ */
+export type RecobroCaseCountOutputTypeCountConceptExclusionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseConceptExclusionWhereInput
+}
+
 
 export type RecobroCaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1514,6 +2006,12 @@ export type RecobroCaseSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   valorBonoAlimentacion?: boolean
   valorBeneficiosEconomicos488?: boolean
   valorTotal?: boolean
+  originalRecobroSalud?: boolean
+  originalRecobroPension?: boolean
+  originalRecobroCuotaMonetaria?: boolean
+  originalRecobroTransferenciaEconomica?: boolean
+  originalRecobroBonoAlimentacion?: boolean
+  originalRecobroBeneficiosEconomicos488?: boolean
   estado?: boolean
   prioridad?: boolean
   responsableUserId?: boolean
@@ -1525,6 +2023,7 @@ export type RecobroCaseSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   beneficiary?: boolean | Prisma.BeneficiaryDefaultArgs<ExtArgs>
   responsable?: boolean | Prisma.RecobroCase$responsableArgs<ExtArgs>
   movements?: boolean | Prisma.RecobroCase$movementsArgs<ExtArgs>
+  conceptExclusions?: boolean | Prisma.RecobroCase$conceptExclusionsArgs<ExtArgs>
   _count?: boolean | Prisma.RecobroCaseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["recobroCase"]>
 
@@ -1541,6 +2040,12 @@ export type RecobroCaseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   valorBonoAlimentacion?: boolean
   valorBeneficiosEconomicos488?: boolean
   valorTotal?: boolean
+  originalRecobroSalud?: boolean
+  originalRecobroPension?: boolean
+  originalRecobroCuotaMonetaria?: boolean
+  originalRecobroTransferenciaEconomica?: boolean
+  originalRecobroBonoAlimentacion?: boolean
+  originalRecobroBeneficiosEconomicos488?: boolean
   estado?: boolean
   prioridad?: boolean
   responsableUserId?: boolean
@@ -1566,6 +2071,12 @@ export type RecobroCaseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   valorBonoAlimentacion?: boolean
   valorBeneficiosEconomicos488?: boolean
   valorTotal?: boolean
+  originalRecobroSalud?: boolean
+  originalRecobroPension?: boolean
+  originalRecobroCuotaMonetaria?: boolean
+  originalRecobroTransferenciaEconomica?: boolean
+  originalRecobroBonoAlimentacion?: boolean
+  originalRecobroBeneficiosEconomicos488?: boolean
   estado?: boolean
   prioridad?: boolean
   responsableUserId?: boolean
@@ -1591,6 +2102,12 @@ export type RecobroCaseSelectScalar = {
   valorBonoAlimentacion?: boolean
   valorBeneficiosEconomicos488?: boolean
   valorTotal?: boolean
+  originalRecobroSalud?: boolean
+  originalRecobroPension?: boolean
+  originalRecobroCuotaMonetaria?: boolean
+  originalRecobroTransferenciaEconomica?: boolean
+  originalRecobroBonoAlimentacion?: boolean
+  originalRecobroBeneficiosEconomicos488?: boolean
   estado?: boolean
   prioridad?: boolean
   responsableUserId?: boolean
@@ -1600,12 +2117,13 @@ export type RecobroCaseSelectScalar = {
   updatedAt?: boolean
 }
 
-export type RecobroCaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "beneficiaryId" | "ley" | "periodo" | "valorSalud" | "valorPension" | "valorCuotaMonetaria" | "valorTransferenciaEconomica" | "valorBonoAlimentacion" | "valorBeneficiosEconomicos488" | "valorTotal" | "estado" | "prioridad" | "responsableUserId" | "ultimaGestionAt" | "fechaApertura" | "createdAt" | "updatedAt", ExtArgs["result"]["recobroCase"]>
+export type RecobroCaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "beneficiaryId" | "ley" | "periodo" | "valorSalud" | "valorPension" | "valorCuotaMonetaria" | "valorTransferenciaEconomica" | "valorBonoAlimentacion" | "valorBeneficiosEconomicos488" | "valorTotal" | "originalRecobroSalud" | "originalRecobroPension" | "originalRecobroCuotaMonetaria" | "originalRecobroTransferenciaEconomica" | "originalRecobroBonoAlimentacion" | "originalRecobroBeneficiosEconomicos488" | "estado" | "prioridad" | "responsableUserId" | "ultimaGestionAt" | "fechaApertura" | "createdAt" | "updatedAt", ExtArgs["result"]["recobroCase"]>
 export type RecobroCaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   beneficiary?: boolean | Prisma.BeneficiaryDefaultArgs<ExtArgs>
   responsable?: boolean | Prisma.RecobroCase$responsableArgs<ExtArgs>
   movements?: boolean | Prisma.RecobroCase$movementsArgs<ExtArgs>
+  conceptExclusions?: boolean | Prisma.RecobroCase$conceptExclusionsArgs<ExtArgs>
   _count?: boolean | Prisma.RecobroCaseCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RecobroCaseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1626,6 +2144,7 @@ export type $RecobroCasePayload<ExtArgs extends runtime.Types.Extensions.Interna
     beneficiary: Prisma.$BeneficiaryPayload<ExtArgs>
     responsable: Prisma.$UserPayload<ExtArgs> | null
     movements: Prisma.$MovementPayload<ExtArgs>[]
+    conceptExclusions: Prisma.$CaseConceptExclusionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1640,6 +2159,12 @@ export type $RecobroCasePayload<ExtArgs extends runtime.Types.Extensions.Interna
     valorBonoAlimentacion: runtime.Decimal
     valorBeneficiosEconomicos488: runtime.Decimal
     valorTotal: runtime.Decimal
+    originalRecobroSalud: runtime.Decimal | null
+    originalRecobroPension: runtime.Decimal | null
+    originalRecobroCuotaMonetaria: runtime.Decimal | null
+    originalRecobroTransferenciaEconomica: runtime.Decimal | null
+    originalRecobroBonoAlimentacion: runtime.Decimal | null
+    originalRecobroBeneficiosEconomicos488: runtime.Decimal | null
     estado: $Enums.CaseStatus
     prioridad: $Enums.Priority
     responsableUserId: string | null
@@ -2045,6 +2570,7 @@ export interface Prisma__RecobroCaseClient<T, Null = never, ExtArgs extends runt
   beneficiary<T extends Prisma.BeneficiaryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BeneficiaryDefaultArgs<ExtArgs>>): Prisma.Prisma__BeneficiaryClient<runtime.Types.Result.GetResult<Prisma.$BeneficiaryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   responsable<T extends Prisma.RecobroCase$responsableArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RecobroCase$responsableArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   movements<T extends Prisma.RecobroCase$movementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RecobroCase$movementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  conceptExclusions<T extends Prisma.RecobroCase$conceptExclusionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RecobroCase$conceptExclusionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseConceptExclusionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2086,6 +2612,12 @@ export interface RecobroCaseFieldRefs {
   readonly valorBonoAlimentacion: Prisma.FieldRef<"RecobroCase", 'Decimal'>
   readonly valorBeneficiosEconomicos488: Prisma.FieldRef<"RecobroCase", 'Decimal'>
   readonly valorTotal: Prisma.FieldRef<"RecobroCase", 'Decimal'>
+  readonly originalRecobroSalud: Prisma.FieldRef<"RecobroCase", 'Decimal'>
+  readonly originalRecobroPension: Prisma.FieldRef<"RecobroCase", 'Decimal'>
+  readonly originalRecobroCuotaMonetaria: Prisma.FieldRef<"RecobroCase", 'Decimal'>
+  readonly originalRecobroTransferenciaEconomica: Prisma.FieldRef<"RecobroCase", 'Decimal'>
+  readonly originalRecobroBonoAlimentacion: Prisma.FieldRef<"RecobroCase", 'Decimal'>
+  readonly originalRecobroBeneficiosEconomicos488: Prisma.FieldRef<"RecobroCase", 'Decimal'>
   readonly estado: Prisma.FieldRef<"RecobroCase", 'CaseStatus'>
   readonly prioridad: Prisma.FieldRef<"RecobroCase", 'Priority'>
   readonly responsableUserId: Prisma.FieldRef<"RecobroCase", 'String'>
@@ -2534,6 +3066,30 @@ export type RecobroCase$movementsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.MovementScalarFieldEnum | Prisma.MovementScalarFieldEnum[]
+}
+
+/**
+ * RecobroCase.conceptExclusions
+ */
+export type RecobroCase$conceptExclusionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseConceptExclusion
+   */
+  select?: Prisma.CaseConceptExclusionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseConceptExclusion
+   */
+  omit?: Prisma.CaseConceptExclusionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseConceptExclusionInclude<ExtArgs> | null
+  where?: Prisma.CaseConceptExclusionWhereInput
+  orderBy?: Prisma.CaseConceptExclusionOrderByWithRelationInput | Prisma.CaseConceptExclusionOrderByWithRelationInput[]
+  cursor?: Prisma.CaseConceptExclusionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseConceptExclusionScalarFieldEnum | Prisma.CaseConceptExclusionScalarFieldEnum[]
 }
 
 /**

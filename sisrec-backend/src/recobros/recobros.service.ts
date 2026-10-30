@@ -22,6 +22,14 @@ export class RecobrosService {
       },
       include: {
         beneficiary: true,
+        conceptExclusions: {
+          select: {
+            concepto: true,
+            motivo: true,
+            fechaExclusion: true,
+            valorExcluido: true,
+          },
+        },
         responsable: {
           select: {
             id: true,
@@ -44,6 +52,14 @@ export class RecobrosService {
       },
       include: {
         beneficiary: true,
+        conceptExclusions: {
+          select: {
+            concepto: true,
+            motivo: true,
+            fechaExclusion: true,
+            valorExcluido: true,
+          },
+        },
         movements: {
           include: {
             details: {
@@ -89,7 +105,7 @@ export class RecobrosService {
       dto.valorSalud +
       dto.valorPension +
       dto.valorCuotaMonetaria +
-      dto.valorTransferenciaEconomica;
+      dto.valorTransferenciaEconomica +
       dto.valorBonoAlimentacion +
       dto.valorBeneficiosEconomicos488;
 

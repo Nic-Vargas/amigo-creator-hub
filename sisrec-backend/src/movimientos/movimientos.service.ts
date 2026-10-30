@@ -11,6 +11,7 @@ import {
   AdjustmentDirection,
   CaseStatus,
   MovementConcept,
+  MovementReason,
   MovementType,
 } from '../generated/prisma/enums.js';
 
@@ -27,6 +28,30 @@ type UploadedAttachment = {
   storagePath: string;
   mimeType: string;
   fileSize: number;
+};
+
+const MOVEMENT_REASON_TYPES: Record<
+  MovementReason,
+  MovementType
+> = {
+  PAGO_TOTAL: MovementType.REINTEGRO,
+  PAGO_PARCIAL: MovementType.REINTEGRO,
+  PAGO_ADMIN_PENSION: MovementType.REINTEGRO,
+  PAGO_ADMIN_SALUD: MovementType.REINTEGRO,
+  PAGO_TOTAL_ADMINISTRADORAS: MovementType.REINTEGRO,
+
+  NO_PROCEDE_SALDO_NEGATIVO: MovementType.NO_PROCEDE,
+  NO_PROCEDE_TRANSFERENCIA_NI_SS: MovementType.NO_PROCEDE,
+  NO_PROCEDE_CANCELACION_BENEFICIO: MovementType.NO_PROCEDE,
+  NO_PROCEDE_80_CESANTE: MovementType.NO_PROCEDE,
+  NO_PROCEDE_CERO_DIAS_APORTES: MovementType.NO_PROCEDE,
+  NO_PROCEDE_GIRO_NO_EFECTUADO: MovementType.NO_PROCEDE,
+
+  AJUSTE_CONTABLE: MovementType.AJUSTE,
+
+  NUEVO_DESEMBOLSO: MovementType.INCREMENTO,
+  PROCEDE_PAGO_SS: MovementType.INCREMENTO,
+  PROCEDE_TRANSFERENCIA_ECONOMICA: MovementType.INCREMENTO,
 };
 
 @Injectable()
@@ -46,8 +71,8 @@ export class MovimientosService {
         tipo: detail.tipo,
         concepto: detail.concepto,
         valor: Number(detail.valor).toFixed(2),
-        adjustmentDirection:
-          detail.adjustmentDirection ?? null,
+        adjustmentDirection: detail.adjustmentDirection ?? null,
+        ...(detail.motivo ? { motivo: detail.motivo } : {}),
       }))
       .sort((a, b) =>
         a.concepto.localeCompare(b.concepto),
@@ -254,18 +279,41 @@ export class MovimientosService {
 
             const movementDetails: Array<{
               tipo: MovementType;
+              motivo: MovementReason | null;
               concepto: MovementConcept;
-              adjustmentDirection:
-                | AdjustmentDirection
-                | null;
+              adjustmentDirection: AdjustmentDirection | null;
               valor: number;
               saldoAnteriorConcepto: number;
               saldoNuevoConcepto: number;
             }> = [];
 
-            let totalDelta = 0;
+           let totalDelta = 0;
+
+            // Consultar los conceptos previamente excluidos del caso.
+            const exclusionesExistentes =
+              await tx.caseConceptExclusion.findMany({
+                where: {
+                  companyId: user.companyId,
+                  recobroCaseId: recobro.id,
+                },
+                select: {
+                  concepto: true,
+                },
+              });
+
+            const conceptosExcluidos = new Set(
+              exclusionesExistentes.map(
+                (exclusion) => exclusion.concepto,
+              ),
+            );
 
             for (const detail of dto.detalles) {
+              // Impedir nuevos movimientos sobre conceptos excluidos.
+              if (conceptosExcluidos.has(detail.concepto)) {
+                throw new ConflictException(
+                  `El concepto ${detail.concepto} está excluido del proceso de cobro y no permite nuevos movimientos.`,
+                );
+              }
               const conceptField =
                 this.getConceptField(
                   detail.concepto,
@@ -300,12 +348,11 @@ export class MovimientosService {
 
               movementDetails.push({
                 tipo: detail.tipo,
-                concepto:
-                  detail.concepto,
+                motivo: detail.motivo ?? null,
+                concepto: detail.concepto,
 
                 adjustmentDirection:
-                  detail.adjustmentDirection ??
-                  null,
+                  detail.adjustmentDirection ?? null,
 
                 valor:
                   detail.tipo ===
@@ -435,6 +482,74 @@ export class MovimientosService {
                   },
                 },
               });
+
+
+              for (const detail of movement.details) {
+                if (detail.tipo !== MovementType.NO_PROCEDE) {
+                  continue;
+                }
+
+                if (!detail.motivo) {
+                  throw new BadRequestException(
+                    `El concepto ${detail.concepto} requiere un motivo NO_PROCEDE.`,
+                  );
+                }
+
+                // Recuperar el saldo inicial importado.
+                const movimientosIniciales =
+                  await tx.movementDetail.findMany({
+                    where: {
+                      concepto: detail.concepto,
+                      tipo: MovementType.SALDO_INICIAL,
+                      movement: {
+                        companyId: user.companyId,
+                        recobroCaseId: recobro.id,
+                      },
+                    },
+                    select: {
+                      valor: true,
+                    },
+                  });
+
+                const saldoInicialImportado =
+                  movimientosIniciales.length > 0
+                    ? movimientosIniciales.reduce(
+                        (total, inicial) =>
+                          total + Number(inicial.valor),
+                        0,
+                      )
+                    : null;
+
+                // Recuperar el valor originalmente establecido
+                // para recobrar, sin confundirlo con el saldo.
+                const originalField =
+                  this.getOriginalConceptField(detail.concepto);
+
+                const montoOriginal =
+                  recobro[originalField] === null
+                    ? null
+                    : Number(recobro[originalField]);
+
+                // Registrar la exclusión.
+                await tx.caseConceptExclusion.create({
+                  data: {
+                    companyId: user.companyId,
+                    recobroCaseId: recobro.id,
+
+                    concepto: detail.concepto,
+                    motivo: detail.motivo,
+                    movementDetailId: detail.id,
+
+                    montoOriginal,
+                    saldoInicialImportado,
+
+                    saldoAntes: detail.saldoAnteriorConcepto,
+                    valorExcluido: detail.saldoAnteriorConcepto,
+                    saldoDespues: detail.saldoNuevoConcepto,
+                  },
+                });
+              }
+
 
             return {
               movement,
@@ -645,6 +760,23 @@ export class MovimientosService {
     }
 
     for (const detail of dto.detalles) {
+
+      if (detail.motivo) {
+        const expectedType = MOVEMENT_REASON_TYPES[detail.motivo];
+
+        if (!expectedType) {
+          throw new BadRequestException(
+            `El motivo ${detail.motivo} no es válido.`,
+          );
+        }
+
+        if (detail.tipo !== expectedType) {
+          throw new BadRequestException(
+            `El motivo ${detail.motivo} no corresponde al tipo ${detail.tipo}.`,
+          );
+        }
+      }
+
       if (
         detail.valor <= 0 &&
         detail.tipo !==
@@ -698,6 +830,32 @@ export class MovimientosService {
 
       [MovementConcept.BENEFICIOS_ECONOMICOS_488]:
         'valorBeneficiosEconomicos488',
+    } as const;
+
+    return map[concepto];
+  }
+
+  private getOriginalConceptField(
+    concepto: MovementConcept,
+  ) {
+    const map = {
+      [MovementConcept.SALUD]:
+        'originalRecobroSalud',
+
+      [MovementConcept.PENSION]:
+        'originalRecobroPension',
+
+      [MovementConcept.CUOTA_MONETARIA]:
+        'originalRecobroCuotaMonetaria',
+
+      [MovementConcept.TRANSFERENCIA_ECONOMICA]:
+        'originalRecobroTransferenciaEconomica',
+
+      [MovementConcept.BONO_ALIMENTACION]:
+        'originalRecobroBonoAlimentacion',
+
+      [MovementConcept.BENEFICIOS_ECONOMICOS_488]:
+        'originalRecobroBeneficiosEconomicos488',
     } as const;
 
     return map[concepto];

@@ -52,3 +52,8 @@ export type MovementDetail = Prisma.MovementDetailModel
  * 
  */
 export type MovementAttachment = Prisma.MovementAttachmentModel
+/**
+ * Model CaseConceptExclusion
+ * 
+ */
+export type CaseConceptExclusion = Prisma.CaseConceptExclusionModel

@@ -42,6 +42,7 @@ export type MovementDetailMinAggregateOutputType = {
   id: string | null
   movementId: string | null
   tipo: $Enums.MovementType | null
+  motivo: $Enums.MovementReason | null
   concepto: $Enums.MovementConcept | null
   adjustmentDirection: $Enums.AdjustmentDirection | null
   valor: runtime.Decimal | null
@@ -54,6 +55,7 @@ export type MovementDetailMaxAggregateOutputType = {
   id: string | null
   movementId: string | null
   tipo: $Enums.MovementType | null
+  motivo: $Enums.MovementReason | null
   concepto: $Enums.MovementConcept | null
   adjustmentDirection: $Enums.AdjustmentDirection | null
   valor: runtime.Decimal | null
@@ -66,6 +68,7 @@ export type MovementDetailCountAggregateOutputType = {
   id: number
   movementId: number
   tipo: number
+  motivo: number
   concepto: number
   adjustmentDirection: number
   valor: number
@@ -92,6 +95,7 @@ export type MovementDetailMinAggregateInputType = {
   id?: true
   movementId?: true
   tipo?: true
+  motivo?: true
   concepto?: true
   adjustmentDirection?: true
   valor?: true
@@ -104,6 +108,7 @@ export type MovementDetailMaxAggregateInputType = {
   id?: true
   movementId?: true
   tipo?: true
+  motivo?: true
   concepto?: true
   adjustmentDirection?: true
   valor?: true
@@ -116,6 +121,7 @@ export type MovementDetailCountAggregateInputType = {
   id?: true
   movementId?: true
   tipo?: true
+  motivo?: true
   concepto?: true
   adjustmentDirection?: true
   valor?: true
@@ -215,6 +221,7 @@ export type MovementDetailGroupByOutputType = {
   id: string
   movementId: string
   tipo: $Enums.MovementType
+  motivo: $Enums.MovementReason | null
   concepto: $Enums.MovementConcept
   adjustmentDirection: $Enums.AdjustmentDirection | null
   valor: runtime.Decimal
@@ -250,6 +257,7 @@ export type MovementDetailWhereInput = {
   id?: Prisma.StringFilter<"MovementDetail"> | string
   movementId?: Prisma.StringFilter<"MovementDetail"> | string
   tipo?: Prisma.EnumMovementTypeFilter<"MovementDetail"> | $Enums.MovementType
+  motivo?: Prisma.EnumMovementReasonNullableFilter<"MovementDetail"> | $Enums.MovementReason | null
   concepto?: Prisma.EnumMovementConceptFilter<"MovementDetail"> | $Enums.MovementConcept
   adjustmentDirection?: Prisma.EnumAdjustmentDirectionNullableFilter<"MovementDetail"> | $Enums.AdjustmentDirection | null
   valor?: Prisma.DecimalFilter<"MovementDetail"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -257,12 +265,14 @@ export type MovementDetailWhereInput = {
   saldoNuevoConcepto?: Prisma.DecimalFilter<"MovementDetail"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFilter<"MovementDetail"> | Date | string
   movement?: Prisma.XOR<Prisma.MovementScalarRelationFilter, Prisma.MovementWhereInput>
+  exclusion?: Prisma.XOR<Prisma.CaseConceptExclusionNullableScalarRelationFilter, Prisma.CaseConceptExclusionWhereInput> | null
 }
 
 export type MovementDetailOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   movementId?: Prisma.SortOrder
   tipo?: Prisma.SortOrder
+  motivo?: Prisma.SortOrderInput | Prisma.SortOrder
   concepto?: Prisma.SortOrder
   adjustmentDirection?: Prisma.SortOrderInput | Prisma.SortOrder
   valor?: Prisma.SortOrder
@@ -270,6 +280,7 @@ export type MovementDetailOrderByWithRelationInput = {
   saldoNuevoConcepto?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   movement?: Prisma.MovementOrderByWithRelationInput
+  exclusion?: Prisma.CaseConceptExclusionOrderByWithRelationInput
 }
 
 export type MovementDetailWhereUniqueInput = Prisma.AtLeast<{
@@ -279,6 +290,7 @@ export type MovementDetailWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.MovementDetailWhereInput | Prisma.MovementDetailWhereInput[]
   movementId?: Prisma.StringFilter<"MovementDetail"> | string
   tipo?: Prisma.EnumMovementTypeFilter<"MovementDetail"> | $Enums.MovementType
+  motivo?: Prisma.EnumMovementReasonNullableFilter<"MovementDetail"> | $Enums.MovementReason | null
   concepto?: Prisma.EnumMovementConceptFilter<"MovementDetail"> | $Enums.MovementConcept
   adjustmentDirection?: Prisma.EnumAdjustmentDirectionNullableFilter<"MovementDetail"> | $Enums.AdjustmentDirection | null
   valor?: Prisma.DecimalFilter<"MovementDetail"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -286,12 +298,14 @@ export type MovementDetailWhereUniqueInput = Prisma.AtLeast<{
   saldoNuevoConcepto?: Prisma.DecimalFilter<"MovementDetail"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFilter<"MovementDetail"> | Date | string
   movement?: Prisma.XOR<Prisma.MovementScalarRelationFilter, Prisma.MovementWhereInput>
+  exclusion?: Prisma.XOR<Prisma.CaseConceptExclusionNullableScalarRelationFilter, Prisma.CaseConceptExclusionWhereInput> | null
 }, "id">
 
 export type MovementDetailOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   movementId?: Prisma.SortOrder
   tipo?: Prisma.SortOrder
+  motivo?: Prisma.SortOrderInput | Prisma.SortOrder
   concepto?: Prisma.SortOrder
   adjustmentDirection?: Prisma.SortOrderInput | Prisma.SortOrder
   valor?: Prisma.SortOrder
@@ -312,6 +326,7 @@ export type MovementDetailScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"MovementDetail"> | string
   movementId?: Prisma.StringWithAggregatesFilter<"MovementDetail"> | string
   tipo?: Prisma.EnumMovementTypeWithAggregatesFilter<"MovementDetail"> | $Enums.MovementType
+  motivo?: Prisma.EnumMovementReasonNullableWithAggregatesFilter<"MovementDetail"> | $Enums.MovementReason | null
   concepto?: Prisma.EnumMovementConceptWithAggregatesFilter<"MovementDetail"> | $Enums.MovementConcept
   adjustmentDirection?: Prisma.EnumAdjustmentDirectionNullableWithAggregatesFilter<"MovementDetail"> | $Enums.AdjustmentDirection | null
   valor?: Prisma.DecimalWithAggregatesFilter<"MovementDetail"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -323,6 +338,7 @@ export type MovementDetailScalarWhereWithAggregatesInput = {
 export type MovementDetailCreateInput = {
   id?: string
   tipo: $Enums.MovementType
+  motivo?: $Enums.MovementReason | null
   concepto: $Enums.MovementConcept
   adjustmentDirection?: $Enums.AdjustmentDirection | null
   valor: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -330,23 +346,27 @@ export type MovementDetailCreateInput = {
   saldoNuevoConcepto: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   movement: Prisma.MovementCreateNestedOneWithoutDetailsInput
+  exclusion?: Prisma.CaseConceptExclusionCreateNestedOneWithoutDetailInput
 }
 
 export type MovementDetailUncheckedCreateInput = {
   id?: string
   movementId: string
   tipo: $Enums.MovementType
+  motivo?: $Enums.MovementReason | null
   concepto: $Enums.MovementConcept
   adjustmentDirection?: $Enums.AdjustmentDirection | null
   valor: runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoAnteriorConcepto: runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoNuevoConcepto: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
+  exclusion?: Prisma.CaseConceptExclusionUncheckedCreateNestedOneWithoutDetailInput
 }
 
 export type MovementDetailUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tipo?: Prisma.EnumMovementTypeFieldUpdateOperationsInput | $Enums.MovementType
+  motivo?: Prisma.NullableEnumMovementReasonFieldUpdateOperationsInput | $Enums.MovementReason | null
   concepto?: Prisma.EnumMovementConceptFieldUpdateOperationsInput | $Enums.MovementConcept
   adjustmentDirection?: Prisma.NullableEnumAdjustmentDirectionFieldUpdateOperationsInput | $Enums.AdjustmentDirection | null
   valor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -354,24 +374,28 @@ export type MovementDetailUpdateInput = {
   saldoNuevoConcepto?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movement?: Prisma.MovementUpdateOneRequiredWithoutDetailsNestedInput
+  exclusion?: Prisma.CaseConceptExclusionUpdateOneWithoutDetailNestedInput
 }
 
 export type MovementDetailUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   movementId?: Prisma.StringFieldUpdateOperationsInput | string
   tipo?: Prisma.EnumMovementTypeFieldUpdateOperationsInput | $Enums.MovementType
+  motivo?: Prisma.NullableEnumMovementReasonFieldUpdateOperationsInput | $Enums.MovementReason | null
   concepto?: Prisma.EnumMovementConceptFieldUpdateOperationsInput | $Enums.MovementConcept
   adjustmentDirection?: Prisma.NullableEnumAdjustmentDirectionFieldUpdateOperationsInput | $Enums.AdjustmentDirection | null
   valor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoAnteriorConcepto?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoNuevoConcepto?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  exclusion?: Prisma.CaseConceptExclusionUncheckedUpdateOneWithoutDetailNestedInput
 }
 
 export type MovementDetailCreateManyInput = {
   id?: string
   movementId: string
   tipo: $Enums.MovementType
+  motivo?: $Enums.MovementReason | null
   concepto: $Enums.MovementConcept
   adjustmentDirection?: $Enums.AdjustmentDirection | null
   valor: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -383,6 +407,7 @@ export type MovementDetailCreateManyInput = {
 export type MovementDetailUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tipo?: Prisma.EnumMovementTypeFieldUpdateOperationsInput | $Enums.MovementType
+  motivo?: Prisma.NullableEnumMovementReasonFieldUpdateOperationsInput | $Enums.MovementReason | null
   concepto?: Prisma.EnumMovementConceptFieldUpdateOperationsInput | $Enums.MovementConcept
   adjustmentDirection?: Prisma.NullableEnumAdjustmentDirectionFieldUpdateOperationsInput | $Enums.AdjustmentDirection | null
   valor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -395,6 +420,7 @@ export type MovementDetailUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   movementId?: Prisma.StringFieldUpdateOperationsInput | string
   tipo?: Prisma.EnumMovementTypeFieldUpdateOperationsInput | $Enums.MovementType
+  motivo?: Prisma.NullableEnumMovementReasonFieldUpdateOperationsInput | $Enums.MovementReason | null
   concepto?: Prisma.EnumMovementConceptFieldUpdateOperationsInput | $Enums.MovementConcept
   adjustmentDirection?: Prisma.NullableEnumAdjustmentDirectionFieldUpdateOperationsInput | $Enums.AdjustmentDirection | null
   valor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -417,6 +443,7 @@ export type MovementDetailCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   movementId?: Prisma.SortOrder
   tipo?: Prisma.SortOrder
+  motivo?: Prisma.SortOrder
   concepto?: Prisma.SortOrder
   adjustmentDirection?: Prisma.SortOrder
   valor?: Prisma.SortOrder
@@ -435,6 +462,7 @@ export type MovementDetailMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   movementId?: Prisma.SortOrder
   tipo?: Prisma.SortOrder
+  motivo?: Prisma.SortOrder
   concepto?: Prisma.SortOrder
   adjustmentDirection?: Prisma.SortOrder
   valor?: Prisma.SortOrder
@@ -447,6 +475,7 @@ export type MovementDetailMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   movementId?: Prisma.SortOrder
   tipo?: Prisma.SortOrder
+  motivo?: Prisma.SortOrder
   concepto?: Prisma.SortOrder
   adjustmentDirection?: Prisma.SortOrder
   valor?: Prisma.SortOrder
@@ -459,6 +488,11 @@ export type MovementDetailSumOrderByAggregateInput = {
   valor?: Prisma.SortOrder
   saldoAnteriorConcepto?: Prisma.SortOrder
   saldoNuevoConcepto?: Prisma.SortOrder
+}
+
+export type MovementDetailScalarRelationFilter = {
+  is?: Prisma.MovementDetailWhereInput
+  isNot?: Prisma.MovementDetailWhereInput
 }
 
 export type MovementDetailCreateNestedManyWithoutMovementInput = {
@@ -507,6 +541,10 @@ export type EnumMovementTypeFieldUpdateOperationsInput = {
   set?: $Enums.MovementType
 }
 
+export type NullableEnumMovementReasonFieldUpdateOperationsInput = {
+  set?: $Enums.MovementReason | null
+}
+
 export type EnumMovementConceptFieldUpdateOperationsInput = {
   set?: $Enums.MovementConcept
 }
@@ -515,26 +553,44 @@ export type NullableEnumAdjustmentDirectionFieldUpdateOperationsInput = {
   set?: $Enums.AdjustmentDirection | null
 }
 
+export type MovementDetailCreateNestedOneWithoutExclusionInput = {
+  create?: Prisma.XOR<Prisma.MovementDetailCreateWithoutExclusionInput, Prisma.MovementDetailUncheckedCreateWithoutExclusionInput>
+  connectOrCreate?: Prisma.MovementDetailCreateOrConnectWithoutExclusionInput
+  connect?: Prisma.MovementDetailWhereUniqueInput
+}
+
+export type MovementDetailUpdateOneRequiredWithoutExclusionNestedInput = {
+  create?: Prisma.XOR<Prisma.MovementDetailCreateWithoutExclusionInput, Prisma.MovementDetailUncheckedCreateWithoutExclusionInput>
+  connectOrCreate?: Prisma.MovementDetailCreateOrConnectWithoutExclusionInput
+  upsert?: Prisma.MovementDetailUpsertWithoutExclusionInput
+  connect?: Prisma.MovementDetailWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MovementDetailUpdateToOneWithWhereWithoutExclusionInput, Prisma.MovementDetailUpdateWithoutExclusionInput>, Prisma.MovementDetailUncheckedUpdateWithoutExclusionInput>
+}
+
 export type MovementDetailCreateWithoutMovementInput = {
   id?: string
   tipo: $Enums.MovementType
+  motivo?: $Enums.MovementReason | null
   concepto: $Enums.MovementConcept
   adjustmentDirection?: $Enums.AdjustmentDirection | null
   valor: runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoAnteriorConcepto: runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoNuevoConcepto: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
+  exclusion?: Prisma.CaseConceptExclusionCreateNestedOneWithoutDetailInput
 }
 
 export type MovementDetailUncheckedCreateWithoutMovementInput = {
   id?: string
   tipo: $Enums.MovementType
+  motivo?: $Enums.MovementReason | null
   concepto: $Enums.MovementConcept
   adjustmentDirection?: $Enums.AdjustmentDirection | null
   valor: runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoAnteriorConcepto: runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoNuevoConcepto: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
+  exclusion?: Prisma.CaseConceptExclusionUncheckedCreateNestedOneWithoutDetailInput
 }
 
 export type MovementDetailCreateOrConnectWithoutMovementInput = {
@@ -570,6 +626,7 @@ export type MovementDetailScalarWhereInput = {
   id?: Prisma.StringFilter<"MovementDetail"> | string
   movementId?: Prisma.StringFilter<"MovementDetail"> | string
   tipo?: Prisma.EnumMovementTypeFilter<"MovementDetail"> | $Enums.MovementType
+  motivo?: Prisma.EnumMovementReasonNullableFilter<"MovementDetail"> | $Enums.MovementReason | null
   concepto?: Prisma.EnumMovementConceptFilter<"MovementDetail"> | $Enums.MovementConcept
   adjustmentDirection?: Prisma.EnumAdjustmentDirectionNullableFilter<"MovementDetail"> | $Enums.AdjustmentDirection | null
   valor?: Prisma.DecimalFilter<"MovementDetail"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -578,9 +635,78 @@ export type MovementDetailScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"MovementDetail"> | Date | string
 }
 
+export type MovementDetailCreateWithoutExclusionInput = {
+  id?: string
+  tipo: $Enums.MovementType
+  motivo?: $Enums.MovementReason | null
+  concepto: $Enums.MovementConcept
+  adjustmentDirection?: $Enums.AdjustmentDirection | null
+  valor: runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoAnteriorConcepto: runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoNuevoConcepto: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  movement: Prisma.MovementCreateNestedOneWithoutDetailsInput
+}
+
+export type MovementDetailUncheckedCreateWithoutExclusionInput = {
+  id?: string
+  movementId: string
+  tipo: $Enums.MovementType
+  motivo?: $Enums.MovementReason | null
+  concepto: $Enums.MovementConcept
+  adjustmentDirection?: $Enums.AdjustmentDirection | null
+  valor: runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoAnteriorConcepto: runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoNuevoConcepto: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+}
+
+export type MovementDetailCreateOrConnectWithoutExclusionInput = {
+  where: Prisma.MovementDetailWhereUniqueInput
+  create: Prisma.XOR<Prisma.MovementDetailCreateWithoutExclusionInput, Prisma.MovementDetailUncheckedCreateWithoutExclusionInput>
+}
+
+export type MovementDetailUpsertWithoutExclusionInput = {
+  update: Prisma.XOR<Prisma.MovementDetailUpdateWithoutExclusionInput, Prisma.MovementDetailUncheckedUpdateWithoutExclusionInput>
+  create: Prisma.XOR<Prisma.MovementDetailCreateWithoutExclusionInput, Prisma.MovementDetailUncheckedCreateWithoutExclusionInput>
+  where?: Prisma.MovementDetailWhereInput
+}
+
+export type MovementDetailUpdateToOneWithWhereWithoutExclusionInput = {
+  where?: Prisma.MovementDetailWhereInput
+  data: Prisma.XOR<Prisma.MovementDetailUpdateWithoutExclusionInput, Prisma.MovementDetailUncheckedUpdateWithoutExclusionInput>
+}
+
+export type MovementDetailUpdateWithoutExclusionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tipo?: Prisma.EnumMovementTypeFieldUpdateOperationsInput | $Enums.MovementType
+  motivo?: Prisma.NullableEnumMovementReasonFieldUpdateOperationsInput | $Enums.MovementReason | null
+  concepto?: Prisma.EnumMovementConceptFieldUpdateOperationsInput | $Enums.MovementConcept
+  adjustmentDirection?: Prisma.NullableEnumAdjustmentDirectionFieldUpdateOperationsInput | $Enums.AdjustmentDirection | null
+  valor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoAnteriorConcepto?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoNuevoConcepto?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  movement?: Prisma.MovementUpdateOneRequiredWithoutDetailsNestedInput
+}
+
+export type MovementDetailUncheckedUpdateWithoutExclusionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  movementId?: Prisma.StringFieldUpdateOperationsInput | string
+  tipo?: Prisma.EnumMovementTypeFieldUpdateOperationsInput | $Enums.MovementType
+  motivo?: Prisma.NullableEnumMovementReasonFieldUpdateOperationsInput | $Enums.MovementReason | null
+  concepto?: Prisma.EnumMovementConceptFieldUpdateOperationsInput | $Enums.MovementConcept
+  adjustmentDirection?: Prisma.NullableEnumAdjustmentDirectionFieldUpdateOperationsInput | $Enums.AdjustmentDirection | null
+  valor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoAnteriorConcepto?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoNuevoConcepto?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type MovementDetailCreateManyMovementInput = {
   id?: string
   tipo: $Enums.MovementType
+  motivo?: $Enums.MovementReason | null
   concepto: $Enums.MovementConcept
   adjustmentDirection?: $Enums.AdjustmentDirection | null
   valor: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -592,28 +718,33 @@ export type MovementDetailCreateManyMovementInput = {
 export type MovementDetailUpdateWithoutMovementInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tipo?: Prisma.EnumMovementTypeFieldUpdateOperationsInput | $Enums.MovementType
+  motivo?: Prisma.NullableEnumMovementReasonFieldUpdateOperationsInput | $Enums.MovementReason | null
   concepto?: Prisma.EnumMovementConceptFieldUpdateOperationsInput | $Enums.MovementConcept
   adjustmentDirection?: Prisma.NullableEnumAdjustmentDirectionFieldUpdateOperationsInput | $Enums.AdjustmentDirection | null
   valor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoAnteriorConcepto?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoNuevoConcepto?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  exclusion?: Prisma.CaseConceptExclusionUpdateOneWithoutDetailNestedInput
 }
 
 export type MovementDetailUncheckedUpdateWithoutMovementInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tipo?: Prisma.EnumMovementTypeFieldUpdateOperationsInput | $Enums.MovementType
+  motivo?: Prisma.NullableEnumMovementReasonFieldUpdateOperationsInput | $Enums.MovementReason | null
   concepto?: Prisma.EnumMovementConceptFieldUpdateOperationsInput | $Enums.MovementConcept
   adjustmentDirection?: Prisma.NullableEnumAdjustmentDirectionFieldUpdateOperationsInput | $Enums.AdjustmentDirection | null
   valor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoAnteriorConcepto?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoNuevoConcepto?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  exclusion?: Prisma.CaseConceptExclusionUncheckedUpdateOneWithoutDetailNestedInput
 }
 
 export type MovementDetailUncheckedUpdateManyWithoutMovementInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tipo?: Prisma.EnumMovementTypeFieldUpdateOperationsInput | $Enums.MovementType
+  motivo?: Prisma.NullableEnumMovementReasonFieldUpdateOperationsInput | $Enums.MovementReason | null
   concepto?: Prisma.EnumMovementConceptFieldUpdateOperationsInput | $Enums.MovementConcept
   adjustmentDirection?: Prisma.NullableEnumAdjustmentDirectionFieldUpdateOperationsInput | $Enums.AdjustmentDirection | null
   valor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -628,6 +759,7 @@ export type MovementDetailSelect<ExtArgs extends runtime.Types.Extensions.Intern
   id?: boolean
   movementId?: boolean
   tipo?: boolean
+  motivo?: boolean
   concepto?: boolean
   adjustmentDirection?: boolean
   valor?: boolean
@@ -635,12 +767,14 @@ export type MovementDetailSelect<ExtArgs extends runtime.Types.Extensions.Intern
   saldoNuevoConcepto?: boolean
   createdAt?: boolean
   movement?: boolean | Prisma.MovementDefaultArgs<ExtArgs>
+  exclusion?: boolean | Prisma.MovementDetail$exclusionArgs<ExtArgs>
 }, ExtArgs["result"]["movementDetail"]>
 
 export type MovementDetailSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   movementId?: boolean
   tipo?: boolean
+  motivo?: boolean
   concepto?: boolean
   adjustmentDirection?: boolean
   valor?: boolean
@@ -654,6 +788,7 @@ export type MovementDetailSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   id?: boolean
   movementId?: boolean
   tipo?: boolean
+  motivo?: boolean
   concepto?: boolean
   adjustmentDirection?: boolean
   valor?: boolean
@@ -667,6 +802,7 @@ export type MovementDetailSelectScalar = {
   id?: boolean
   movementId?: boolean
   tipo?: boolean
+  motivo?: boolean
   concepto?: boolean
   adjustmentDirection?: boolean
   valor?: boolean
@@ -675,9 +811,10 @@ export type MovementDetailSelectScalar = {
   createdAt?: boolean
 }
 
-export type MovementDetailOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "movementId" | "tipo" | "concepto" | "adjustmentDirection" | "valor" | "saldoAnteriorConcepto" | "saldoNuevoConcepto" | "createdAt", ExtArgs["result"]["movementDetail"]>
+export type MovementDetailOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "movementId" | "tipo" | "motivo" | "concepto" | "adjustmentDirection" | "valor" | "saldoAnteriorConcepto" | "saldoNuevoConcepto" | "createdAt", ExtArgs["result"]["movementDetail"]>
 export type MovementDetailInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   movement?: boolean | Prisma.MovementDefaultArgs<ExtArgs>
+  exclusion?: boolean | Prisma.MovementDetail$exclusionArgs<ExtArgs>
 }
 export type MovementDetailIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   movement?: boolean | Prisma.MovementDefaultArgs<ExtArgs>
@@ -690,11 +827,13 @@ export type $MovementDetailPayload<ExtArgs extends runtime.Types.Extensions.Inte
   name: "MovementDetail"
   objects: {
     movement: Prisma.$MovementPayload<ExtArgs>
+    exclusion: Prisma.$CaseConceptExclusionPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     movementId: string
     tipo: $Enums.MovementType
+    motivo: $Enums.MovementReason | null
     concepto: $Enums.MovementConcept
     adjustmentDirection: $Enums.AdjustmentDirection | null
     valor: runtime.Decimal
@@ -1096,6 +1235,7 @@ readonly fields: MovementDetailFieldRefs;
 export interface Prisma__MovementDetailClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   movement<T extends Prisma.MovementDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MovementDefaultArgs<ExtArgs>>): Prisma.Prisma__MovementClient<runtime.Types.Result.GetResult<Prisma.$MovementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  exclusion<T extends Prisma.MovementDetail$exclusionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MovementDetail$exclusionArgs<ExtArgs>>): Prisma.Prisma__CaseConceptExclusionClient<runtime.Types.Result.GetResult<Prisma.$CaseConceptExclusionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1128,6 +1268,7 @@ export interface MovementDetailFieldRefs {
   readonly id: Prisma.FieldRef<"MovementDetail", 'String'>
   readonly movementId: Prisma.FieldRef<"MovementDetail", 'String'>
   readonly tipo: Prisma.FieldRef<"MovementDetail", 'MovementType'>
+  readonly motivo: Prisma.FieldRef<"MovementDetail", 'MovementReason'>
   readonly concepto: Prisma.FieldRef<"MovementDetail", 'MovementConcept'>
   readonly adjustmentDirection: Prisma.FieldRef<"MovementDetail", 'AdjustmentDirection'>
   readonly valor: Prisma.FieldRef<"MovementDetail", 'Decimal'>
@@ -1532,6 +1673,25 @@ export type MovementDetailDeleteManyArgs<ExtArgs extends runtime.Types.Extension
    * Limit how many MovementDetails to delete.
    */
   limit?: number
+}
+
+/**
+ * MovementDetail.exclusion
+ */
+export type MovementDetail$exclusionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseConceptExclusion
+   */
+  select?: Prisma.CaseConceptExclusionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseConceptExclusion
+   */
+  omit?: Prisma.CaseConceptExclusionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseConceptExclusionInclude<ExtArgs> | null
+  where?: Prisma.CaseConceptExclusionWhereInput
 }
 
 /**
